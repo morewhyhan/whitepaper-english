@@ -1,0 +1,82 @@
+
+# Understand the code before changing it
+
+Editing code you don't understand is how subtle regressions ship, and that's as true for the agent as for you. Agents usually fail in one of two ways. They misread what you want, or they don't have the context to do the work right. [What goes in a prompt](./02-poteto-mode.md#what-goes-in-a-prompt) handles the first. This page handles the second.
+
+pstack gives you four ways in. `/how` explains what the code does now. `/why` digs up the reasons it's shaped that way. `/teach` blends both into one explanation. `/recall` rebuilds your own recent context on a topic. Each one also makes the agent explain itself in words you can check. That's how you supervise an agent that may know the code better than you do.
+
+![A detective studies a machine blueprint with a magnifying glass while robots fetch case files; the evidence board behind her links clues under /how and /why.](./images/understanding.jpg)
+
+## Start with a read-only investigation
+
+When the cause is unclear, ask for findings, not a fix:
+
+```text
+/poteto-mode investigate why background jobs time out every few hours. give me what we know, what data you used, and your best hypotheses. don't change any code yet.
+```
+
+"don't change any code yet" routes this to the [Investigation playbook](../../skills/poteto-mode/playbooks/investigation.md). It runs `/how`, adds `/why` for questions about motivation, and returns a cited explanation. For a choice between options, it returns a recommendation with a trade-offs table. Asking "what data you used" makes the agent separate its evidence from its guesses. When findings point at a fix, continue the matching unfinished Plan if the result remains the same. Create a new Plan only for a distinct independently deliverable result.
+
+Feature maintenance follows the [Feature README](../../../../docs/features/README.md): use how and experience-first to check the original promise. Historical why investigation applies only when a disputed reason affects it. Design maintenance follows the [Design README](../../../../docs/designs/README.md): use how and prove-it-works to recheck actual facts.
+
+## Trace behavior with `/how`
+
+```text
+/how do we dedupe notifications? is there an n+1 when we look up subscribers?
+```
+
+Ask the question you actually have. [`/how`](../../skills/how/SKILL.md) reads the code and explains the runtime flow, key types, and non-obvious parts. For a large subsystem, available and authorized read-only explorers can divide independent areas. A narrow question needs only relevant reading and explanation.
+
+## Dig up history with `/why`
+
+```text
+/why was the retry limit set to five? does the reason still hold?
+```
+
+[`/why`](../../skills/why/SKILL.md) works like a detective on a cold case. It starts from the original question, native decisions and relevant history. It expands into an authorized source only when a consequential unanswered question or contradiction requires it; available MCP categories do not require a full sweep. The report cites everything, separates direct evidence from inference, and says "appears to" when the record is thin. Report an actual search that returned nothing without claiming that no rationale exists elsewhere.
+
+The two compose naturally. `do why first then how` is a perfectly good prompt when you suspect the history explains the mess.
+
+## Actually understand it with `/teach`
+
+```text
+/teach me how this PR changes retries. convince me it fixes the cause and not the symptom.
+```
+
+[`/teach`](../../skills/teach/SKILL.md) is for when a summary isn't enough. It traces mechanics with how, adds why when reasons matter, and combines the findings into a plain explanation. Diagrams help when they make a connection clearer; a fixed diagram series is not required. The "convince me" framing is worth stealing. It turns the explanation into an argument you can poke at instead of a tour.
+
+It works on the agent's own choices too:
+
+```text
+/teach me why you implemented it this way and not with a queue. what did you trade off, and why?
+```
+
+Teaching helps the agent as much as you. An agent that has to explain its work must read the code and back each claim with evidence, instead of stating it confidently and moving on.
+
+## Rebuild your own context with `/recall`
+
+```text
+/recall catch me up on the export work from last week
+```
+
+[`/recall`](../../skills/recall/SKILL.md) starts with the supplied capsule, existing Plan, Feature, Design and actual evidence, then reads authorized relevant history only for missing context and hands back a brief on where things stand and what's next. Your old chats hold context that a fresh agent lacks, so start new work on an old topic by loading it first, then hand over the new input:
+
+```text
+/recall my work on the virtualized list from yesterday, then read this bug report.
+```
+
+If you want to resume one specific chat, that's the Session pickup playbook below, not `/recall`.
+
+## Take over prior work with Session pickup
+
+When another agent (or you, last week) left a branch mid-flight:
+
+```text
+/poteto-mode take over this branch. read the existing Plan, its decision records, and run evidence, figure out what's done, and continue from there. don't redo finished work.
+```
+
+The [Session pickup playbook](../../skills/poteto-mode/playbooks/session-pickup.md) reads the existing Feature, Plan tasks, actual Design, and evidence. The goal and native records take precedence over a previous agent's self-report. It reconstructs the branch state and decisions, names the resume point, and verifies inherited claims against the original goal instead of re-deriving everything from scratch.
+
+**Pitfall:** don't skip this page's skills because "the agent will read the code anyway." An agent that starts editing without a traced model tends to fix the symptom at the first plausible spot. `/how` first is cheaper than the second bug.
+
+Next: [Design the change](./04-design.md).

@@ -1,0 +1,436 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-border: var(--scheme-border);
+  --color-input: var(--input);
+  --color-ring: var(--scheme-primary);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--scheme-primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--scheme-card);
+  --color-muted-foreground: var(--scheme-muted);
+  --color-accent: var(--scheme-card);
+  --color-accent-foreground: var(--scheme-muted);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--scheme-card);
+  --color-card-foreground: var(--scheme-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: 1.5rem;
+
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-scale-in: scaleIn 0.3s ease-out forwards;
+  --animate-slide-up: slideUp 0.4s ease-out forwards;
+  --animate-slide-down: slideDown 0.4s ease-out forwards;
+  --animate-shimmer: shimmer 2s infinite;
+  --animate-pulse-subtle: pulseSubtle 2s ease-in-out infinite;
+  --animate-bounce-subtle: bounceSubtle 0.6s ease-out;
+
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce-in: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --blur-xs: 2px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulseSubtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes bounceSubtle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-25%);
+  }
+}
+
+@layer utilities {
+  .container {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: 2rem;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      max-width: 640px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      max-width: 768px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      max-width: 1024px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container {
+      max-width: 1280px;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .container {
+      max-width: 1400px;
+    }
+  }
+}
+
+/* ========== 基础CSS变量 ========== */
+@layer base {
+  :root {
+    --radius: 0.5rem;
+
+    /* 默认使用高对比度的工作台蓝灰主题 */
+    --scheme-primary: #315ee8;
+    --scheme-primary-rgb: 49, 94, 232;
+    --scheme-secondary: #e8edff;
+    --scheme-background: #f6f8fc;
+    --scheme-foreground: #172235;
+    --scheme-muted: #64748b;
+    --scheme-border: #e2e8f0;
+    --scheme-card: #ffffff;
+    --scheme-card-hover: #f4f7ff;
+    --scheme-accent: #315ee8;
+    --scheme-accent-hover: #244dcc;
+
+    /* Tailwind 兼容变量 */
+    --background: var(--scheme-background);
+    --foreground: var(--scheme-foreground);
+    --card: var(--scheme-card);
+    --card-foreground: var(--scheme-foreground);
+    --popover: var(--scheme-card);
+    --popover-foreground: var(--scheme-foreground);
+    --primary: var(--scheme-primary);
+    --primary-foreground: #ffffff;
+    --secondary: var(--scheme-secondary);
+    --secondary-foreground: #26324a;
+    --muted: var(--scheme-muted);
+    --muted-foreground: var(--scheme-muted);
+    --accent: var(--scheme-accent);
+    --accent-foreground: #ffffff;
+    --destructive: #d92d3a;
+    --destructive-foreground: #ffffff;
+    --border: var(--scheme-border);
+    --input: var(--scheme-border);
+    --ring: var(--scheme-primary);
+  }
+
+  * {
+    border-color: var(--scheme-border);
+  }
+
+  body {
+    background-color: var(--scheme-background);
+    color: var(--scheme-foreground);
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    transition: none !important;
+  }
+}
+
+/* 主题强调色只用于少量重点，页面背景与正文保持中性、高对比。 */
+.scheme-studio-blue,
+.scheme-studio-blue-dark {
+  --scheme-primary: #315ee8;
+  --scheme-primary-rgb: 49, 94, 232;
+  --scheme-accent: #315ee8;
+  --scheme-accent-hover: #244dcc;
+}
+.scheme-studio-teal,
+.scheme-studio-teal-dark {
+  --scheme-primary: #087e78;
+  --scheme-primary-rgb: 8, 126, 120;
+  --scheme-accent: #087e78;
+  --scheme-accent-hover: #06645f;
+}
+.scheme-studio-violet,
+.scheme-studio-violet-dark {
+  --scheme-primary: #7047c8;
+  --scheme-primary-rgb: 112, 71, 200;
+  --scheme-accent: #7047c8;
+  --scheme-accent-hover: #5936a6;
+}
+.scheme-studio-coral,
+.scheme-studio-coral-dark {
+  --scheme-primary: #c84d4d;
+  --scheme-primary-rgb: 200, 77, 77;
+  --scheme-accent: #c84d4d;
+  --scheme-accent-hover: #a93838;
+}
+.scheme-studio-amber,
+.scheme-studio-amber-dark {
+  --scheme-primary: #a66308;
+  --scheme-primary-rgb: 166, 99, 8;
+  --scheme-accent: #a66308;
+  --scheme-accent-hover: #845006;
+}
+.scheme-studio-slate,
+.scheme-studio-slate-dark {
+  --scheme-primary: #475569;
+  --scheme-primary-rgb: 71, 85, 105;
+  --scheme-accent: #475569;
+  --scheme-accent-hover: #334155;
+}
+
+.scheme-studio-blue {
+  --scheme-secondary: #e8edff;
+  --scheme-background: #f6f8fc;
+  --scheme-foreground: #172235;
+  --scheme-muted: #64748b;
+  --scheme-border: #e2e8f0;
+  --scheme-card: #fff;
+  --scheme-card-hover: #f4f7ff;
+}
+.scheme-studio-teal {
+  --scheme-secondary: #e4f3f1;
+  --scheme-background: #f5faf9;
+  --scheme-foreground: #172b2a;
+  --scheme-muted: #617876;
+  --scheme-border: #dce9e7;
+  --scheme-card: #fff;
+  --scheme-card-hover: #f1f8f7;
+}
+.scheme-studio-violet {
+  --scheme-secondary: #eee8fb;
+  --scheme-background: #f8f7fc;
+  --scheme-foreground: #251d36;
+  --scheme-muted: #70677f;
+  --scheme-border: #e7e2ef;
+  --scheme-card: #fff;
+  --scheme-card-hover: #f6f3fc;
+}
+.scheme-studio-coral {
+  --scheme-secondary: #f9e9e7;
+  --scheme-background: #fbf7f6;
+  --scheme-foreground: #30201f;
+  --scheme-muted: #7e6967;
+  --scheme-border: #eee2e0;
+  --scheme-card: #fff;
+  --scheme-card-hover: #fbf3f2;
+}
+.scheme-studio-amber {
+  --scheme-secondary: #f6eddf;
+  --scheme-background: #faf8f4;
+  --scheme-foreground: #30281b;
+  --scheme-muted: #796e5b;
+  --scheme-border: #ece5d9;
+  --scheme-card: #fff;
+  --scheme-card-hover: #f9f5ed;
+}
+.scheme-studio-slate {
+  --scheme-secondary: #e8edf2;
+  --scheme-background: #f5f7f9;
+  --scheme-foreground: #202a35;
+  --scheme-muted: #667482;
+  --scheme-border: #e0e6eb;
+  --scheme-card: #fff;
+  --scheme-card-hover: #f0f3f6;
+}
+
+.scheme-studio-blue-dark {
+  --scheme-secondary: #29385f;
+  --scheme-background: #111827;
+  --scheme-foreground: #f1f5f9;
+  --scheme-muted: #a5b2c5;
+  --scheme-border: #2b3748;
+  --scheme-card: #182334;
+  --scheme-card-hover: #202e42;
+}
+.scheme-studio-teal-dark {
+  --scheme-secondary: #234745;
+  --scheme-background: #101e1d;
+  --scheme-foreground: #edf7f6;
+  --scheme-muted: #a0bbb8;
+  --scheme-border: #2a403e;
+  --scheme-card: #172a28;
+  --scheme-card-hover: #203734;
+}
+.scheme-studio-violet-dark {
+  --scheme-secondary: #3a2e58;
+  --scheme-background: #191523;
+  --scheme-foreground: #f5f1fc;
+  --scheme-muted: #b5a9cb;
+  --scheme-border: #352d45;
+  --scheme-card: #221b30;
+  --scheme-card-hover: #2d2440;
+}
+.scheme-studio-coral-dark {
+  --scheme-secondary: #553333;
+  --scheme-background: #211717;
+  --scheme-foreground: #fcf1f0;
+  --scheme-muted: #c4aaa7;
+  --scheme-border: #47302f;
+  --scheme-card: #2d1e1d;
+  --scheme-card-hover: #3a2523;
+}
+.scheme-studio-amber-dark {
+  --scheme-secondary: #4b3a23;
+  --scheme-background: #201b14;
+  --scheme-foreground: #f9f4e9;
+  --scheme-muted: #c2b59d;
+  --scheme-border: #403626;
+  --scheme-card: #2c2419;
+  --scheme-card-hover: #392e1e;
+}
+.scheme-studio-slate-dark {
+  --scheme-secondary: #364454;
+  --scheme-background: #171c22;
+  --scheme-foreground: #f1f4f7;
+  --scheme-muted: #aab6c2;
+  --scheme-border: #303a45;
+  --scheme-card: #202832;
+  --scheme-card-hover: #2b3743;
+}
+
+/* ========== 滚动条样式 ========== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scheme-muted);
+  opacity: 0.3;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scheme-muted);
+  opacity: 0.5;
+}
+
+/* ========== 选中文本样式 ========== */
+::selection {
+  background-color: var(--scheme-primary);
+  color: var(--scheme-background);
+}
+
+/* ========== 焦点样式 ========== */
+:focus-visible {
+  outline: 2px solid var(--scheme-primary);
+  outline-offset: 2px;
+}
+
+/* ========== 辅助类 ========== */
+.text-primary {
+  color: var(--scheme-primary);
+}
+
+.bg-primary {
+  background-color: var(--scheme-primary);
+}
+
+.border-primary {
+  border-color: var(--scheme-primary);
+}
+
+.bg-card {
+  background-color: var(--scheme-card);
+}
+
+.bg-muted {
+  background-color: var(--scheme-card);
+}
+
+.text-muted-foreground {
+  color: var(--scheme-muted);
+}
+
+.hover\:bg-card:hover {
+  background-color: var(--scheme-card-hover);
+}
+
+.hover\:text-primary:hover {
+  color: var(--scheme-accent-hover);
+}

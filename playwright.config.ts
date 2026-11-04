@@ -1,0 +1,66 @@
+import { defineConfig, devices } from '@playwright/test'
+
+const e2ePort = Number.parseInt(process.env.E2E_PORT ?? '3100', 10)
+
+if (!Number.isInteger(e2ePort) || e2ePort < 1 || e2ePort > 65_535) {
+  throw new Error('E2E_PORT must be a valid TCP port.')
+}
+
+const baseURL = `http://127.0.0.1:${e2ePort}`
+const isCI = process.env.CI === 'true'
+const executablePath = process.env.PLAYWRIGHT_EXECUTABLE_PATH
+const productionServer = process.env.E2E_SERVER_MODE === 'production'
+const tddReportPath = process.env.IGNITE_TDD_REPORT_PATH
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: false,
+  forbidOnly: true,
+  retries: isCI ? 2 : 0,
+  workers: 1,
+  globalSetup: './tests/e2e/global-setup.ts',
+  reporter: tddReportPath
+    ? [
+        ['json', { outputFile: tddReportPath }],
+        ['./scripts/testing/playwright-acceptance-reporter.mjs'],
+      ]
+    : isCI
+      ? [
+          ['line'],
+          ['html', { open: 'never' }],
+          ['./scripts/testing/playwright-acceptance-reporter.mjs'],
+        ]
+      : [
+          ['list'],
+          ['html', { open: 'never' }],
+          ['./scripts/testing/playwright-acceptance-reporter.mjs'],
+        ],
+  use: {
+    baseURL,
+    launchOptions: executablePath ? { executablePath } : undefined,
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
+  },
+  projects: [
+    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] } },
+  ],
+  webServer: {
+    command: productionServer
+      ? `corepack pnpm exec next start --hostname 127.0.0.1 --port ${e2ePort}`
+      : `corepack pnpm exec next dev --hostname 127.0.0.1 --port ${e2ePort}`,
+    env: {
+      ...(process.platform === 'win32' ? { RUST_LOG: 'info' } : {}),
+      APP_ENV: 'test',
+      APP_URL: baseURL,
+      E2E_SERVER_MODE: productionServer ? 'production' : 'development',
+      BETTER_AUTH_SECRET:
+        process.env.BETTER_AUTH_SECRET ?? 'playwright-only-secret-with-at-least-32-characters',
+      DATABASE_URL: process.env.E2E_DATABASE_URL ?? 'file:./playwright.db',
+    },
+    stdout: 'pipe',
+    reuseExistingServer: false,
+    timeout: 120_000,
+    url: `${baseURL}/api/health`,
+  },
+})

@@ -1,0 +1,84 @@
+
+# Build the change and clean the diff
+
+The build playbooks share one discipline. Say what you observed, let the playbook demand the evidence. This page shows what to put in the prompt for each common build task, then the cleanup habit that keeps diffs reviewable.
+
+## Prompt each build playbook with what you know
+
+A bug prompt states the symptom and asks for a reproduction first:
+
+```text
+/poteto-mode this command emits two records after a retry. repro first, then fix and verify.
+```
+
+A feature prompt states the behavior and what must not change:
+
+```text
+/poteto-mode add a --json flag. text output stays byte-identical. verify both forms.
+```
+
+A refactoring prompt pins behavior before structure moves:
+
+```text
+/poteto-mode move parsing into one module, zero behavior change. record the current output first and prove it's unchanged after.
+```
+
+A perf prompt states the measurement, not a vibe:
+
+```text
+/poteto-mode startup takes 1.8s on this fixture. trace it, fix the measured cause, show me before and after.
+```
+
+Each of these routes to its playbook ([Bug fix](../../skills/poteto-mode/playbooks/bug-fix.md), [Feature](../../skills/poteto-mode/playbooks/feature.md), [Refactoring](../../skills/poteto-mode/playbooks/refactoring.md), [Perf issue](../../skills/poteto-mode/playbooks/perf-issue.md)), and the playbook supplies the steps you didn't type: reproduce before fixing, name the data shape before implementing, pin behavior before restructuring, profile before optimizing.
+
+For sustained improvement of one number, there's the [Hillclimb playbook](../../skills/poteto-mode/playbooks/hillclimb.md). Give it the metric, a target, and a floor on attempts, and it loops one hypothesis at a time with a frozen measurement harness. It keeps wins and reverts everything else.
+
+Both perf playbooks run [`/benchmark-checklist`](../../skills/benchmark-checklist/SKILL.md) on their numbers. Perf issue vets its baseline and every number after it, and Hillclimb vets its harness before freezing it. [Verify and ship](./06-verify-and-ship.md#vet-a-measured-number-with-benchmark-checklist) shows when to type it yourself.
+
+Sometimes you want the cause before any fix. For a live symptom, such as a leak, an idle CPU spin, or a visual glitch, the [Runtime forensics playbook](../../skills/poteto-mode/playbooks/runtime-forensics.md) instruments the running process. For a profile you already captured, the [Trace forensics playbook](../../skills/poteto-mode/playbooks/trace-forensics.md) reads the artifact and maps the hot frame to source. Both return a diagnosis, not a fix:
+
+```text
+/poteto-mode here's a cpuprofile from the slow startup. tell me where the time goes and which source lines own it. no fix yet.
+```
+
+## Write the failing test first with `/tdd`
+
+For a bug, continue the matching Plan and use its behavioral AC. A short explicit TDD prompt can be:
+
+```text
+/tdd implement
+```
+
+In context, that is enough. Test and evidence maintenance enters through the [test-case README](../../../../docs/others/test-cases/README.md) and [evidence README](../../../../docs/others/evidence/README.md), using tdd, test-behavior-not-implementation and prove-it-works by default. [`/tdd`](../../skills/tdd/SKILL.md) writes the smallest test that fails for the intended reason, then the fix, then reruns the test. Ignite requires a native behavioral red record for a new Plan before implementation. An expensive path or environmental failure does not permit skipping it or inventing evidence. If the user explicitly postpones tests, retain pending verification and do not claim done. UI, database, and external checks supplement the appropriate unit checks.
+
+## Load the TypeScript rules by name
+
+[`typescript-best-practices`](../../skills/typescript-best-practices/SKILL.md) turns the type-system principles into concrete rules: discriminated unions, `unknown` at boundaries, exhaustive variants, schema-derived types. Its description requires use when reading or editing `.ts` or `.tsx` files. It need not be named in every user prompt.
+
+## Clean before you commit
+
+The [Opening a PR playbook](../../skills/poteto-mode/playbooks/opening-a-pr.md) reviews unnecessary code before commits and applies [`/unslop`](../../skills/unslop/SKILL.md) to the PR description and commit bodies. `/deslop` ships in the `cursor-team-kit` plugin, not in pstack. If you don't have it, ask for the same outcome in plain words: remove narrating comments, unsupported guards, dead compatibility paths, and unrelated edits.
+
+For prose, `/unslop` takes a target and any extra rules you have:
+
+```text
+/unslop the readme changes, no emdashes
+```
+
+You'll develop your own shorthand. The skill reads intent fine from terse prompts like `unslop that, tighten it`.
+
+## Strip the comments with `/no-comments`
+
+A scoped comment pass can reveal obsolete workarounds or missing intent. Review directly for a small change. Use fresh independent eyes when useful and authorized:
+
+```text
+/no-comments the diff
+```
+
+[`/no-comments`](../../skills/no-comments/SKILL.md) uses [Comment Sicko](../../agents/comment-sicko.md) as a scoped review lens, optionally through an authorized read-only reviewer with a short keep list: license headers, doc comments on a public API, links that explain what code can't, behavior forced by an external dependency you can't reshape. Review each finding and preserve comments that explain a real constraint or intent. Do not remove useful information only to satisfy a style preference. An unresolved constraint remains visible until code or retained documentation communicates its meaning. The comment comes back as a refactor flag, and `/no-comments` fixes the flags it accepts at the root cause. When a comment claims a constraint, "do not remove", the skill offers to encode the claim as a type, test, or lint. Remove a comment only when the resulting code or retained documentation communicates its necessary information.
+
+The division of labor is worth keeping straight. `/deslop` cleans slop out of the code, `/unslop` cleans it out of prose, and no-comments reviews comment information and accepted code problems, with independent review when useful and authorized.
+
+**Pitfall:** cleanup is not optional polish. A diff with narrating comments and defensive dead weight reads as unfinished to reviewers, and the extra code is where the next bug hides. If the diff feels padded, say `deslop it` before you commit, not after review calls it out.
+
+Next: [Verify and ship](./06-verify-and-ship.md).

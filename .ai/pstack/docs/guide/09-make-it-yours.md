@@ -1,0 +1,89 @@
+
+# Make it yours
+
+poteto-mode is one person's style. The machinery underneath, playbooks, routing, model roles, works just as well wearing yours. This page covers generating a personal mode, capturing lessons from a session, fixing the repo so agents stop repeating mistakes, authoring a focused skill, and checking whether its instructions fit the real work.
+
+Start smaller than you think. You don't need many skills on day one, or even this whole plugin. Prompt plainly, watch where agents fail, and add a skill or a check when the same failure shows up twice.
+
+## Generate your own mode with `/automate-me`
+
+```text
+/automate-me
+```
+
+You don't describe your style, because [`/automate-me`](../../skills/automate-me/SKILL.md) reads it out of your history. It reads authorized relevant transcripts in the active workspace for repeated preferences, in how you like replies, delegation, verification, code, prose, and process, then asks you which patterns are really you. It drafts `.ai/skills/<your-name>-mode/SKILL.md` through the current host's available skill-creator, reviews the text with [`unslop`](../../skills/unslop/SKILL.md), then previews discovery changes using `node scripts/pstack-sync.mjs` and applies them with `--write`. A PR is a separate authorized action.
+
+Run it again whenever your habits drift:
+
+```text
+/automate-me update my mode skill with everything since its last edit
+```
+
+Update mode mines only the history since the skill last changed. It keeps rules you haven't contradicted, revises the ones with new evidence, and adds sections only for genuinely new patterns.
+
+## Capture a session's lessons with `/reflect`
+
+Use reflect when you request a lesson review or a major correction warrants it:
+
+```text
+/reflect that took way too long. capture what we learned so the next run doesn't repeat it.
+```
+
+[`/reflect`](../../skills/reflect/SKILL.md) reviews the authorized task record and proposes lessons that change a future decision. Available, authorized independent reviewers can help a complex review; three reviewers are not a requirement for a simple correction. Keep skill changes within the user's requested scope and existing Plan. One unusual session does not justify a universal rule.
+
+## Fix the environment with `/correct`
+
+When you correct agents for the same mistake again and again, the fix belongs in the repo, not in your next prompt. Rank the options by how well they hold:
+
+1. Make the mistake impossible with architecture or a better data structure.
+2. Block it with types, or with a lint or CI check whose error names the fix.
+3. Catch it with a test.
+4. Write it down as a doc or agent rule. Nothing fails when an agent skips a rule, so this comes last.
+
+Human review isn't on the list. A reviewer who must catch the same mistake on every PR is the problem this fixes. [`/correct`](../../skills/correct/SKILL.md) does the work:
+
+```text
+/correct agents keep calling the database client directly instead of going through the repository layer
+```
+
+It reads recent commits, reverts, review comments, and comments that explain workarounds, then groups the mistakes into classes. A class counts once it has happened twice. It fixes the scoped repeated classes within the matching delivery, at the highest level that works, and proves each new check fails on a real past mistake. Record evidence and enforcement changes in the matching Plan. Put lasting rules in their owning professional standard or directory README and facts in Design; keep AGENTS as the shared entry instead of adding a second rule table. The reply lists each class with its evidence, the level chosen, and why a higher level didn't work.
+
+Run it with no argument and it finds the classes from history on its own. `/reflect` and `/correct` split the work. Standards and README maintenance follow the [Standards README](../../../../docs/standards/README.md) and relevant directory owner, using correct and encode-lessons-in-structure by default. Reflect is the conditional broader lesson review; its findings may belong to documents as well as skills. Pair it with `/architect` when the fix is a new boundary. [Run many projects in parallel](./07-overnight.md#run-many-projects-in-parallel) has a prompt that does both across a whole repo.
+
+## Author a focused skill
+
+When you already know the workflow you want to capture:
+
+```text
+/poteto-mode write a skill for verifying database migrations in this repo
+```
+
+Writing a skill matches the [Authoring or modifying a skill playbook](../../skills/poteto-mode/playbooks/authoring-a-skill.md), which uses the current host's skill-creator, writes canonical content under `.ai/skills/`, and synchronizes platform metadata and links with `node scripts/pstack-sync.mjs --write`. Opening a PR remains subject to authorization. Agent-facing prose has a higher bar than human prose, because an unhelpful sentence becomes an instruction some future agent follows. Let the playbook hold that bar rather than writing a `SKILL.md` freehand.
+
+One special case has its own generator. A skill that must drive your app and prove behavior is a verification skill, so use [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md) and [`/maintain-verification-skill`](../../skills/maintain-verification-skill/SKILL.md) instead. [Verify and ship](./06-verify-and-ship.md#create-a-project-verification-skill) covers both.
+
+## Write docs to a standard with `/technical-writing`
+
+Skills aren't the only prose you ship. For docs, RFCs, readmes, PR descriptions, and commit messages:
+
+```text
+/technical-writing review the readme changes
+```
+
+[`/technical-writing`](../../skills/technical-writing/SKILL.md) applies a layered standard with one goal, prose a tired engineer understands on the first read. It picks the document's mode first (tutorial, how-to, reference, or explanation), then works sentence by sentence: who does what, one thought per sentence, nothing readable two ways. Technical-writing and unslop apply by default to maintained prose. Follow the owning README's structure, then choose the useful writing mode by section; do not create extra documents merely to separate modes.
+
+## Evaluate behavior only when it answers a real question
+
+A thinking method can be reviewed for clear instructions, references, scope, and fit with Ignite without a model experiment. Adoption does not require speed KPIs or repeated candidate comparisons.
+
+Use the [Eval playbook](../../skills/poteto-mode/playbooks/eval.md) only when explicitly requested or when an actual behavior comparison is needed. Define the decision it will inform, a bounded rubric, and permitted side effects. Real task outcomes and accuracy matter more than an arbitrary speed score. Structural checks do not establish model judgment quality.
+
+For an authorized comparison, use neutral variant labels, matched task conditions, and an independent review where available. Read the results and inspect the rubric before accepting the conclusion. Record the decision and evidence in the current Plan instead of a new experiment progress ledger.
+
+## Build a bot UI with `/make-bot-ui`
+
+One situational skill is for Grok Bot users. [`/make-bot-ui`](../../skills/make-bot-ui/SKILL.md) builds a small page whose buttons wake a bot over a webhook routine. For example, you could swipe through a review queue and have each swipe ask the bot to act on that item. A server on your machine holds the webhook's sender key, so the key never reaches the browser or the chat. The skill also covers exposing the page on Tailscale.
+
+**Pitfall:** keep a skill correction within the matching Plan when it belongs to the same delivery goal. Use a separate Plan only for a distinct independently deliverable change. Record what future decision the correction changes.
+
+Next: [Recipes and pitfalls](./10-recipes-and-pitfalls.md).
