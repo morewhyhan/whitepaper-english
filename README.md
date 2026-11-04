@@ -1,7 +1,7 @@
 <div align="center">
-  <h1>Ignite</h1>
-  <p><strong>从一个问题开始，快速做出产品，并且继续做下去</strong></p>
-  <p>一个面向个人开发者、独立产品和小团队的 AI 友好型全栈开发模板。</p>
+  <h1>白纸英语 · WhitePaper English</h1>
+  <p><strong>直接写，直接学。</strong></p>
+  <p>面向中文母语成年自主学习者的英语学习工作台。</p>
   <p>
     <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-16-111111?logo=next.js&logoColor=white" alt="Next.js 16"></a>
     <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-087ea4?logo=react&logoColor=white" alt="React 19"></a>
@@ -10,7 +10,7 @@
     <a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-6-2d3748?logo=prisma&logoColor=white" alt="Prisma 6"></a>
   </p>
   <p>
-    <a href="https://github.com/morewhyhan/Ignite/generate"><strong>使用这个模板 ↗</strong></a>
+    <a href="https://github.com/morewhyhan/whitepaper-english"><strong>项目仓库 ↗</strong></a>
     &nbsp; · &nbsp;
     <a href="#开始使用">快速开始</a>
     &nbsp; · &nbsp;
@@ -22,7 +22,9 @@
 
 ---
 
-AI 可以很快生成第一版；真正磨人的是需求不断变化后，原先的目标和决策逐渐散失，AI 需要反复重建上下文，改完也难确认结果是否可靠。Ignite 把这段开发过程组织成三个互相支撑的部分：
+本项目正在采用 Ignite 工程模板。经营原则见 [BUSINESS_MODEL.md](./BUSINESS_MODEL.md)。目标是让用户在同一张白纸上扫词、写作和讨论语法，并拥有可编辑、可导出的学习成果。当前源码仍包含下述模板基线，尚未交付的学习功能以 Feature 和 Plan 中的状态为准。
+
+以下是继承的工程底座说明，产品化期间随实际实现更新：
 
 1. **能直接启动的产品底座**：已有首页、邮箱密码注册登录、工作台、设置页、Tasks 参考业务和本地 SQLite；注册不依赖真实邮件。
 2. **AI 能接续的工作上下文**：一份项目规则真源、清楚的文档分工，以及从规格到验证的开发 Loop。
