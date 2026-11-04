@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "reason": "template copy has a new Git history",
+  "baseline_commit": "f662935055af97cf9ddfef773b7020ac9ec74d85",
+  "files": [
+    {
+      "source": "docs/plans/20261011-document-workflow.md",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/20261011-document-workflow.md.txt"
+    },
+    {
+      "source": "docs/plans/20261012-agent-run-recovery.md",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/20261012-agent-run-recovery.md.txt"
+    },
+    {
+      "source": "docs/plans/20261014-startup-focus.md",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/20261014-startup-focus.md.txt"
+    },
+    {
+      "source": "docs/plans/20261015-prepare-test-ownership.md",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/20261015-prepare-test-ownership.md.txt"
+    },
+    {
+      "source": "docs/plans/20261015-tdd-evidence-format.md",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/20261015-tdd-evidence-format.md.txt"
+    },
+    {
+      "source": "docs/plans/releases/agent-run-recovery-v1.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/releases/agent-run-recovery-v1.json.txt"
+    },
+    {
+      "source": "docs/plans/releases/document-workflow-v1.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/releases/document-workflow-v1.json.txt"
+    },
+    {
+      "source": "docs/plans/releases/prepare-test-ownership-v1.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/releases/prepare-test-ownership-v1.json.txt"
+    },
+    {
+      "source": "docs/plans/releases/startup-focus-v1.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/releases/startup-focus-v1.json.txt"
+    },
+    {
+      "source": "docs/plans/releases/tdd-evidence-format-v1.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/plans/releases/tdd-evidence-format-v1.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261011190726-f510b4.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261011190726-f510b4.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261013200751-aa459f.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261013200751-aa459f.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261013203055-66554d.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261013203055-66554d.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261013204520-6be60a.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261013204520-6be60a.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261013212809-423f18.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261013212809-423f18.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261013214605-080b49.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261013214605-080b49.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261013215342-71af6a.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261013215342-71af6a.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261014125748-8289e9.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261014125748-8289e9.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261014133744-d9d4f3.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261014133744-d9d4f3.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261014210615-aae608.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261014210615-aae608.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261015004412-564682.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261015004412-564682.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261015010535-6aec80.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261015010535-6aec80.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261015103626-97da14.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261015103626-97da14.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/runs/run-20261015110220-7567ed.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/runs/run-20261015110220-7567ed.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011111340-a4cfd8.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011111340-a4cfd8.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011111359-9dad1c.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011111359-9dad1c.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011111423-5daa5b.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011111423-5daa5b.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011111441-bfaa75.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011111441-bfaa75.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011142815-287daf.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011142815-287daf.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011142840-bda6e9.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011142840-bda6e9.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011142910-b0f23c.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011142910-b0f23c.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011175031-f56065.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011175031-f56065.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011175159-98add8.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261011175159-98add8.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261013211821-495ed6.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791708512635291997/tdd-20261013211821-495ed6.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013185812-7634cf.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013185812-7634cf.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013185911-73a5fe.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013185911-73a5fe.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190010-d3379a.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190010-d3379a.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190049-80c8d7.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190049-80c8d7.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190139-c9a58a.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190139-c9a58a.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190227-3c103f.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190227-3c103f.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190327-b9d8a8.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190327-b9d8a8.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190422-195ed9.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190422-195ed9.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190510-1606fa.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190510-1606fa.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190558-420dd4.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190558-420dd4.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190649-9f4510.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190649-9f4510.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190744-16d88e.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013190744-16d88e.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013195325-247f72.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791813346292559552/tdd-20261013195325-247f72.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791976482786711869/tdd-20261014122957-2190e0.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791976482786711869/tdd-20261014122957-2190e0.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1791976482786711869/tdd-20261014124212-2c84cd.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1791976482786711869/tdd-20261014124212-2c84cd.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1792007450670818648/tdd-20261014202740-a24d3c.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1792007450670818648/tdd-20261014202740-a24d3c.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1792007450670818648/tdd-20261014205154-2ebc67.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1792007450670818648/tdd-20261014205154-2ebc67.json.txt"
+    },
+    {
+      "source": "docs/others/evidence/tdd/IGT-1792029176916013864/tdd-20261015092603-695dd6.json",
+      "archive": "docs/others/template-history/f662935055af97cf9ddfef773b7020ac9ec74d85/docs/others/evidence/tdd/IGT-1792029176916013864/tdd-20261015092603-695dd6.json.txt"
+    }
+  ]
+}
