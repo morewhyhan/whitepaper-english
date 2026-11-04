@@ -1,0 +1,124 @@
+{
+  "schema": 2,
+  "id": "whitepaper-adoption",
+  "coverage_version": 2,
+  "verification_contract": 2,
+  "plan_ids": ["IGT-2026110401"],
+  "scope": [
+    {
+      "id": "GOAL-ADOPTION-001",
+      "text": "采用白纸英语身份，保留认证、历史迁移和用户商业文件；Tasks 推荐退役且保留表数据",
+      "source": "2026-11-04 用户授权全部 prior proposed adoption；Tasks 退役为受托实施决定",
+      "requirements": ["REQ-ADOPTION-001"],
+      "acceptance": ["AC-ADOPTION-001"],
+      "plan_ids": ["IGT-2026110401"],
+      "disposition": "included",
+      "reason": "采用结果所必需兼容边界",
+      "authorization": ""
+    },
+    {
+      "id": "GOAL-VOCABULARY-001",
+      "text": "未登录进入白纸词汇工作台",
+      "source": "2026-11-04 本聊天采用要求和 BUSINESS_MODEL.md D05/D06/D11；具体实现细节为受托设计决定",
+      "requirements": ["REQ-VOCABULARY-001"],
+      "acceptance": ["AC-VOCABULARY-001"],
+      "plan_ids": ["IGT-2026110401"],
+      "disposition": "included",
+      "reason": "本轮访客词汇闭环",
+      "authorization": ""
+    },
+    {
+      "id": "GOAL-VOCABULARY-002",
+      "text": "手动分页并判断会与不会",
+      "source": "2026-11-04 本聊天采用要求和 BUSINESS_MODEL.md D05/D06/D11；具体实现细节为受托设计决定",
+      "requirements": ["REQ-VOCABULARY-002"],
+      "acceptance": ["AC-VOCABULARY-002"],
+      "plan_ids": ["IGT-2026110401"],
+      "disposition": "included",
+      "reason": "本轮访客词汇闭环",
+      "authorization": ""
+    },
+    {
+      "id": "GOAL-VOCABULARY-003",
+      "text": "配置点击默认判断并用 Shift 反转",
+      "source": "2026-11-04 本聊天采用要求和 BUSINESS_MODEL.md D05/D06/D11；具体实现细节为受托设计决定",
+      "requirements": ["REQ-VOCABULARY-003"],
+      "acceptance": ["AC-VOCABULARY-003"],
+      "plan_ids": ["IGT-2026110401"],
+      "disposition": "included",
+      "reason": "本轮访客词汇闭环",
+      "authorization": ""
+    },
+    {
+      "id": "GOAL-VOCABULARY-004",
+      "text": "下一轮只保留上一轮不会词",
+      "source": "2026-11-04 本聊天采用要求和 BUSINESS_MODEL.md D05/D06/D11；具体实现细节为受托设计决定",
+      "requirements": ["REQ-VOCABULARY-004"],
+      "acceptance": ["AC-VOCABULARY-004"],
+      "plan_ids": ["IGT-2026110401"],
+      "disposition": "included",
+      "reason": "本轮访客词汇闭环",
+      "authorization": ""
+    },
+    {
+      "id": "GOAL-VOCABULARY-005",
+      "text": "关联辅助共享原任务与错词池",
+      "source": "2026-11-04 本聊天采用要求和 BUSINESS_MODEL.md D05/D06/D11；具体实现细节为受托设计决定",
+      "requirements": ["REQ-VOCABULARY-005"],
+      "acceptance": ["AC-VOCABULARY-005"],
+      "plan_ids": ["IGT-2026110401"],
+      "disposition": "included",
+      "reason": "本轮访客词汇闭环",
+      "authorization": ""
+    },
+    {
+      "id": "GOAL-VOCABULARY-006",
+      "text": "刷新恢复本地任务与设置并处理损坏存储",
+      "source": "2026-11-04 本聊天采用要求和 BUSINESS_MODEL.md D05/D06/D11；具体实现细节为受托设计决定",
+      "requirements": ["REQ-VOCABULARY-006"],
+      "acceptance": ["AC-VOCABULARY-006"],
+      "plan_ids": ["IGT-2026110401"],
+      "disposition": "included",
+      "reason": "本轮访客词汇闭环",
+      "authorization": ""
+    },
+    {
+      "id": "GOAL-VOCABULARY-007",
+      "text": "导入 CSV TXT JSON 且拒绝无效输入",
+      "source": "2026-11-04 本聊天采用要求和 BUSINESS_MODEL.md D05/D06/D11；具体实现细节为受托设计决定",
+      "requirements": ["REQ-VOCABULARY-007"],
+      "acceptance": ["AC-VOCABULARY-007"],
+      "plan_ids": ["IGT-2026110401"],
+      "disposition": "included",
+      "reason": "本轮访客词汇闭环",
+      "authorization": ""
+    },
+    {
+      "id": "GOAL-VOCABULARY-008",
+      "text": "导出 JSON Markdown 并可重导入 JSON",
+      "source": "2026-11-04 本聊天采用要求和 BUSINESS_MODEL.md D05/D06/D11；具体实现细节为受托设计决定",
+      "requirements": ["REQ-VOCABULARY-008"],
+      "acceptance": ["AC-VOCABULARY-008"],
+      "plan_ids": ["IGT-2026110401"],
+      "disposition": "included",
+      "reason": "本轮访客词汇闭环",
+      "authorization": ""
+    },
+    {
+      "id": "GOAL-FUTURE-001",
+      "text": "云同步、写作与语法未来交付",
+      "source": "2026-11-04 助手实施建议经全部采用授权接受；后续范围澄清",
+      "requirements": ["REQ-ADOPTION-002"],
+      "acceptance": ["AC-ADOPTION-002"],
+      "plan_ids": [],
+      "disposition": "deferred",
+      "reason": "当前只交付访客本地词汇；三项未实现且没有对应验收证据",
+      "authorization": ""
+    }
+  ],
+  "must_pass": ["check-release"],
+  "evidence": [],
+  "integrated_commit": null,
+  "excluded": [],
+  "updated_at": "2026-11-04"
+}

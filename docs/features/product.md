@@ -1,5 +1,31 @@
 # Ignite 产品与模板规格
 
+## 白纸英语采用规格
+
+以下是本项目采用后的目标规格。当前 `.ai/project.json` 和源码是否已完成身份切换，以本轮 Plan 与实际证据为准；上方模板规则保留作继承约束，不代表白纸英语已经交付。
+
+- 产品名称为白纸英语，英文 WhitePaper English，slug 为 whitepaper-english。
+- 用户是自主英语学习者。先交付本地词汇白纸，写作、语法、云同步属于未来范围。
+- BUSINESS_MODEL.md 为用户维护的经营文件，保留原文，不由模板清理流程删除。
+- Better Auth、守卫、独立认证回归及全部历史 migration 保留。Tasks 示例退役推荐属于本轮受托实施决定，先移除产品入口和业务界面/API，保留现有表与数据，不宣称完成物理删除。
+- 上方“当前是模板基线”是采用前事实；采用完成后由实施者更新该节，不在准备阶段谎报已切换。
+
+### 采用业务规则
+
+- R21（REQ-ADOPTION-001）：项目外壳、身份元数据、品牌和入口反映白纸英语；词汇无需账户，认证仍可注册、登录、退出，受保护账户页仍受守卫。退役 Tasks 不删除认证测试、历史迁移、现有表数据或 BUSINESS_MODEL.md。
+- R22（REQ-ADOPTION-002）：未来写作应直接动笔并保留撤销/忽略，语法应支持主动输出和确认总结，云同步必须可选且明确授权。此轮只保留未来规格，页面不得把这些能力宣传为已交付。
+
+### 采用验收标准
+
+- AC-ADOPTION-001（REQ-ADOPTION-001）：Given 未登录访客和新注册账户，When 浏览首页、进入词汇、注册、登录、退出并访问受保护页，Then 显示白纸英语身份、访客词汇可用、认证和守卫保持有效；历史 migrations 与 BUSINESS_MODEL.md 内容不被改写，Tasks 仅标为退役。
+  - required_layers: [browser]
+  - checks: browser `tests/e2e/whitepaper.spec.ts::[AC-ADOPTION-001] 产品身份与认证保留`
+  - 历史迁移与用户文件保留由实际 Git 差异和迁移回归复核，不能用浏览器标签冒充文件完整性证明。
+- AC-ADOPTION-002（REQ-ADOPTION-002）：Given 未来写作、语法和云同步尚未实现，When 检查发布范围与产品说明，Then 三项均明确延期且无已交付声明。
+  - required_layers: [unit]
+  - checks: unit `tests/contracts/adoption.test.ts::[AC-ADOPTION-002] 未来能力明确延期`
+  - 此项为未来范围约束，Release 延期且不作为本轮通过证据。
+
 ## 当前状态
 
 - 项目身份以 `.ai/project.json` 的 `mode` 为准；当前是模板基线。
