@@ -531,6 +531,8 @@ pnpm ignite check --plan IGT-1794081675956926402 --level integration
 
 2026-11-07：补充：原生红灯 tdd-20261107202633-1962dd 已记录，聚合断言失败（guest/spoofed/signedIn 404、signedInBody null）；此前“尚未记录”的说法已被取代。接口已移到 src/server/api/vocabulary.ts，不再把数据层纳入本 Plan，账号持久化留在 Release GOAL-002 deferred。
 
+2026-11-07：check 仍拒绝：Plan diff 包含已删除的 src/server/api/routes/vocabulary/index.ts，requiredLayersForChanges 按路径历史判定 database。移动文件不能消除历史 diff。后续两种处理：新 Plan 以当前 HEAD 为基线承接 Prisma 数据层，或在本 Plan 增加真实 database 验收并重新审查。
+
 ## 准出条件
 
 AC-ACCOUNT-001 的契约用例通过；原生红灯和集成检查有记录；复审通过；Design 回写；tasks 全部完成。数据库隔离不在本轮，Release 明确延期。
