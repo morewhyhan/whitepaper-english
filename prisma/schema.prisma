@@ -38,6 +38,7 @@ model user {
   accounts account[]
   tasks   task[]
   wordStates word_state[]
+  dailySessions daily_session[]
 }
 
 model session {
@@ -99,4 +100,24 @@ model word_state {
 
   @@unique([userId, word])
   @@index([userId])
+}
+
+model daily_session {
+  id        String   @id @default(uuid())
+  userId    String
+  bookId    String
+  localDate String
+  round     Int      @default(1)
+  cursor    Int      @default(0)
+  ids       String
+  missed    String
+  history   String
+  complete  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId, localDate])
+  @@index([userId, localDate])
 }

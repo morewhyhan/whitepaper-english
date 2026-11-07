@@ -51,3 +51,74 @@ export async function setWordState(
     update: { known },
   })
 }
+
+export type DailySession = {
+  round: number
+  cursor: number
+  ids: string[]
+  missed: string[]
+  history: { round: number; total: number; missed: number }[]
+  complete: boolean
+}
+
+function parseArray<T>(value: string): T[] {
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return Array.isArray(parsed) ? (parsed as T[]) : []
+  } catch {
+    return []
+  }
+}
+
+export async function getDailySession(
+  prisma: PrismaClient,
+  userId: string,
+  bookId: string,
+  localDate: string,
+): Promise<DailySession | null> {
+  const row = await prisma.daily_session.findUnique({
+    where: { userId_bookId_localDate: { userId, bookId, localDate } },
+  })
+  if (!row) return null
+
+  return {
+    round: row.round,
+    cursor: row.cursor,
+    ids: parseArray<string>(row.ids),
+    missed: parseArray<string>(row.missed),
+    history: parseArray<{ round: number; total: number; missed: number }>(row.history),
+    complete: row.complete,
+  }
+}
+
+export async function saveDailySession(
+  prisma: PrismaClient,
+  userId: string,
+  bookId: string,
+  localDate: string,
+  session: DailySession,
+): Promise<DailySession> {
+  const data = {
+    round: session.round,
+    cursor: session.cursor,
+    ids: JSON.stringify(session.ids),
+    missed: JSON.stringify(session.missed),
+    history: JSON.stringify(session.history),
+    complete: session.complete,
+  }
+
+  const row = await prisma.daily_session.upsert({
+    where: { userId_bookId_localDate: { userId, bookId, localDate } },
+    create: { userId, bookId, localDate, ...data },
+    update: data,
+  })
+
+  return {
+    round: row.round,
+    cursor: row.cursor,
+    ids: parseArray<string>(row.ids),
+    missed: parseArray<string>(row.missed),
+    history: parseArray<{ round: number; total: number; missed: number }>(row.history),
+    complete: row.complete,
+  }
+}

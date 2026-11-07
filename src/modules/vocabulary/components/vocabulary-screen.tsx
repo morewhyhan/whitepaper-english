@@ -31,6 +31,7 @@ import {
 } from '../lib/vocabulary'
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import { useClearJudgements } from '../hooks/use-clear-judgements'
+import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
 import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
 
@@ -88,6 +89,9 @@ export function VocabularyScreen() {
   const signOut = useSignOut()
   const saveJudgements = useSaveJudgements()
   const clearJudgements = useClearJudgements()
+  const dailySession = useDailySession(activeBookId, today, Boolean(authSession?.user))
+  const saveDailySession = useSaveDailySession()
+  const restoredSession = useRef<string | null>(null)
   const [clipOpen, setClipOpen] = useState(false)
   const [clipTarget, setClipTarget] = useState<WorkspaceMode | null>(null)
   const [paste, setPaste] = useState('')
@@ -115,6 +119,56 @@ export function VocabularyScreen() {
     saveState(loaded)
     setHydrated(true)
   }, [today])
+
+  useEffect(() => {
+    const remote = dailySession.data?.session
+    if (!remote || !hydrated || !authSession?.user) return
+
+    const key = `${activeBookId}:${today}`
+    if (restoredSession.current === key) return
+    restoredSession.current = key
+
+    if (remote.cursor > 0) {
+      setUndoSession({
+        round: remote.round,
+        ids: remote.ids,
+        cursor: Math.max(0, remote.cursor - 36),
+        missed: remote.missed,
+        marks: {},
+        mode: state.settings.mode,
+        groups: state.settings.groups,
+        view: 'scan',
+        history: remote.history,
+        complete: false,
+        peek: false,
+      })
+    }
+
+    const apply = (current: VocabularyState): VocabularyState => {
+      const local = current.sessions[today] ?? createSession(current.words, current.settings)
+      if (local.cursor === remote.cursor && local.round === remote.round) return current
+
+      return {
+        ...current,
+        sessions: {
+          ...current.sessions,
+          [today]: {
+            ...local,
+            round: remote.round,
+            cursor: remote.cursor,
+            ids: remote.ids,
+            missed: remote.missed,
+            history: remote.history,
+            complete: remote.complete,
+            marks: {},
+          },
+        },
+      }
+    }
+
+    if (activeBookId === 'parallel-world') setParallelState(apply)
+    else setStarterState(apply)
+  }, [dailySession.data, hydrated, authSession?.user, activeBookId, today])
 
   useEffect(() => {
     if (!notice) return
@@ -221,11 +275,31 @@ export function VocabularyScreen() {
     }
   }
 
+  function persistSession(next: VocabularySession) {
+    if (!authSession?.user) return
+
+    void saveDailySession.mutate({
+      bookId: activeBookId,
+      date: today,
+      session: {
+        round: next.round,
+        cursor: next.cursor,
+        ids: next.ids,
+        missed: next.missed,
+        history: next.history,
+        complete: next.complete,
+      },
+    })
+  }
+
   async function handleNext() {
     if (session.complete) return
     if (!(await commitCurrentPage())) return
+
+    const next = advanceSession(session, state.words)
     setUndoSession(session)
-    updateSession((current) => advanceSession(current, state.words))
+    updateSession(() => next)
+    persistSession(next)
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
@@ -233,12 +307,11 @@ export function VocabularyScreen() {
     if (session.complete) return
     const pageSize = Math.max(1, zenLayout.count) * ZEN_WORDS_PER_SHEET
     if (!(await commitCurrentPage(pageSize))) return
+
+    const next = advanceSession(session, state.words, { pageSize })
     setUndoSession(session)
-    updateSession((current) =>
-      advanceSession(current, state.words, {
-        pageSize,
-      }),
-    )
+    updateSession(() => next)
+    persistSession(next)
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
@@ -255,7 +328,9 @@ export function VocabularyScreen() {
       }
     }
 
-    updateSession(() => ({ ...undoSession, marks: {} }))
+    const next = { ...undoSession, marks: {} }
+    updateSession(() => next)
+    persistSession(next)
     setUndoSession(null)
     setNotice('已撤销上一页')
   }

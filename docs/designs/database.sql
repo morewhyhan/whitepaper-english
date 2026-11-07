@@ -71,8 +71,26 @@ CREATE TABLE "word_state" (
   FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE "daily_session" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "bookId" TEXT NOT NULL,
+  "localDate" TEXT NOT NULL,
+  "round" INTEGER NOT NULL DEFAULT 1,
+  "cursor" INTEGER NOT NULL DEFAULT 0,
+  "ids" TEXT NOT NULL,
+  "missed" TEXT NOT NULL,
+  "history" TEXT NOT NULL,
+  "complete" BOOLEAN NOT NULL DEFAULT false,
+  "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" DATETIME NOT NULL,
+  FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 CREATE INDEX "session_userId_idx" ON "session" ("userId");
 CREATE INDEX "account_userId_idx" ON "account" ("userId");
 CREATE INDEX "task_userId_createdAt_idx" ON "task" ("userId", "createdAt");
 CREATE UNIQUE INDEX "word_state_userId_word_key" ON "word_state" ("userId", "word");
 CREATE INDEX "word_state_userId_idx" ON "word_state" ("userId");
+CREATE UNIQUE INDEX "daily_session_userId_bookId_localDate_key" ON "daily_session" ("userId", "bookId", "localDate");
+CREATE INDEX "daily_session_userId_localDate_idx" ON "daily_session" ("userId", "localDate");
