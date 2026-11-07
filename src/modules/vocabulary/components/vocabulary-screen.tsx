@@ -30,6 +30,7 @@ import {
   type VocabularyWord,
 } from '../lib/vocabulary'
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
+import { useClearJudgements } from '../hooks/use-clear-judgements'
 import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
 
@@ -86,6 +87,7 @@ export function VocabularyScreen() {
   const { data: authSession } = useAuthSession()
   const signOut = useSignOut()
   const saveJudgements = useSaveJudgements()
+  const clearJudgements = useClearJudgements()
   const [clipOpen, setClipOpen] = useState(false)
   const [clipTarget, setClipTarget] = useState<WorkspaceMode | null>(null)
   const [paste, setPaste] = useState('')
@@ -240,9 +242,20 @@ export function VocabularyScreen() {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
-  function handleUndo() {
+  async function handleUndo() {
     if (!undoSession) return
-    updateSession(() => undoSession)
+
+    if (authSession?.user) {
+      const page = pageWords(state.words, undoSession)
+      try {
+        await clearJudgements.mutateAsync({ words: page.map((word) => word.en) })
+      } catch {
+        setNotice('撤销失败，请重试')
+        return
+      }
+    }
+
+    updateSession(() => ({ ...undoSession, marks: {} }))
     setUndoSession(null)
     setNotice('已撤销上一页')
   }

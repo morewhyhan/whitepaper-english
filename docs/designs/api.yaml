@@ -125,6 +125,58 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '422':
           $ref: '#/components/responses/InvalidInput'
+    delete:
+      operationId: clearVocabularyJudgements
+      summary: Clear the judgements of one page for the signed-in account
+      description: >-
+        Requires the Better Auth session cookie. Deletes up to 36 word states
+        owned by the current account; used by "undo previous page".
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [words]
+              properties:
+                words:
+                  type: array
+                  minItems: 1
+                  maxItems: 36
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Remaining vocabulary state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [activeBook, wordStates]
+                    properties:
+                      activeBook:
+                        type: ['object', 'null']
+                        additionalProperties: true
+                      wordStates:
+                        type: array
+                        items:
+                          type: object
+                          additionalProperties: false
+                          required: [word, known]
+                          properties:
+                            word:
+                              type: string
+                            known:
+                              type: boolean
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/InvalidInput'
   /api/tasks:
     get:
       operationId: listTasks

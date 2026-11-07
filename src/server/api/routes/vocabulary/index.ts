@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { prisma } from '@/server/database/client'
-import { listWordStates, setWordStates } from '@/server/vocabulary/store'
+import { clearWordStates, listWordStates, setWordStates } from '@/server/vocabulary/store'
 import { requireUserId } from '../../session'
 import { zValidator } from '../../validator'
 
@@ -21,6 +21,12 @@ const judgementSchema = z
   })
   .strict()
 
+const clearSchema = z
+  .object({
+    words: z.array(z.string().trim().min(1).max(120)).min(1).max(36),
+  })
+  .strict()
+
 const vocabulary = new Hono().basePath('/vocabulary')
 
 vocabulary.get('/state', async (c) => {
@@ -35,6 +41,16 @@ vocabulary.post('/judgements', zValidator('json', judgementSchema), async (c) =>
   const { judgements } = c.req.valid('json')
 
   await setWordStates(prisma, userId, judgements)
+  const wordStates = await listWordStates(prisma, userId)
+
+  return c.json({ data: { activeBook: null, wordStates } })
+})
+
+vocabulary.delete('/judgements', zValidator('json', clearSchema), async (c) => {
+  const userId = await requireUserId(c.req.raw.headers)
+  const { words } = c.req.valid('json')
+
+  await clearWordStates(prisma, userId, words)
   const wordStates = await listWordStates(prisma, userId)
 
   return c.json({ data: { activeBook: null, wordStates } })

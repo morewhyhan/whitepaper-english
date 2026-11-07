@@ -14,6 +14,8 @@
 
 `POST /api/vocabulary/judgements` 需要 session，请求体为 `{ "judgements": [{ "word": "apple", "known": true }] }`，最多 36 条。接口按 session 用户批量 upsert，返回保存后的 `wordStates`；重复提交同一词覆盖旧值，非法请求返回 422。
 
+`DELETE /api/vocabulary/judgements` 需要 session，请求体为 `{ "words": ["apple"] }`，最多 36 条，删除当前账号这些词的判定并返回剩余 `wordStates`；用于“撤销上一页”。
+
 两个接口都位于 `src/server/api/routes/vocabulary/index.ts`，由 `src/server/api/index.ts` 挂载，使用统一 session guard 和 zValidator，读写 `word_state`。
 
 来源：REQ-ACCOUNT-001、AC-ACCOUNT-001；REQ-ACCOUNT-003、AC-ACCOUNT-003；REQ-ACCOUNT-005、AC-ACCOUNT-005。

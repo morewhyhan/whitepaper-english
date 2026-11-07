@@ -13,6 +13,16 @@ export async function listWordStates(prisma: PrismaClient, userId: string): Prom
   })
 }
 
+export async function clearWordStates(
+  prisma: PrismaClient,
+  userId: string,
+  words: string[],
+): Promise<void> {
+  await prisma.word_state.deleteMany({
+    where: { userId, word: { in: words } },
+  })
+}
+
 export async function setWordStates(
   prisma: PrismaClient,
   userId: string,
