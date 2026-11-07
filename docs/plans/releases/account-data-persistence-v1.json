@@ -6,15 +6,15 @@
   "plan_ids": ["IGT-1794084050047780048"],
   "scope": [
     {
-      "id": "GOAL-001",
-      "text": "待填写原始目标",
-      "source": "待填写来源",
-      "requirements": [],
-      "acceptance": [],
+      "id": "GOAL-ACCOUNT-PERSISTENCE",
+      "text": "登录用户的学习状态接口返回自己保存的词状态",
+      "source": "2026-11-08 V1 GOAL 的 M1；用户要求账号数据按用户保存并读取",
+      "requirements": ["REQ-ACCOUNT-003"],
+      "acceptance": ["AC-ACCOUNT-003"],
       "plan_ids": ["IGT-1794084050047780048"],
       "disposition": "included",
-      "reason": "",
-      "authorization": ""
+      "reason": "数据层已在基线，本轮把它接到接口。",
+      "authorization": "用户接受 V1 GOAL。"
     }
   ],
   "must_pass": ["check-release"],

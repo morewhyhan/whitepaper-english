@@ -45,7 +45,7 @@ afterAll(async () => {
   rmSync(workspace, { recursive: true, force: true })
 })
 
-it('[AC-ACCOUNT-002] isolates word states by account', async () => {
+it('[AC-ACCOUNT-002] [AC-ACCOUNT-003] isolates word states by account', async () => {
   const userA = await listWordStates(prisma, 'user-a')
   const userB = await listWordStates(prisma, 'user-b')
 
