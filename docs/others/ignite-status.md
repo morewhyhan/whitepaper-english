@@ -1,13 +1,13 @@
 # Ignite 状态摘要
 
 模板状态：`adopted`
-输入指纹：`ab0f1c9fc5a8`
+输入指纹：`b815b21b1ea0`
 当前 Plan：3；结构化历史：2；未迁移历史：0
 
 ## 当前工作
 
 - `IGT-2026110402` · `draft` · `vocabulary-paper`
-- `IGT-1794084050047780048` · `draft` · `account-data-persistence-v1`
+- `IGT-1794084050047780048` · `active` · `account-data-persistence-v1`
 - `IGT-2026110801` · `draft` · `template-refresh`
 
 ## 发布范围
@@ -18,12 +18,12 @@
   - 最终版本验收：missing
   - 下一步：null
   - 未完成原始目标：GOAL-001 学习状态接口的会话边界：游客返回 401，客户端 userId 不能绕过，登录返回 200 空状态；GOAL-002 账号数据写入数据库、双账号隔离和跨会话恢复
-- `account-data-persistence-v1` · `draft`
+- `account-data-persistence-v1` · `active`
   - Plan：`IGT-1794084050047780048`
   - 缺少证据：`IGT-1794084050047780048:check-integration`（missing：no run is bound to this evidence requirement）
   - 最终版本验收：missing
   - 下一步：pnpm ignite next --plan IGT-1794084050047780048
-  - 未完成原始目标：GOAL-001 待填写原始目标
+  - 未完成原始目标：GOAL-ACCOUNT-PERSISTENCE 登录用户的学习状态接口返回自己保存的词状态
 - `template-refresh` · `draft`
   - Plan：`IGT-2026110801`
   - 缺少证据：`IGT-2026110801:check-integration`（missing：no run is bound to this evidence requirement）

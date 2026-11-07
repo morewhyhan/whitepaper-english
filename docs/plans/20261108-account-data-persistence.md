@@ -3,21 +3,86 @@
   "schema": 2,
   "id": "IGT-1794084050047780048",
   "release": "account-data-persistence-v1",
-  "status": "draft",
+  "status": "active",
   "outcome": "登录用户请求学习状态时，接口返回自己保存的词状态，而不是永远空数组。",
   "contract_version": 2,
   "execution_contract": 1,
   "task_contract": 2,
   "planning_contract": 1,
   "review_contract": 1,
-  "reviews": [],
+  "reviews": [
+    {
+      "stage": "draft",
+      "reviewer": "subagent-reviewer-1",
+      "executor": "morewhyhan",
+      "source": "第三轮复审：回退与测试准备，独立审查账号持久化接口 Plan",
+      "subject_fingerprint": "930fba764f79e2d254df10afee188de1043967556287b59c73fcdd42addf2a84",
+      "verdict": "approved",
+      "findings": [
+        {
+          "id": "R1",
+          "severity": "blocking",
+          "summary": "AC-003 只映射真实 SQLite 和 Better Auth 会话的接口测试，layer=database。",
+          "resolved": true
+        },
+        {
+          "id": "R2",
+          "severity": "blocking",
+          "summary": "api.yaml 进入 write_scope、T4 和 design_writeback。",
+          "resolved": true
+        },
+        {
+          "id": "R3",
+          "severity": "blocking",
+          "summary": "store 测试归 AC-002，Release 只纳入 AC-003。",
+          "resolved": true
+        },
+        {
+          "id": "R4",
+          "severity": "blocking",
+          "summary": "正文回退与 data_contract.rollback 一致，覆盖 Release 和 REQ。",
+          "resolved": true
+        },
+        {
+          "id": "R8",
+          "severity": "nonblocking",
+          "summary": "临时库清理移到 afterAll。",
+          "resolved": true
+        },
+        {
+          "id": "R9",
+          "severity": "nonblocking",
+          "summary": "beforeAll 增加认证准备断言，红灯只落在目标断言。",
+          "resolved": true
+        },
+        {
+          "id": "R5",
+          "severity": "nonblocking",
+          "summary": "T3 修改上一 Plan 的单测 mock，需注明历史证据对应旧提交。",
+          "resolved": false
+        },
+        {
+          "id": "R6",
+          "severity": "nonblocking",
+          "summary": "T1/T2 状态和原生红灯记录待回填。",
+          "resolved": false
+        },
+        {
+          "id": "R7",
+          "severity": "nonblocking",
+          "summary": "接口测试未覆盖 user-b 的会话身份。",
+          "resolved": false
+        }
+      ],
+      "identity_assurance": "declared",
+      "recorded_at": "2026-11-07T21:01:19.546Z"
+    }
+  ],
   "verification_contract": 2,
   "goals": [
     {
       "text": "学习状态接口返回当前账号已经保存的词状态",
-      "requirements": [
-        "REQ-ACCOUNT-003"
-      ]
+      "requirements": ["REQ-ACCOUNT-003"]
     }
   ],
   "constraints": [
@@ -25,23 +90,15 @@
     "不重写已应用迁移；word_state 模型和迁移已在基线。",
     "只做 Web 端桌面浏览器。"
   ],
-  "non_goals": [
-    "本轮不挂载登录 UI。",
-    "本轮不做每日闭环、释义、发音和关联辅助。"
-  ],
+  "non_goals": ["本轮不挂载登录 UI。", "本轮不做每日闭环、释义、发音和关联辅助。"],
   "authorization": {
     "source": "2026-11-08 V1 GOAL 的 M1；用户要求账号数据按用户保存并读取。"
   },
-  "deliverables": [
-    "GET /api/vocabulary/state 返回当前账号的词状态",
-    "真实 SQLite 的接口数据测试"
-  ],
+  "deliverables": ["GET /api/vocabulary/state 返回当前账号的词状态", "真实 SQLite 的接口数据测试"],
   "remaining_work": [],
   "change_type": "存量改动",
   "base_commit": "1a9e6a72c4cdeb8499e86f44740e0fe9863f102e",
-  "requirements": [
-    "REQ-ACCOUNT-003"
-  ],
+  "requirements": ["REQ-ACCOUNT-003"],
   "acceptance": [
     {
       "id": "AC-ACCOUNT-003",
@@ -49,9 +106,7 @@
       "tests": [
         "tests/api/vocabulary-state-data.test.ts::[AC-ACCOUNT-003] returns the signed-in account word states"
       ],
-      "required_layers": [
-        "database"
-      ],
+      "required_layers": ["database"],
       "checks": [
         {
           "test": "tests/api/vocabulary-state-data.test.ts::[AC-ACCOUNT-003] returns the signed-in account word states",
@@ -60,15 +115,13 @@
       ]
     }
   ],
-  "verification_requirements": [
-    "database"
-  ],
+  "verification_requirements": ["database"],
   "tasks": [
     {
       "id": "T1",
       "title": "确认目标、编写真实接口数据测试并提交准备基线",
       "phase": "prepare",
-      "status": "todo",
+      "status": "done",
       "result": "REQ/AC、测试、写入范围和基线已提交，独立审查核对 draft。",
       "scope": [
         "docs/features/product.md",
@@ -83,36 +136,22 @@
       "id": "T2",
       "title": "运行接口数据测试并记录红灯",
       "phase": "red",
-      "acceptance": [
-        "AC-ACCOUNT-003"
-      ],
-      "status": "todo",
+      "acceptance": ["AC-ACCOUNT-003"],
+      "status": "doing",
       "result": "原生 red 确认接口返回空数组而不是已保存的词状态。",
-      "scope": [
-        "tests/api/vocabulary-state-data.test.ts",
-        "docs/others/evidence/tdd/"
-      ],
-      "depends_on": [
-        "T1"
-      ],
+      "scope": ["tests/api/vocabulary-state-data.test.ts", "docs/others/evidence/tdd/"],
+      "depends_on": ["T1"],
       "owner": "morewhyhan"
     },
     {
       "id": "T3",
       "title": "把状态接口接到账号词状态 store",
       "phase": "implement",
-      "acceptance": [
-        "AC-ACCOUNT-003"
-      ],
+      "acceptance": ["AC-ACCOUNT-003"],
       "status": "todo",
       "result": "接口按 session 用户读取 listWordStates，返回自己的词状态，测试转绿。",
-      "scope": [
-        "src/server/api/vocabulary.ts",
-        "tests/api/vocabulary-state.test.ts"
-      ],
-      "depends_on": [
-        "T2"
-      ],
+      "scope": ["src/server/api/vocabulary.ts", "tests/api/vocabulary-state.test.ts"],
+      "depends_on": ["T2"],
       "owner": "morewhyhan"
     },
     {
@@ -121,14 +160,8 @@
       "phase": "verify",
       "status": "todo",
       "result": "check integration 和独立 delivery 审查通过，api.md 和 api.yaml 记录非空响应事实。",
-      "scope": [
-        "docs/designs/api.md",
-        "docs/designs/api.yaml",
-        "docs/others/evidence/"
-      ],
-      "depends_on": [
-        "T3"
-      ],
+      "scope": ["docs/designs/api.md", "docs/designs/api.yaml", "docs/others/evidence/"],
+      "depends_on": ["T3"],
       "owner": "morewhyhan"
     }
   ],
@@ -136,13 +169,9 @@
   "dependency_contracts": [],
   "shared_files": [],
   "handoff": {
-    "interfaces": [
-      "GET /api/vocabulary/state 返回 wordStates"
-    ],
+    "interfaces": ["GET /api/vocabulary/state 返回 wordStates"],
     "migrations": [],
-    "tests": [
-      "tests/api/vocabulary-state-data.test.ts"
-    ],
+    "tests": ["tests/api/vocabulary-state-data.test.ts"],
     "remaining": []
   },
   "owner": "morewhyhan",
@@ -166,22 +195,23 @@
     "docs/plans/releases/account-data-persistence-v1.json",
     "docs/others/evidence/tdd/"
   ],
-  "tdd_evidence": [],
-  "required_evidence": [
-    "check-integration"
+  "tdd_evidence": [
+    {
+      "acceptance_id": "AC-ACCOUNT-003",
+      "test": "tests/api/vocabulary-state-data.test.ts::[AC-ACCOUNT-003] returns the signed-in account word states",
+      "run_id": "tdd-20261107210156-cf202f"
+    }
   ],
+  "required_evidence": ["check-integration"],
   "evidence": [],
   "design_writeback": {
-    "changed": [
-      "docs/designs/api.md",
-      "docs/designs/api.yaml"
-    ],
+    "changed": ["docs/designs/api.md", "docs/designs/api.yaml"],
     "reason": "接口响应从空状态变为当前账号的词状态。"
   },
   "blocker": null,
   "open_questions": [],
   "integrated_commit": null,
-  "updated_at": "2026-11-08"
+  "updated_at": "2026-11-07"
 }
 -->
 
@@ -312,3 +342,16 @@ pnpm ignite check --plan IGT-1794084050047780048 --level integration
 ## 准出条件
 
 AC-ACCOUNT-003 的 database 测试通过；原生红灯和集成检查有记录；交付审查通过；api.md 和 api.yaml 回写；tasks 全部完成。
+
+<!-- ignite-progress -->
+
+状态：`active`（由元数据生成）
+
+- [x] T1 · 确认目标、编写真实接口数据测试并提交准备基线 · done
+- [ ] T2 · 运行接口数据测试并记录红灯 · doing
+- [ ] T3 · 把状态接口接到账号词状态 store · todo
+- [ ] T4 · 运行集成检查、交付审查并回写设计 · todo
+
+验收缺口：未记录；完成仍须实际证据
+证据：尚无
+<!-- /ignite-progress -->

@@ -1,0 +1,40 @@
+{
+  "schema": 2,
+  "test_scope": "acceptance-case",
+  "test_sha256": "f85df2eadbdca49d744271217c52ebb5562a73aab8696aa7226233875e0fc4a6",
+  "context_schema": 1,
+  "context_sha256": "37be8edd400baa4bdcd49dab01e886992b06ace83127eb968098925bc1118de4",
+  "context_files": ["tests/api/vocabulary-state-data.test.ts"],
+  "warnings": [
+    "local dependency excluded outside declared test-support paths: scripts/testing/database-adapter.mjs"
+  ],
+  "run_id": "tdd-20261107210156-cf202f",
+  "plan_id": "IGT-1794084050047780048",
+  "acceptance_id": "AC-ACCOUNT-003",
+  "test": "tests/api/vocabulary-state-data.test.ts::[AC-ACCOUNT-003] returns the signed-in account word states",
+  "layer": "database",
+  "status": "assertion-failed",
+  "target_assertion_contract": "ac-message-marker-v1",
+  "red_commit": "6879de51505c2b6bbba1b3eb79c9b61be05dc0b4",
+  "output_sha256": "7e3e5284fc6709f9c9eeb891e54691263c60101ce8ee6ffa47093ecba240b8c0",
+  "failure_sha256": "9b7155eae03f6c5cbd9691818cbcbf179c5a7c63505f974bda4e227ad2744c68",
+  "failure_summary": [
+    "AssertionError: [AC-ACCOUNT-003] target signed-in body must include the stored word state: expected { data: { activeBook: null, …(1) } } to deeply equal { data: { activeBook: null, …(1) } } at /mnt/c/Users/why/Documents/ChatGPT/whitepaper-english/tests/api/vocabulary-state-data.test.ts:71:93 at file:///mnt/c/Users/why/Documents/ChatGPT/whitepaper-english/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+  ],
+  "failure_summary_sha256": "604a02f910810ff62563ae1bff5108954444ca08d7e422085de45b23f602d181",
+  "command": [
+    "corepack",
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/api/vocabulary-state-data.test.ts",
+    "--testNamePattern",
+    "AC-ACCOUNT-003",
+    "--reporter=json",
+    "--outputFile=<temporary-json-report>"
+  ],
+  "started_at": "2026-11-07T21:01:56.975Z",
+  "ended_at": "2026-11-07T21:02:13.908Z",
+  "executor": "ignite-tdd-runner"
+}
