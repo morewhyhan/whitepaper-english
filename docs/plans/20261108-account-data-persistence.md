@@ -76,6 +76,78 @@
       ],
       "identity_assurance": "declared",
       "recorded_at": "2026-11-07T21:01:19.546Z"
+    },
+    {
+      "stage": "draft",
+      "reviewer": "subagent-reviewer-1",
+      "executor": "morewhyhan",
+      "source": "第四轮复审：补测试基础设施范围，独立审查账号持久化接口 Plan",
+      "subject_fingerprint": "7706f144ca5a39c1fbd85d200671b3bded59ddf8ff6b4971649e6e8a346e036d",
+      "verdict": "approved",
+      "findings": [
+        {
+          "id": "R1",
+          "severity": "blocking",
+          "summary": "AC-003 只映射真实 SQLite 和 Better Auth 会话的接口测试，layer=database。",
+          "resolved": true
+        },
+        {
+          "id": "R2",
+          "severity": "blocking",
+          "summary": "api.yaml 在 write_scope、T4 和 design_writeback。",
+          "resolved": true
+        },
+        {
+          "id": "R3",
+          "severity": "blocking",
+          "summary": "store 测试归 AC-002，AC-003 只有接口数据库测试。",
+          "resolved": true
+        },
+        {
+          "id": "R4",
+          "severity": "blocking",
+          "summary": "正文回退与 data_contract.rollback 一致。",
+          "resolved": true
+        },
+        {
+          "id": "R6",
+          "severity": "nonblocking",
+          "summary": "T1/T2 已 done，原生红灯 run id 已记录。",
+          "resolved": true
+        },
+        {
+          "id": "R8",
+          "severity": "nonblocking",
+          "summary": "临时库清理在 afterAll。",
+          "resolved": true
+        },
+        {
+          "id": "R9",
+          "severity": "nonblocking",
+          "summary": "beforeAll 认证准备断言已加。",
+          "resolved": true
+        },
+        {
+          "id": "R5",
+          "severity": "nonblocking",
+          "summary": "T3 对上一 Plan 单测的兼容修改需注明历史证据。",
+          "resolved": false
+        },
+        {
+          "id": "R7",
+          "severity": "nonblocking",
+          "summary": "接口测试未覆盖 user-b 会话身份。",
+          "resolved": false
+        },
+        {
+          "id": "R10",
+          "severity": "nonblocking",
+          "summary": "T1 scope 未列测试基础设施三项。",
+          "resolved": false
+        }
+      ],
+      "identity_assurance": "declared",
+      "recorded_at": "2026-11-07T21:06:43.931Z"
     }
   ],
   "verification_contract": 2,
@@ -148,7 +220,7 @@
       "title": "把状态接口接到账号词状态 store",
       "phase": "implement",
       "acceptance": ["AC-ACCOUNT-003"],
-      "status": "doing",
+      "status": "done",
       "result": "接口按 session 用户读取 listWordStates，返回自己的词状态，测试转绿。",
       "scope": ["src/server/api/vocabulary.ts", "tests/api/vocabulary-state.test.ts"],
       "depends_on": ["T2"],
@@ -158,7 +230,7 @@
       "id": "T4",
       "title": "运行集成检查、交付审查并回写设计",
       "phase": "verify",
-      "status": "todo",
+      "status": "doing",
       "result": "check integration 和独立 delivery 审查通过，api.md 和 api.yaml 记录非空响应事实。",
       "scope": ["docs/designs/api.md", "docs/designs/api.yaml", "docs/others/evidence/"],
       "depends_on": ["T3"],
@@ -187,6 +259,9 @@
     "docs/features/product.md",
     "tests/api/vocabulary-state-data.test.ts",
     "tests/api/vocabulary-state.test.ts",
+    "tests/contracts/vocabulary-store.test.ts",
+    "tests/support/server-only.ts",
+    "vitest.config.ts",
     "src/server/api/vocabulary.ts",
     "docs/designs/api.md",
     "docs/designs/api.yaml",
@@ -349,8 +424,8 @@ AC-ACCOUNT-003 的 database 测试通过；原生红灯和集成检查有记录�
 
 - [x] T1 · 确认目标、编写真实接口数据测试并提交准备基线 · done
 - [x] T2 · 运行接口数据测试并记录红灯 · done
-- [ ] T3 · 把状态接口接到账号词状态 store · doing
-- [ ] T4 · 运行集成检查、交付审查并回写设计 · todo
+- [x] T3 · 把状态接口接到账号词状态 store · done
+- [ ] T4 · 运行集成检查、交付审查并回写设计 · doing
 
 验收缺口：未记录；完成仍须实际证据
 证据：尚无
