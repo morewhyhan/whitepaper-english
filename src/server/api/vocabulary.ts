@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { requireUserId } from '../../session'
+import { requireUserId } from './session'
 
 const vocabulary = new Hono()
 

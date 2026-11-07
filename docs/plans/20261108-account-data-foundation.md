@@ -204,7 +204,7 @@
   "acceptance": [
     {
       "id": "AC-ACCOUNT-001",
-      "module": "src/server/api/routes/vocabulary/",
+      "module": "src/server/api/",
       "tests": [
         "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] enforces the session boundary"
       ],
@@ -254,7 +254,7 @@
       "result": "未登录请求返回 401，已登录请求返回 200 和空学习状态，测试转绿。",
       "scope": [
         "src/server/api/index.ts",
-        "src/server/api/routes/vocabulary/",
+        "src/server/api/vocabulary.ts",
         "src/server/vocabulary/"
       ],
       "depends_on": ["T2"],
@@ -299,7 +299,7 @@
     "docs/features/product.md",
     "tests/api/vocabulary-state.test.ts",
     "src/server/api/index.ts",
-    "src/server/api/routes/vocabulary/",
+    "src/server/api/vocabulary.ts",
     "src/server/vocabulary/",
     "docs/designs/",
     "docs/others/evidence/",
@@ -417,7 +417,7 @@
 
 ## 变更类型
 
-存量改动，新增一个只读接口。没有数据迁移，不触碰 Prisma schema。src/server/api/index.ts 是共享文件，由本 Plan 独占写入。
+存量改动，新增一个只读接口。没有数据迁移，不触碰 Prisma schema。接口不访问数据库，放在 src/server/api/vocabulary.ts，不放进 routes/，避免被检查器当成数据路由。src/server/api/index.ts 是共享文件，由本 Plan 独占写入。
 
 ## 输入规格
 
