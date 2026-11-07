@@ -1,0 +1,40 @@
+{
+  "schema": 2,
+  "test_scope": "acceptance-case",
+  "test_sha256": "bc812f55baaa03b7b6f1802afa35cd6c062bd09db098d0133d688c53d4e9afb0",
+  "context_schema": 1,
+  "context_sha256": "cf0c8bc38c7d6d1a334c61749d66f4f8bb7bc4145e6807ddaf23eed54a958afe",
+  "context_files": ["tests/api/vocabulary-judgements.test.ts"],
+  "warnings": [
+    "local dependency excluded outside declared test-support paths: scripts/testing/database-adapter.mjs"
+  ],
+  "run_id": "tdd-20261107224032-a4d46c",
+  "plan_id": "IGT-1794090800136711353",
+  "acceptance_id": "AC-ACCOUNT-005",
+  "test": "tests/api/vocabulary-judgements.test.ts::[AC-ACCOUNT-005] saves a page of judgements for the signed-in account",
+  "layer": "database",
+  "status": "assertion-failed",
+  "target_assertion_contract": "ac-message-marker-v1",
+  "red_commit": "257f573507a231e6030e32735e7c6dd93385cec3",
+  "output_sha256": "ecc35c5e5d2b04dc61f4455eb374555eaaf7474bb4d26c14eb27ef3febfbbf90",
+  "failure_sha256": "f984bbd9420bb35b00f4cdaa5c5d9e06e984877195c6fc4a4e012b8e0204496b",
+  "failure_summary": [
+    "AssertionError: [AC-ACCOUNT-005] target judged words are saved per account: expected { post: 404, resubmit: 404, …(2) } to deeply equal { post: 200, resubmit: 200, …(2) } at /mnt/c/Users/why/Documents/ChatGPT/whitepaper-english/tests/api/vocabulary-judgements.test.ts:100:5 at file:///mnt/c/Users/why/Documents/ChatGPT/whitepaper-english/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+  ],
+  "failure_summary_sha256": "44425022708015fb379d061fc5de6a80fd0a7b44cacf6d513f02ef41b853bc3a",
+  "command": [
+    "corepack",
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/api/vocabulary-judgements.test.ts",
+    "--testNamePattern",
+    "AC-ACCOUNT-005",
+    "--reporter=json",
+    "--outputFile=<temporary-json-report>"
+  ],
+  "started_at": "2026-11-07T22:40:32.347Z",
+  "ended_at": "2026-11-07T22:40:51.287Z",
+  "executor": "ignite-tdd-runner"
+}
