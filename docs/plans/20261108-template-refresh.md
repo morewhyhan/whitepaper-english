@@ -542,7 +542,7 @@
 - AC-ADOPTION-001、AC-ADOPTION-002 用 unit 层断言检查项目身份字段与工程依赖清单。它们能发现身份漂移或治理入口被删，但发现不了浏览器行为。
 - AC-WHITEPAPER-005 用 Playwright 断言未登录访问首页后的第一入口是词汇白纸。它能发现首屏退回 Tasks 或模板落地页的回归。
 - AC-WORKSPACE-001、AC-WORKSPACE-006、AC-WRITING-005、AC-GRAMMAR-005 用同一个浏览器用例分别到达写作、语法与工作台纸张，断言每张纸只显示自己的模块和未开放状态。它能发现模块内容纵向拼接或把未开放能力写成可用。
-- 上述浏览器用例需要运行中的应用与 Playwright 环境；本轮尚未执行，属于未完成证据，不作为通过依据。unit 层按实际运行结果记录。
+- 浏览器用例在 WSL 下用隔离数据库和 Playwright 运行：future-modules.spec.ts 在桌面与移动视口均通过，覆盖 AC-WORKSPACE-001、AC-WORKSPACE-006、AC-WRITING-005、AC-GRAMMAR-005；AC-WHITEPAPER-005 所属用例也在 vocabulary.spec.ts 中通过。该 spec 另有 3 个移动端布局用例失败，属于词汇 Plan 的实现缺口，不在本 Plan 的 AC 内。
 
 ## 实现任务
 
@@ -564,7 +564,11 @@
 - 2026-11-08：从 Ignite 仓库取 template-maintenance 分支比对，确认 main 是干净模板、维护分支才含规格闭环与绑定检查；按此来源同步治理层，未复制 archive/template-build 的建设记录。
 - 2026-11-08：第一轮 docs:check 通过治理文件，但本 Plan 因缺章节、绑定 ID 与 red 任务失败；据此重写本 Plan，保留 draft，不伪造证据。
 - 2026-11-08：修复 docs/features/template.md 的补丁残留与过期「模板基线」描述，改为 adopted 状态并保留继承契约说明。
-- 2026-11-08：类型与单元检查结果见本轮运行；浏览器与 Release 未运行，保留为缺口。
+- 2026-11-08：清理 tests/e2e/future-modules.spec.ts 中引用已不存在 AC 的 test.skip 占位；这些占位会让验收报告把未实现能力算成未完成。
+- 2026-11-08：删除 prisma/migrations/20261104000000_replace_tasks_with_vocabulary 空目录；schema 仍只有 task，该目录没有 migration.sql，会导致 migrate deploy 与 E2E 失败。
+- 2026-11-08：docs/designs/api.yaml 恢复为已实现路由快照（health、tasks），词汇同步 API 保留在 api.md 的采用目标段落；身份测试改为同时读取 dependencies 与 devDependencies。
+- 2026-11-08：docs:check、ignite validate、template:doctor、typecheck、test:migrations 与 future-modules 浏览器验收通过；lint、格式和完整单元套件以本轮运行结果为准。
+- 2026-11-08：本 Plan 仍未取得 TDD red、draft/delivery 独立审查与 Release verify，状态保持 draft；这部分不能用文档或工程绿灯替代。
 
 ## 准出条件
 

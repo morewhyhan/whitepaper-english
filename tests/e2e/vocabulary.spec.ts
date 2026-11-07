@@ -17,7 +17,9 @@ async function importText(page: import('@playwright/test').Page, text: string) {
   await expect(dialog).toBeHidden()
 }
 
-test('[AC-VOCABULARY-001] [AC-WHITEPAPER-004] [AC-WHITEPAPER-005] 未登录进入白纸词汇工作台', async ({ page }) => {
+test('[AC-VOCABULARY-001] [AC-WHITEPAPER-004] [AC-WHITEPAPER-005] 未登录进入白纸词汇工作台', async ({
+  page,
+}) => {
   await openFresh(page, '/')
 
   await expect(page.getByRole('heading', { name: '第 1 轮' })).toBeVisible()
@@ -35,7 +37,9 @@ test('[AC-VOCABULARY-002] 手动分页并判断会与不会', async ({ page }) =
   await expect(page.getByText('已扫 36 / 3975')).toBeVisible()
 })
 
-test('[AC-VOCABULARY-003] [AC-WHITEPAPER-002] 配置点击默认判断并用 Shift 反转', async ({ page }) => {
+test('[AC-VOCABULARY-003] [AC-WHITEPAPER-002] 配置点击默认判断并用 Shift 反转', async ({
+  page,
+}) => {
   await openFresh(page)
 
   await page.getByRole('button', { name: '设置' }).click()
@@ -107,7 +111,9 @@ test('[AC-VOCABULARY-007] 导入 CSV TXT JSON 且拒绝无效输入', async ({ p
   await expect(page.getByText(/导入失败/)).toBeVisible()
 })
 
-test('[AC-VOCABULARY-008] [AC-WHITEPAPER-001] 导出 JSON Markdown 并可重导入 JSON', async ({ page }) => {
+test('[AC-VOCABULARY-008] [AC-WHITEPAPER-001] 导出 JSON Markdown 并可重导入 JSON', async ({
+  page,
+}) => {
   await openFresh(page)
   await importText(page, 'apple,苹果')
   await page.getByRole('button', { name: '导入 / 导出' }).click()

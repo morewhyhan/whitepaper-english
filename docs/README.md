@@ -17,7 +17,7 @@
 | 当前任务                     | 建议阅读                                                                                                                                                             |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 第一次用 Ignite 建项目       | [模板采用指南](./standards/adoption.md)：环境、项目身份、示例替换与交付边界                                                                                          |
-| 了解当前项目已经提供什么     | [产品规格](./features/product.md)、[词汇](./features/vocabulary.md)、[统一工作台](./features/workspace.md)、[认证](./features/auth.md)                              |
+| 了解当前项目已经提供什么     | [产品规格](./features/product.md)、[词汇](./features/vocabulary.md)、[统一工作台](./features/workspace.md)、[认证](./features/auth.md)                               |
 | 交给 AI 实现或修改功能       | [AGENTS.md](../AGENTS.md) → 对应 Feature、Design 和 Plan；编写与接续规则在各自目录 README                                                                            |
 | 协调跨 Plan 依赖或共享写入   | [Plan 依赖与交接](./plans/README.md#跨-plan-依赖与交接)，组合范围和完成按 [Release 规则](./plans/releases/README.md)                                                 |
 | 查代码应该放在哪里、如何连接 | [架构规范](./standards/architecture.md)、[领域设计](./designs/domain.md)、[API 设计](./designs/api.md)、[数据库设计](./designs/database.md)                          |
