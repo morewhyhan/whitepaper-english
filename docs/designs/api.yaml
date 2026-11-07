@@ -29,6 +29,36 @@ paths:
                   timestamp:
                     type: string
                     format: date-time
+  /api/vocabulary/state:
+    get:
+      operationId: getVocabularyState
+      summary: Read the current user's vocabulary state boundary
+      description: >-
+        Requires the Better Auth session cookie. Returns an empty state until
+        account persistence ships.
+      responses:
+        '200':
+          description: Current vocabulary state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [activeBook, wordStates]
+                    properties:
+                      activeBook:
+                        type: ['object', 'null']
+                        additionalProperties: true
+                      wordStates:
+                        type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /api/tasks:
     get:
       operationId: listTasks
