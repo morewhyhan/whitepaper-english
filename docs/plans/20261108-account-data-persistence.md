@@ -281,7 +281,7 @@
   "evidence": [
     {
       "id": "check-integration",
-      "run_id": "run-20261107210921-10b71a"
+      "run_id": "run-20261107212434-3d8a10"
     }
   ],
   "design_writeback": {
@@ -433,5 +433,5 @@ AC-ACCOUNT-003 的 database 测试通过；原生红灯和集成检查有记录�
 - [ ] T4 · 运行集成检查、交付审查并回写设计 · doing
 
 验收缺口：未记录；完成仍须实际证据
-证据：check-integration / run-20261107210921-10b71a
+证据：check-integration / run-20261107212434-3d8a10
 <!-- /ignite-progress -->
