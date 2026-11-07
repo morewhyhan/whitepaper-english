@@ -66,6 +66,7 @@
 - R12（REQ-ACCOUNT-005）：登录用户可以批量提交当前页的会/不会判定；同一账号同一词重复提交时覆盖旧值，其他账号不可见。
 - R13（REQ-ACCOUNT-006）：登录用户点“下一页”时，当前页的判定提交到自己的账号；未登录用户只保存在本机。
 - R14（REQ-ACCOUNT-007）：登录用户点“撤销上一页”时，清空该页在账号里的判定并只回退一页；刷新后该页不再显示为已判定。
+- R15（REQ-ACCOUNT-008）：登录用户的每日轮次、页码和判定按账号保存；清掉本机存储或换标签页后刷新，仍能回到同一轮同一页。
 
 ## 验收标准
 
@@ -83,6 +84,7 @@
 - AC-ACCOUNT-005（REQ-ACCOUNT-005）：Given 登录用户 A 提交 apple=true、tree=false，When 再提交 apple=false，Then 读取只保留 apple=false 和一条 tree=false；账号 B 读取不到 A 的记录。
 - AC-ACCOUNT-006（REQ-ACCOUNT-006）：Given 登录用户在词汇白纸第一页，When 点击“下一页”，Then 当前页判定写入账号，读取状态返回这些词。
 - AC-ACCOUNT-007（REQ-ACCOUNT-007）：Given 登录用户已提交第一页并进入第二页，When 点击“撤销上一页”，Then 第一页的词从账号状态中删除，页面回到第一页且判定为空。
+- AC-ACCOUNT-008（REQ-ACCOUNT-008）：Given 登录用户已进入第二页，When 清除本地存储并刷新，Then 仍回到第二页，“撤销上一页”可用。
 
 ## 后续讨论边界
 
