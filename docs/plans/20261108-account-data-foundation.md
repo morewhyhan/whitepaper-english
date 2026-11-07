@@ -250,7 +250,7 @@
       "title": "实现已定义的行为切片",
       "phase": "implement",
       "acceptance": ["AC-ACCOUNT-001"],
-      "status": "doing",
+      "status": "done",
       "result": "未登录请求返回 401，已登录请求返回 200 和空学习状态，测试转绿。",
       "scope": [
         "src/server/api/index.ts",
@@ -264,7 +264,7 @@
       "id": "T4",
       "title": "验证兼容性并回写当前设计",
       "phase": "verify",
-      "status": "todo",
+      "status": "doing",
       "result": "Plan integration 和独立 delivery 审查均通过，Design 已记录实际结果及缺口。",
       "scope": ["docs/designs/", "docs/others/evidence/"],
       "depends_on": ["T3"],
@@ -461,6 +461,8 @@ pnpm ignite check --plan IGT-1794081675956926402 --level integration
 - 2026-11-08：本地红灯仍是期望 401、实际 404；尚未用原生命令记录。
 - 2026-11-08：等待复审。
 
+2026-11-07：check --plan integration 被模板规则拒绝：src/server/api/routes 变更要求 database 层验收；本轮只建立会话边界，没有 Prisma 持久化。下一步需要把数据层纳入本 Plan 或另立 Plan，再重新取 integration 证据。
+
 ## 准出条件
 
 AC-ACCOUNT-001 的契约用例通过；原生红灯和集成检查有记录；复审通过；Design 回写；tasks 全部完成。数据库隔离不在本轮，Release 明确延期。
@@ -471,8 +473,8 @@ AC-ACCOUNT-001 的契约用例通过；原生红灯和集成检查有记录；�
 
 - [x] T1 · 确认本轮目标、编写真实测试并提交准备基线 · done
 - [x] T2 · 运行真实断言并记录目标行为红灯 · done
-- [ ] T3 · 实现已定义的行为切片 · doing
-- [ ] T4 · 验证兼容性并回写当前设计 · todo
+- [x] T3 · 实现已定义的行为切片 · done
+- [ ] T4 · 验证兼容性并回写当前设计 · doing
 
 验收缺口：未记录；完成仍须实际证据
 证据：尚无
