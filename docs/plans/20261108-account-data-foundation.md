@@ -98,6 +98,7 @@
     "只做 Web 端桌面浏览器。"
   ],
   "non_goals": [
+    "本轮不实现账号数据持久化、双账号隔离和跨会话恢复。",
     "本轮不实现学习记录曲线和设置两栏。",
     "本轮不做导入、导出和清空全部。",
     "本轮不改关联辅助数据管线。"
@@ -147,7 +148,7 @@
       "phase": "red",
       "acceptance": ["AC-ACCOUNT-001"],
       "status": "doing",
-      "result": "原生 red 运行确认未登录请求返回 404 而不是 401，并记录真实红灯。",
+      "result": "原生 red 运行确认聚合断言失败：guest、spoofed、signedIn 都是 404，signedInBody 为 null。",
       "scope": ["tests/api/vocabulary-state.test.ts", "docs/others/evidence/tdd/"],
       "depends_on": ["T1"],
       "owner": "morewhyhan"
@@ -199,7 +200,7 @@
     "access_scope": "per-user",
     "access_rationale": "本轮只读空状态，不查询或写入用户数据；接口只从 session 取身份，不接受客户端标识。",
     "migration_impact": "none",
-    "rollback": "移除新接口和路由即可恢复，不修改已应用迁移或现有数据。",
+    "rollback": "移除新接口和路由，同时移除 Feature 的 AC-ACCOUNT-001 和对应测试，不修改已应用迁移或现有数据。",
     "destructive_authorization": null
   },
   "write_scope": [
@@ -228,7 +229,7 @@
 
 ## 状态
 
-本 Plan 保持 draft。规格、测试和元数据已提交；独立 draft 审查第一轮要求收窄范围，本轮已按审查意见收窄，等待复审。
+顶部元数据是唯一状态。规格、测试和元数据已提交，已通过 prepare 并进入执行；正文只记录判断和证据，不复制状态。
 
 ## 目标
 
@@ -335,7 +336,7 @@
 
 一个契约用例把游客 401、游客带 userId 仍 401、登录 200 和空状态 body 合成一条对象断言，目标断言在末尾并带 AC 标记。这样原生红灯只归属一条可识别断言，四个值仍然一起验收。测试 mock session 和 prisma，只证明 unit 层的路由和守卫，不证明数据库隔离；数据库隔离由后续 Plan 用真实 SQLite 验收。
 
-当前红灯：期望 401，实际 404，断言失败，不是环境错误。
+当前红灯：末尾对象断言失败，guest、spoofed、signedIn 都是 404，signedInBody 为 null，不是环境错误。
 
 ## 实现任务
 

@@ -24,7 +24,7 @@
       "acceptance": [],
       "plan_ids": [],
       "disposition": "deferred",
-      "reason": "需要 Prisma 模型、迁移和真实数据库验收，另立 Plan。",
+      "reason": "待独立 Plan 定义 REQ/AC 后实施；在此之前保持 deferred，不能当作已覆盖。",
       "authorization": "用户接受 V1 GOAL。"
     }
   ],

@@ -49,7 +49,7 @@ describe('account-scoped vocabulary state', () => {
 
     testState.userId = 'user-a'
     const signedIn = await api.request('http://localhost/api/vocabulary/state')
-    const signedInBody = await signedIn.json()
+    const signedInBody = await signedIn.json().catch(() => null)
 
     expect(
       {
