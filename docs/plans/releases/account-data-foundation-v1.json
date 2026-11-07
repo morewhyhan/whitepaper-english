@@ -7,14 +7,14 @@
   "scope": [
     {
       "id": "GOAL-001",
-      "text": "待填写原始目标",
-      "source": "待填写来源",
-      "requirements": [],
-      "acceptance": [],
+      "text": "登录后学习数据按账号隔离，未登录访问受保护的学习接口被拒绝",
+      "source": "2026-11-08 V1 GOAL 的 M1；用户要求使用账号承载学习数据，多个使用者互不可见",
+      "requirements": ["REQ-ACCOUNT-001"],
+      "acceptance": ["AC-ACCOUNT-001"],
       "plan_ids": ["IGT-1794081675956926402"],
       "disposition": "included",
-      "reason": "",
-      "authorization": ""
+      "reason": "本轮只建立账号学习状态的接口边界和会话守卫，数据库隔离由后续 Plan 接续。",
+      "authorization": "用户接受 V1 GOAL，并要求用账号承载学习数据。"
     }
   ],
   "must_pass": ["check-release"],

@@ -12,7 +12,12 @@
   "review_contract": 1,
   "reviews": [],
   "verification_contract": 2,
-  "goals": [],
+  "goals": [
+    {
+      "text": "登录后学习数据按账号隔离，未登录访问受保护的学习接口被拒绝",
+      "requirements": ["REQ-ACCOUNT-001"]
+    }
+  ],
   "constraints": [
     "账号可选：登录后数据归账号，未登录数据只在本机。",
     "服务端只信任 session 用户，不信任客户端传入的 userId。",
@@ -27,12 +32,20 @@
   "authorization": {
     "source": "2026-11-08 用户接受 V1 GOAL：使用账号承载学习数据，多个使用者互不可见。对应 docs/others/20261108-vocabulary-goal.md 的 M1。"
   },
-  "deliverables": [],
-  "remaining_work": ["原始目标尚未细化，无法确认完整验收场景"],
+  "deliverables": ["账号学习状态接口与会话守卫", "401 与 200 的接口契约测试"],
+  "remaining_work": ["账号数据写入数据库、两账号隔离和跨会话恢复由后续 Plan 接续"],
   "change_type": "存量改动",
   "base_commit": "df562222c1ecb322b9b5081a4bd5807fe2aa8045",
-  "requirements": [],
-  "acceptance": [],
+  "requirements": ["REQ-ACCOUNT-001"],
+  "acceptance": [
+    {
+      "id": "AC-ACCOUNT-001",
+      "module": "src/server/api/routes/vocabulary/",
+      "tests": ["tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests and returns only the signed-in account state"],
+      "required_layers": ["unit"],
+      "checks": [{ "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests and returns only the signed-in account state", "layer": "unit" }]
+    }
+  ],
   "verification_requirements": ["unit"],
   "tasks": [
     {
@@ -44,8 +57,8 @@
       "scope": [
         "docs/plans/20261108-account-data-foundation.md",
         "docs/plans/releases/account-data-foundation-v1.json",
-        "<feature-path>",
-        "<test-path>"
+        "docs/features/product.md",
+        "tests/api/vocabulary-state.test.ts"
       ],
       "depends_on": [],
       "owner": "morewhyhan"
@@ -54,10 +67,10 @@
       "id": "T2",
       "title": "运行真实断言并记录目标行为红灯",
       "phase": "red",
-      "acceptance": [],
+      "acceptance": ["AC-ACCOUNT-001"],
       "status": "todo",
-      "result": "原生 red 运行确认已提交测试的目标断言失败，并记录真实红灯。",
-      "scope": ["<test-path>", "docs/others/evidence/tdd/"],
+      "result": "原生 red 运行确认未登录请求返回 404 而不是 401，并记录真实红灯。",
+      "scope": ["tests/api/vocabulary-state.test.ts", "docs/others/evidence/tdd/"],
       "depends_on": ["T1"],
       "owner": "morewhyhan"
     },
@@ -65,10 +78,10 @@
       "id": "T3",
       "title": "实现已定义的行为切片",
       "phase": "implement",
-      "acceptance": [],
+      "acceptance": ["AC-ACCOUNT-001"],
       "status": "todo",
-      "result": "已声明的验收行为通过，改动保持在本轮写入范围内。",
-      "scope": ["<affected-path>"],
+      "result": "未登录请求返回 401，已登录请求返回 200 和空学习状态，测试转绿。",
+      "scope": ["src/server/api/index.ts", "src/server/api/routes/vocabulary/", "src/server/vocabulary/", "tests/api/vocabulary-state.test.ts"],
       "depends_on": ["T2"],
       "owner": "morewhyhan"
     },
@@ -78,14 +91,14 @@
       "phase": "verify",
       "status": "todo",
       "result": "Plan integration 和独立 delivery 审查均通过，Design 已记录实际结果及缺口。",
-      "scope": ["<design-path>", "docs/others/evidence/"],
+      "scope": ["docs/designs/", "docs/others/evidence/"],
       "depends_on": ["T3"],
       "owner": "morewhyhan"
     }
   ],
   "depends_on": [],
   "dependency_contracts": [],
-  "shared_files": [],
+  "shared_files": [{ "path": "src/server/api/index.ts", "owner": "morewhyhan", "mode": "exclusive" }],
   "handoff": {
     "interfaces": [],
     "migrations": [],
@@ -93,19 +106,21 @@
     "remaining": []
   },
   "owner": "morewhyhan",
-  "risk": "feature",
+  "risk": "security",
   "data_contract": {
-    "access_scope": "not-decided",
-    "access_rationale": "",
-    "migration_impact": "not-decided",
-    "rollback": "",
+    "access_scope": "per-user",
+    "access_rationale": "学习状态按 session 用户查询和写入，客户端传入的用户标识不参与查询条件。",
+    "migration_impact": "none",
+    "rollback": "移除新接口和路由即可恢复，不修改已应用迁移或现有数据。",
     "destructive_authorization": null
   },
   "write_scope": [
-    "<feature-path>",
-    "<test-path>",
-    "<affected-path>",
-    "<design-path>",
+    "docs/features/product.md",
+    "tests/api/vocabulary-state.test.ts",
+    "src/server/api/index.ts",
+    "src/server/api/routes/vocabulary/",
+    "src/server/vocabulary/",
+    "docs/designs/",
     "docs/others/evidence/",
     "docs/plans/20261108-account-data-foundation.md",
     "docs/plans/releases/account-data-foundation-v1.json",

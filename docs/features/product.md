@@ -59,6 +59,7 @@
 - R5（REQ-WHITEPAPER-003）：本阶段不自动开通付费、云服务、教材分发或外部模型；需要这些能力时另立规格、权限、成本和验收。
 - R6（REQ-WHITEPAPER-004）：未登录用户可以开始第一阶段词汇学习；账户只用于同步、备份和跨设备恢复。
 - R7（REQ-WHITEPAPER-005）：第一阶段的首屏直接进入词汇白纸，不先展示 Tasks、设置或模板说明；写作和语法在未实现前不得展示为可用学习功能。
+- R8（REQ-ACCOUNT-001）：学习数据按账号隔离。未登录访问受保护的学习接口返回 401；服务端只从 session 取当前用户，不接受客户端传入的用户标识。
 
 ## 验收标准
 
@@ -69,6 +70,7 @@
 - AC-WHITEPAPER-003（REQ-WHITEPAPER-003）：Given 当前阶段未接入付费、云服务或外部模型，When 核对页面和运行配置，Then 不出现虚假的商业能力或已完成的 AI 结果。
 - AC-WHITEPAPER-004（REQ-WHITEPAPER-004）：Given 未登录访客，When 打开首页并点击第一入口，Then 不需要注册即可进入词汇白纸并开始本地学习。
 - AC-WHITEPAPER-005（REQ-WHITEPAPER-005）：Given 第一阶段产品入口，When 访问首页和工作台，Then 第一动作是进入词汇白纸，未实现的写作/语法不被误标为可用。
+- AC-ACCOUNT-001（REQ-ACCOUNT-001）：Given 未登录或已登录用户，When 请求 /api/vocabulary/state，Then 未登录返回 401，已登录返回 200 且只包含该账号自己的学习状态。
 
 ## 后续讨论边界
 
