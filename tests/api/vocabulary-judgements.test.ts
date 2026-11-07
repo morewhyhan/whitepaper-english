@@ -71,6 +71,17 @@ it('[AC-ACCOUNT-005] saves a page of judgements for the signed-in account', asyn
     }),
   })
 
+  const resubmit = await api.request('http://localhost/api/vocabulary/judgements', {
+    method: 'POST',
+    headers: { cookie: cookieA, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      judgements: [
+        { word: 'apple', known: false },
+        { word: 'tree', known: false },
+      ],
+    }),
+  })
+
   const stateA = await api.request('http://localhost/api/vocabulary/state', {
     headers: { cookie: cookieA },
   })
@@ -81,17 +92,19 @@ it('[AC-ACCOUNT-005] saves a page of judgements for the signed-in account', asyn
   expect(
     {
       post: post.status,
+      resubmit: resubmit.status,
       bodyA: await stateA.json(),
       bodyB: await stateB.json(),
     },
     '[AC-ACCOUNT-005] target judged words are saved per account',
   ).toEqual({
     post: 200,
+    resubmit: 200,
     bodyA: {
       data: {
         activeBook: null,
         wordStates: [
-          { word: 'apple', known: true },
+          { word: 'apple', known: false },
           { word: 'tree', known: false },
         ],
       },

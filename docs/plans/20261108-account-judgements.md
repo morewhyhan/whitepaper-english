@@ -162,7 +162,7 @@
     "access_scope": "per-user",
     "access_rationale": "路由只从 session 取 userId，upsert 以 userId+word 唯一键写入。",
     "migration_impact": "none",
-    "rollback": "回退路由和 store 批量函数，保留 word_state 数据；不改 schema 或迁移。",
+    "rollback": "回退路由和 store 批量函数，保留 word_state 数据；移除或延期 AC-ACCOUNT-005 和 REQ-ACCOUNT-005，并同步 Release scope；不改 schema 或迁移。",
     "destructive_authorization": null
   },
   "write_scope": [
@@ -300,7 +300,7 @@
 
 ## 测试与验收设计
 
-tests/api/vocabulary-judgements.test.ts 建真实 SQLite，注册 A/B，A 提交两条判定，A 读取到两条，B 为空。测试内没有 mock。当前 POST 404，末尾对象断言失败。
+tests/api/vocabulary-judgements.test.ts 建真实 SQLite，注册 A/B，A 提交 apple=true、tree=false，再提交 apple=false，读取到 apple=false 和 tree=false，B 为空。测试内没有 mock。当前 POST 404，末尾对象断言失败。
 
 ## 实现任务
 
