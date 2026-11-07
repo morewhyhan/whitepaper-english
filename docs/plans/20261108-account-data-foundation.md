@@ -44,13 +44,15 @@
       "tests": [
         "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests",
         "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] ignores a client supplied user id for guests",
-        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns the signed-in empty state"
+        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns 200 for a signed-in user",
+        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns the empty state for a signed-in user"
       ],
       "required_layers": ["unit"],
       "checks": [
         { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests", "layer": "unit" },
         { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] ignores a client supplied user id for guests", "layer": "unit" },
-        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns the signed-in empty state", "layer": "unit" }
+        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns 200 for a signed-in user", "layer": "unit" },
+        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns the empty state for a signed-in user", "layer": "unit" }
       ]
     }
   ],

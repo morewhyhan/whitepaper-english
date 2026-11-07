@@ -58,11 +58,20 @@ describe('account-scoped vocabulary state', () => {
     ).toBe(401)
   })
 
-  it('[AC-ACCOUNT-001] returns the signed-in empty state', async () => {
+  it('[AC-ACCOUNT-001] returns 200 for a signed-in user', async () => {
     testState.userId = 'user-a'
     const response = await api.request('http://localhost/api/vocabulary/state')
 
     expect(response.status, '[AC-ACCOUNT-001] target signed-in request must receive 200').toBe(200)
-    expect(await response.json()).toEqual({ data: { activeBook: null, wordStates: [] } })
+  })
+
+  it('[AC-ACCOUNT-001] returns the empty state for a signed-in user', async () => {
+    testState.userId = 'user-a'
+    const response = await api.request('http://localhost/api/vocabulary/state')
+    const body = await response.json()
+
+    expect(body, '[AC-ACCOUNT-001] target signed-in body must be the empty state').toEqual({
+      data: { activeBook: null, wordStates: [] },
+    })
   })
 })
