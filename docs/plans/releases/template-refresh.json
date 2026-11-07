@@ -1,0 +1,41 @@
+{
+  "schema": 2,
+  "id": "template-refresh",
+  "coverage_version": 2,
+  "verification_contract": 2,
+  "plan_ids": ["IGT-2026110801"],
+  "scope": [
+    {
+      "id": "GOAL-TEMPLATE-REFRESH",
+      "text": "把最新版 Ignite 模板治理同步到白纸英语，并按当前产品阶段重新收束规格和计划边界",
+      "source": "2026-11-08 用户要求更新已优化的 Ignite 模板并重新对照白纸英语需求",
+      "requirements": [
+        "REQ-ADOPTION-001",
+        "REQ-ADOPTION-002",
+        "REQ-WHITEPAPER-005",
+        "REQ-WORKSPACE-001",
+        "REQ-WORKSPACE-006",
+        "REQ-WRITING-005",
+        "REQ-GRAMMAR-005"
+      ],
+      "acceptance": [
+        "AC-ADOPTION-001",
+        "AC-ADOPTION-002",
+        "AC-WHITEPAPER-005",
+        "AC-WORKSPACE-001",
+        "AC-WORKSPACE-006",
+        "AC-WRITING-005",
+        "AC-GRAMMAR-005"
+      ],
+      "plan_ids": ["IGT-2026110801"],
+      "disposition": "included",
+      "reason": "本轮同步模板治理并对齐当前 Feature/Plan 边界；业务能力和正式完成证据仍按各自 Plan 取得。",
+      "authorization": "用户明确要求更新模板并重新对照现有需求。"
+    }
+  ],
+  "must_pass": ["check-release"],
+  "evidence": [],
+  "integrated_commit": null,
+  "excluded": [],
+  "updated_at": "2026-11-08"
+}

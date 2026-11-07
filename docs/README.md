@@ -4,7 +4,7 @@
 
 文档让人和 AI 都能查清三件事：要做什么、这轮做到哪里、系统现在是什么样。它们随代码一起维护，为下一次修改留下依据。
 
-Ignite 是可采用的全栈模板，不是固定业务产品。当前基线包含邮箱密码认证和 Tasks 参考业务。首页、工作台、设置与主题选择属于可替换的界面外壳。先读 [项目定位](./features/product.md) 和[项目状态](../.ai/project.json)，再按实际目标进入对应 Feature、Design 和 Plan。
+本仓库基于 Ignite 全栈模板，当前产品是白纸英语，不是 Ignite 的固定业务副本。Ignite 的工程底座、规则和检查器继续作为本项目约束；当前产品身份、首页、工作台和词汇领域以 [项目定位](./features/product.md) 与[项目状态](../.ai/project.json) 为准。模板的 Tasks 只作为迁移边界，不是白纸英语的业务目标。
 
 涉及项目修改或文档维护时，AI 默认进入所属 README 或专业标准的“固定维护方法”，读取必需技能、按固定步骤处理，并仅按列出的条件使用额外方法。具体职责在原位置维护，本页只导航。
 
@@ -17,7 +17,7 @@ Ignite 是可采用的全栈模板，不是固定业务产品。当前基线包�
 | 当前任务                     | 建议阅读                                                                                                                                                             |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 第一次用 Ignite 建项目       | [模板采用指南](./standards/adoption.md)：环境、项目身份、示例替换与交付边界                                                                                          |
-| 了解模板已经提供什么         | [产品基线](./features/product.md)、[认证](./features/auth.md)、[Tasks](./features/tasks.md)                                                                          |
+| 了解当前项目已经提供什么     | [产品规格](./features/product.md)、[词汇](./features/vocabulary.md)、[统一工作台](./features/workspace.md)、[认证](./features/auth.md)                              |
 | 交给 AI 实现或修改功能       | [AGENTS.md](../AGENTS.md) → 对应 Feature、Design 和 Plan；编写与接续规则在各自目录 README                                                                            |
 | 协调跨 Plan 依赖或共享写入   | [Plan 依赖与交接](./plans/README.md#跨-plan-依赖与交接)，组合范围和完成按 [Release 规则](./plans/releases/README.md)                                                 |
 | 查代码应该放在哪里、如何连接 | [架构规范](./standards/architecture.md)、[领域设计](./designs/domain.md)、[API 设计](./designs/api.md)、[数据库设计](./designs/database.md)                          |
@@ -54,7 +54,7 @@ Feature → Plan → Contract/Test → Implementation → Verify → Design
 
 每轮先区分 `[新增模块]` 与 `[存量改动]`：新能力建立模块；修改现有能力或基础设施，要说明影响路径、兼容性、迁移和回归验证。风险强度由 Plan 的 `risk` 表达。
 
-品牌、页面、Tasks 和当前视觉都属于可替换的模板基线。采用时按[采用指南](./standards/adoption.md)确定去留；没有具体项目目标时保留现状，不替用户猜测产品决定。
+品牌、页面、Tasks 和当前视觉属于 Ignite 的可替换基线。白纸英语已经完成产品身份和第一阶段词汇入口的采用；Tasks 及旧页面只作为仍需按采用规则处理的迁移边界，不得被当成当前产品需求。后续改动仍按[采用指南](./standards/adoption.md)记录去留和回归范围。
 
 ## 执行入口
 

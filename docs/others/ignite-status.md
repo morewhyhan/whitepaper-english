@@ -1,44 +1,34 @@
 # Ignite 状态摘要
 
-模板状态：`template-baseline`
-输入指纹：`f7ef19ee129f`
-当前 Plan：0；结构化历史：5；未迁移历史：0
+模板状态：`adopted`
+输入指纹：`ddbb4d3e6855`
+当前 Plan：2；结构化历史：1；未迁移历史：0
 
 ## 当前工作
 
-- 无。
+- `IGT-2026110402` · `draft` · `vocabulary-paper`
+- `IGT-2026110801` · `draft` · `template-refresh`
 
 ## 发布范围
 
-- `agent-run-recovery-v1` · `verifying`
-  - Plan：`IGT-1791813346292559552`
+- `template-refresh` · `draft`
+  - Plan：`IGT-2026110801`
+  - 缺少证据：`IGT-2026110801:check-integration`（missing：no run is bound to this evidence requirement）
+  - 最终版本验收：missing
+  - 下一步：pnpm ignite next --plan IGT-2026110801
+  - 未完成原始目标：GOAL-TEMPLATE-REFRESH 把最新版 Ignite 模板治理同步到白纸英语，并按当前产品阶段重新收束规格和计划边界
+- `vocabulary-paper` · `draft`
+  - Plan：`IGT-2026110402`
+  - 缺少证据：`IGT-2026110402:check-integration`（missing：no run is bound to this evidence requirement）
+  - 最终版本验收：missing
+  - 下一步：pnpm ignite next --plan IGT-2026110402
+  - 未完成原始目标：GOAL-VOCABULARY-PAPER 第一版访客词汇白纸学习闭环
+- `whitepaper-adoption` · `cancelled`
+  - Plan：`IGT-2026110401`
   - 缺少证据：无
-  - 最终版本验收：stale
-  - 下一步：pnpm ignite release verify agent-run-recovery-v1 --plan IGT-1791813346292559552
-  - 未完成原始目标：无已登记缺口（仍需语义核对）
-- `document-workflow-v1` · `verifying`
-  - Plan：`IGT-1791708512635291997`
-  - 缺少证据：无
-  - 最终版本验收：stale
-  - 下一步：pnpm ignite release verify document-workflow-v1 --plan IGT-1791708512635291997
-  - 未完成原始目标：无已登记缺口（仍需语义核对）
-- `prepare-test-ownership-v1` · `verifying`
-  - Plan：`IGT-1792007450670818648`
-  - 缺少证据：无
-  - 最终版本验收：stale
-  - 下一步：pnpm ignite release verify prepare-test-ownership-v1 --plan IGT-1792007450670818648
-  - 未完成原始目标：无已登记缺口（仍需语义核对）
-- `startup-focus-v1` · `verifying`
-  - Plan：`IGT-1791976482786711869`
-  - 缺少证据：无
-  - 最终版本验收：stale
-  - 下一步：pnpm ignite release verify startup-focus-v1 --plan IGT-1791976482786711869
-  - 未完成原始目标：无已登记缺口（仍需语义核对）
-- `tdd-evidence-format-v1` · `done`
-  - Plan：`IGT-1792029176916013864`
-  - 缺少证据：无
-  - 最终版本验收：passed（5cba7a71f4e7）
-  - 未完成原始目标：无已登记缺口（仍需语义核对）
+  - 最终版本验收：missing
+  - 下一步：null
+  - 未完成原始目标：GOAL-ADOPTION 产品采用目标文档及未来采用范围；GOAL-WHITEPAPER 产品边界目标文档及未来采用范围；GOAL-VOCABULARY 词汇学习目标文档及未来采用范围；GOAL-WORKSPACE 统一工作台目标文档及未来采用范围；GOAL-WRITING 写作学习目标文档及未来采用范围；GOAL-GRAMMAR 语法学习目标文档及未来采用范围
 
 ## 结构问题
 

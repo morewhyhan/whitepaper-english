@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "mode": "template-baseline",
+  "mode": "adopted",
   "source_repository": "git@github.com:morewhyhan/Ignite.git",
-  "project_repository": null
+  "project_repository": "git@github.com:morewhyhan/whitepaper-english.git"
 }

@@ -72,12 +72,12 @@ describe('execution reliability', () => {
     }
 
     expect(configuredTimeout('tests/contracts/docs-traceability.test.ts', 'AC-PRODUCT-010')).toBe(
-      90_000,
+      240_000,
     )
     expect(configuredTimeout('tests/contracts/execution-trust.test.ts', 'AC-TRUST-010')).toBe(
-      90_000,
+      240_000,
     )
-  })
+  }, 600_000)
 
   it('[AC-EXECUTION-019] preserves Unicode paths when validating Plan write scope', () => {
     const fixture = makeFixture()

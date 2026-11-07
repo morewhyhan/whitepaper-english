@@ -6,51 +6,53 @@ entity user {
   * id : uuid <<PK>>
   --
   * email : string <<unique>>
-  * emailVerified : boolean
   * name : string
-  image : string?
-  * createdAt : datetime
-  * updatedAt : datetime
 }
 
-entity task {
+entity vocabularyList <<adopted target>> {
   * id : uuid <<PK>>
+  * userId : uuid <<FK>>
   --
   * title : string
-  * completed : boolean
-  * userId : uuid <<FK>>
   * createdAt : datetime
   * updatedAt : datetime
 }
 
-entity session {
+entity vocabularyWord <<adopted target>> {
   * id : uuid <<PK>>
+  * listId : uuid <<FK>>
+  --
+  * text : string
+  meaning : string?
+  association : string?
+  * position : integer
+}
+
+entity learningSession <<adopted target>> {
+  * id : uuid <<PK>>
+  * listId : uuid <<FK>>
   * userId : uuid <<FK>>
-  * expiresAt : datetime
-  * token : string <<unique>>
+  --
+  * currentRound : integer
+  * status : active|completed
 }
 
-entity account {
+entity learningJudgement <<adopted target>> {
   * id : uuid <<PK>>
-  * userId : uuid <<FK>>
-  * providerId : string
-  * accountId : string
+  * sessionId : uuid <<FK>>
+  * wordId : uuid <<FK>>
+  --
+  * round : integer
+  * known : boolean
 }
 
-entity verification {
-  * id : uuid <<PK>>
-  * identifier : string
-  * value : string
-  * expiresAt : datetime
-}
+user ||--o{ vocabularyList : owns
+vocabularyList ||--o{ vocabularyWord : contains
+vocabularyList ||--o{ learningSession : starts
+user ||--o{ learningSession : owns
+learningSession ||--o{ learningJudgement : records
+vocabularyWord ||--o{ learningJudgement : judged
 
-user ||--o{ task : owns
-user ||--o{ session : has
-user ||--o{ account : has
-
-note right of task
-  title: 1..200 chars
-  update: title or completed
-  ownership: session userId
-end note
+note "The current template still has user -> task.\nThis diagram is the WhitePaper English adoption target." as N
+N .. vocabularyList
 @enduml

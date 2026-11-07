@@ -1,3 +1,4 @@
+import { CONTENT_HEADINGS } from './content-contract.mjs'
 import { existsSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 
@@ -18,10 +19,22 @@ export function markdownHeadings(content) {
   return headings
 }
 
-export function validatePlanDocument(content, template) {
+export function standardRegistryFailures(files, readmeText, isGoverned) {
+  const failures = []
+  for (const file of files) {
+    if (!readmeText.includes(file))
+      failures.push(`standard is not indexed in docs/standards/README.md: ${file}`)
+    if (!isGoverned(`docs/standards/${file}`))
+      failures.push(`standard is not covered by the governance path whitelist: ${file}`)
+  }
+  return failures
+}
+
+export function validatePlanDocument(content, template, { contentContract = false } = {}) {
   if (template === null) return []
   const actual = new Set(markdownHeadings(content))
   return markdownHeadings(template)
+    .filter((heading) => contentContract || !CONTENT_HEADINGS.includes(heading))
     .filter((heading) => !actual.has(heading))
     .map((heading) => `missing heading "${heading}"`)
 }

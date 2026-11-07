@@ -1,10 +1,11 @@
 openapi: 3.1.0
 info:
-  title: Ignite Business API
+  title: WhitePaper English API
   version: 0.1.0
   description: >-
     Snapshot of the currently implemented business API. Hono AppType and route
-    source remain the executable type truth.
+    source remain the executable type truth. The vocabulary sync API in api.md
+    is an adopted target until its implementation Plan and evidence complete.
 servers:
   - url: http://localhost:3000
     description: Local development

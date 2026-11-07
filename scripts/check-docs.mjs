@@ -1,4 +1,16 @@
-import { validatePlanDocument, markdownHeadings } from './ignite/document-contract.mjs'
+import {
+  standardRegistryFailures,
+  validatePlanDocument,
+  markdownHeadings,
+} from './ignite/document-contract.mjs'
+import { isGovernedPath } from './ignite/checks.mjs'
+import { CONTENT_HEADINGS } from './ignite/content-contract.mjs'
+import {
+  collectSpecificationIds,
+  filesWithoutIds,
+  sourceEntries,
+  unknownReferences,
+} from './ignite/spec-id-registry.mjs'
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, extname, join, relative, resolve } from 'node:path'
 import { repositoryRoot, walkFiles } from './ignite/core.mjs'
@@ -29,6 +41,7 @@ for (const path of [
   'AGENTS.md',
   'docs/README.md',
   'docs/standards/adoption.md',
+  'docs/standards/specification-to-implementation-ddd.md',
   'docs/plans/README.md',
   'docs/features/product.md',
   'docs/features/_template.md',
@@ -45,7 +58,70 @@ for (const path of [
   requirePath(path)
 }
 
+const standardFiles = walkFiles(join(docsRoot, 'standards'))
+  .filter((path) => path.endsWith('.md') && !/[/\\]README\.md$/.test(path))
+  .map((path) => relative(join(docsRoot, 'standards'), path).replaceAll('\\', '/'))
+failures.push(
+  ...standardRegistryFailures(standardFiles, read('docs/standards/README.md'), isGovernedPath),
+)
+
 const markdownFiles = walkFiles(docsRoot).filter((path) => extname(path) === '.md')
+
+// 结构检查：只查章节、字段、引用是否齐全，不查内容意思。
+const structureRequirements = [
+  ['docs/features/README.md', ['模块目标', '交接']],
+  ['docs/plans/README.md', ['模块目标', '交接']],
+  ['docs/designs/README.md', ['模块目标', '交接', '来源标记']],
+  ['docs/others/README.md', ['模块目标', '交接']],
+  ['docs/standards/specification-to-implementation-ddd.md', ['定稿状态', '事件']],
+]
+for (const entry of structureRequirements) {
+  const path = String(entry[0])
+  const required = entry[1]
+  if (!existsSync(join(repositoryRoot, path))) continue
+  const text = read(path)
+  for (const marker of required) {
+    if (!text.includes(marker)) fail(`structure: ${path} is missing required section ${marker}`)
+  }
+}
+for (const path of walkFiles(join(docsRoot, 'standards'))) {
+  if (!path.endsWith('.md')) continue
+  const text = readFileSync(path, 'utf8')
+  const relativePath = relative(repositoryRoot, path).replaceAll('\\', '/')
+  const statusMatch = text.match(/文档状态\s*[|：:]\s*([^|\n]*)/)
+  if (!statusMatch) {
+    fail(`structure: ${relativePath} has no status row; treat it as draft`)
+    continue
+  }
+  if (!/定稿/.test(statusMatch[1])) {
+    fail(`structure: ${relativePath} is not final yet`)
+  }
+}
+for (const path of walkFiles(join(docsRoot, 'designs'))) {
+  if (!path.endsWith('.md') || path.endsWith('README.md')) continue
+  const text = readFileSync(path, 'utf8')
+  const relativePath = relative(repositoryRoot, path).replaceAll('\\', '/')
+  if (!text.includes('事件与命令')) {
+    fail(`structure: ${relativePath} is missing the event section`)
+    continue
+  }
+  if (/待填写/.test(text)) fail(`structure: ${relativePath} still has placeholder rows`)
+}
+const moduleSections = [
+  'docs/features/README.md',
+  'docs/plans/README.md',
+  'docs/designs/README.md',
+  'docs/others/README.md',
+].map((path) => ({ path, body: (read(path).split('## 模块说明（§8.1）')[1] || '').trim() }))
+const seenModules = new Map()
+for (const entry of moduleSections) {
+  if (entry.body.length < 200) fail(`structure: ${entry.path} module section is too thin`)
+  if (seenModules.has(entry.body)) {
+    fail(`structure: ${entry.path} duplicates the module section of ${seenModules.get(entry.body)}`)
+  } else {
+    seenModules.set(entry.body, entry.path)
+  }
+}
 const localLinkPattern = /!?\[[^\]]*]\(([^)]+)\)/g
 
 for (const markdownFile of markdownFiles) {
@@ -101,7 +177,10 @@ for (const featureFile of featureFiles) {
 const planFiles = listPlanFiles()
 for (const planFile of planFiles) {
   const plan = readPlan(planFile)
-  for (const error of validatePlanDocument(plan.content, read('docs/plans/_template.md')))
+  const contentOnlyHeadings = CONTENT_HEADINGS
+  for (const error of validatePlanDocument(plan.content, read('docs/plans/_template.md'), {
+    contentContract: plan.metadata?.content_contract === 1,
+  }))
     fail(`${plan.relativePath}: ${error}`)
   if (plan.metadata?.schema !== 2) {
     const selectedTypes = [
@@ -109,6 +188,24 @@ for (const planFile of planFiles) {
     ]
     if (selectedTypes.length !== 1) fail(`${plan.relativePath}: select exactly one change type`)
   }
+}
+
+const specEntries = sourceEntries(repositoryRoot, [
+  'docs/standards',
+  'docs/designs',
+  'docs/others/adr',
+])
+const specRegistry = collectSpecificationIds(specEntries)
+for (const path of filesWithoutIds(specEntries)) fail(`${path}: missing specification identifier`)
+for (const duplicate of specRegistry.duplicates)
+  fail(
+    `${duplicate.second}: duplicate specification identifier ${duplicate.id} (also ${duplicate.first})`,
+  )
+for (const planFile of planFiles) {
+  const plan = readPlan(planFile)
+  const prose = plan.content.replace(/<!-- ignite-plan[\s\S]*?-->/, '')
+  for (const id of unknownReferences(prose, specRegistry.byId))
+    fail(`${plan.relativePath}: unknown specification reference ${id}`)
 }
 
 const agentGuide = read('AGENTS.md')

@@ -1,0 +1,43 @@
+{
+  "schema": 2,
+  "id": "vocabulary-paper",
+  "coverage_version": 2,
+  "verification_contract": 2,
+  "plan_ids": ["IGT-2026110402"],
+  "scope": [
+    {
+      "id": "GOAL-VOCABULARY-PAPER",
+      "text": "第一版访客词汇白纸学习闭环",
+      "source": "2026-11-04 用户要求先实现背单词整套东西；Downloads/index.html 作为视觉与交互参考。",
+      "requirements": [
+        "REQ-VOCABULARY-001",
+        "REQ-VOCABULARY-002",
+        "REQ-VOCABULARY-003",
+        "REQ-VOCABULARY-004",
+        "REQ-VOCABULARY-005",
+        "REQ-VOCABULARY-006",
+        "REQ-VOCABULARY-007",
+        "REQ-VOCABULARY-008"
+      ],
+      "acceptance": [
+        "AC-VOCABULARY-001",
+        "AC-VOCABULARY-002",
+        "AC-VOCABULARY-003",
+        "AC-VOCABULARY-004",
+        "AC-VOCABULARY-005",
+        "AC-VOCABULARY-006",
+        "AC-VOCABULARY-007",
+        "AC-VOCABULARY-008"
+      ],
+      "plan_ids": ["IGT-2026110402"],
+      "disposition": "included",
+      "reason": "本轮直接实现并验证词汇白纸；账户同步、写作和语法不属于本 Release。",
+      "authorization": "2026-11-04 用户明确要求实现背单词整套功能。"
+    }
+  ],
+  "must_pass": ["check-release"],
+  "evidence": [],
+  "integrated_commit": null,
+  "excluded": [],
+  "updated_at": "2026-11-04"
+}

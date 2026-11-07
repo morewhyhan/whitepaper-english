@@ -1,5 +1,7 @@
 # API 标准
 
+> 文档状态：定稿
+
 - 业务 API 使用 Hono，并在 `src/server/api/index.ts` 注册。
 - 客户端只通过共享 Hono Typed RPC client 调用，不手写 endpoint 或直接 `fetch`。业务类型唯一来自 `src/server/api/index.ts` 的 `AppType`；`src/lib/api-client.ts` 暴露 Web 默认实例和可注入 origin/fetcher 的工厂，供未来平台 adapter 共享契约而不共享浏览器全局对象。
 - JSON body、query 和 path 参数必须在边界使用 Zod 校验。
@@ -26,3 +28,5 @@ export type AppType = typeof routes
 `InferRequestType` / `InferResponseType` 类型，但不能再次创建 `hc()`。
 
 业务 Hook 负责调用、缓存与数据状态，不依赖 `window.location` 或 Sonner 等 Web 通知组件；提示由 screen/平台外壳决定。认证调用继续由 Better Auth Client 负责，不混入业务 RPC。
+
+- STD-API-101：业务接口必须经统一校验器、会话守卫与统一错误格式；新增规则另起编号。

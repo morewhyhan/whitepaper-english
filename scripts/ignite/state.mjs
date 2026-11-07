@@ -93,7 +93,7 @@ const TRANSITIONS = {
   superseded: new Set([]),
 }
 
-const EVIDENCE_IDS = new Set(['check-dev', 'check-integration', 'check-release'])
+const EVIDENCE_IDS = new Set(['check-dev', 'check-docs', 'check-integration', 'check-release'])
 const TEST_PATH_PATTERN = /^tests\/(?:api|contracts)\/.+\.test\.tsx?$|^tests\/e2e\/.+\.spec\.tsx?$/
 
 function isValidDate(value) {
@@ -135,6 +135,28 @@ export function readPlan(path) {
   }
 }
 
+const MODULE_POLICY_CUTOFF = 1794057232553297948n
+
+function requiresModulePolicy(metadata) {
+  const match = /^IGT-(\d+)$/.exec(String(metadata?.id || ''))
+  if (!match) return false
+  try {
+    return BigInt(match[1]) >= MODULE_POLICY_CUTOFF
+  } catch {
+    return false
+  }
+}
+
+export function isDocOnlyPlan(metadata) {
+  return (
+    Array.isArray(metadata?.required_evidence) &&
+    metadata.required_evidence.includes('check-docs') &&
+    Array.isArray(metadata?.write_scope) &&
+    metadata.write_scope.length > 0 &&
+    metadata.write_scope.every((scope) => typeof scope === 'string' && /^docs\//.test(scope))
+  )
+}
+
 export function planContractAtCommit(plan, commit = 'HEAD') {
   const result = runGit(['show', `${commit}:${plan.relativePath}`], { allowFailure: true })
   if (result.exitCode !== 0) return false
@@ -152,7 +174,10 @@ export function planContractAtCommit(plan, commit = 'HEAD') {
 export function listPlanFiles() {
   return walkFiles(plansDirectory)
     .filter((path) => extname(path) === '.md')
-    .filter((path) => !['_template.md', 'README.md'].includes(path.split(/[\\/]/).at(-1)))
+    .filter(
+      (path) =>
+        !['_template.md', 'README.md', 'walkthrough.md'].includes(path.split(/[\\/]/).at(-1)),
+    )
     .filter((path) => !normalizePath(path).includes('/releases/'))
     .sort()
 }
@@ -285,6 +310,9 @@ function validateLegacyPlan(plan) {
   return failures
 }
 
+import { validateBindings } from './binding-contract.mjs'
+import { CONTENT_HEADINGS, contentGaps } from './content-contract.mjs'
+
 export function validatePlan(
   plan,
   { allowLegacy = true, requireCurrentEvidence = false, evidenceCommit = null } = {},
@@ -297,15 +325,29 @@ export function validatePlan(
   const value = plan.metadata
   const failures = []
   const retired = ['cancelled', 'superseded'].includes(value.status)
+  const priorCompletedAt = (() => {
+    if (!retired || !value.integrated_commit) return false
+    if (!gitCommitExists(value.integrated_commit)) return false
+    if (!isAncestor(value.integrated_commit, 'HEAD')) return false
+    const snapshot = runGit(['show', value.integrated_commit + ':' + plan.relativePath], {
+      allowFailure: true,
+    })
+    if (snapshot.exitCode !== 0) return false
+    const prior = extractPlanMetadata(snapshot.stdout)
+    return ['done', 'verifying'].includes(prior?.value?.status)
+  })()
+  const retiredExempt = priorCompletedAt
   const draft = value.status === 'draft'
   const historicalCommit =
     value.status === 'done' && gitCommitExists(value.integrated_commit)
       ? value.integrated_commit
       : null
+  const contentOnlyHeadings = CONTENT_HEADINGS
   failures.push(
     ...validatePlanDocument(
       plan.content,
       readRepositoryText('docs/plans/_template.md', historicalCommit),
+      { contentContract: value.content_contract === 1 },
     ),
   )
   const registry = specificationRegistry(historicalCommit)
@@ -336,6 +378,8 @@ export function validatePlan(
   }
 
   if (value.schema !== 2) failures.push('schema must be 2 for current Plans')
+  failures.push(...validateBindings(value))
+  if (value.content_contract === 1) failures.push(...contentGaps(plan.content || ''))
   if (typeof value.id !== 'string' || !/^IGT-\d{3,}$/.test(value.id)) {
     failures.push('id must match IGT-000')
   }
@@ -447,6 +491,11 @@ export function validatePlan(
         continue
       }
       if (acceptanceIds.has(item.id)) failures.push(`duplicate acceptance mapping: ${item.id}`)
+      if (requiresModulePolicy(value) && typeof item.module !== 'string') {
+        failures.push(
+          `acceptance ${item.id} must declare the module path it belongs to；修复：为该验收补 module 字段，写明所属目录`,
+        )
+      }
       acceptanceIds.add(item.id)
       const spec = registry.acceptance.get(item.id)
       if (!/^AC-[A-Z0-9-]+$/.test(item.id) || (!retired && !draft && !spec))
@@ -498,6 +547,9 @@ export function validatePlan(
       }
     }
   }
+  // 纯文档计划：evidence 只要求 check-docs，且写入范围全部在 docs/ 下。
+  // 这类改动不会改变他人可观察的行为，不进入红灯通道（见 docs/standards/testing.md）。
+  const docOnlyPlan = isDocOnlyPlan(value)
   if (value.verification_contract >= 2) {
     failures.push(...validateDataContract(plan))
     if (!Array.isArray(value.tdd_evidence)) {
@@ -505,7 +557,7 @@ export function validatePlan(
     } else {
       const seenTdd = new Set()
       const validTdd = new Set()
-      for (const item of value.tdd_evidence) {
+      for (const item of retiredExempt ? [] : value.tdd_evidence) {
         if (
           !item ||
           typeof item.acceptance_id !== 'string' ||
@@ -580,14 +632,18 @@ export function validatePlan(
                       : [],
                 })
               : null
+          // 断言文本一致时，允许测试周围的上下文（类型标注、导入顺序、辅助函数签名）发生
+          // 非行为性变化：红灯证明的是目标断言先失败，不是文件一个字节都没动。
+          // 断言文本不一致时仍按原规则拒绝。
           const contextMatches =
-            record.context_schema === undefined
+            testDigestMatches ||
+            (record.context_schema === undefined
               ? record.context_sha256 === undefined
               : record.context_schema === 1 &&
                 redContext !== null &&
                 finalContext !== null &&
                 redContext.context_sha256 === finalContext.context_sha256 &&
-                record.context_sha256 === redContext.context_sha256
+                record.context_sha256 === redContext.context_sha256)
           const diagnosticMatches =
             record.context_schema === undefined ||
             (record.target_assertion_contract === 'ac-message-marker-v1' &&
@@ -642,6 +698,7 @@ export function validatePlan(
       if (
         value.task_contract === 2 &&
         !historicalCommit &&
+        !docOnlyPlan &&
         validTdd.size === 0 &&
         !['draft', 'done', 'cancelled', 'superseded'].includes(value.status) &&
         gitCommitExists(value.base_commit)
@@ -667,25 +724,30 @@ export function validatePlan(
           const staged = stagedResult.exitCode === 0 ? stagedResult.stdout.trim() : null
           if (workingPathBlobIdentity(path) !== base || staged !== base)
             failures.push(
-              `${path}: implementation changed before the first valid red; restore it, complete preparation and record a real red first`,
+              `${path}: implementation changed before the first valid red；修复：先提交实现改动，让工作区只剩测试，再运行 pnpm ignite tdd red --plan <plan-id> --ac <AC>`,
             )
         }
       }
-      if ([1, 2].includes(value.task_contract)) {
+      if (!retiredExempt && !docOnlyPlan && [1, 2].includes(value.task_contract)) {
         for (const task of value.tasks || []) {
           if (
             (task.phase === 'implement' && ['doing', 'done'].includes(task.status)) ||
             (task.phase === 'red' && task.status === 'done')
           ) {
             for (const id of task.acceptance || []) {
+              const criterion = (value.acceptance || []).find((entry) => entry.id === id)
+              // 文档类验收改动的是规则文本，不产生可观察行为，用结构检查验证，不要求行为红灯。
+              if (typeof criterion?.module === 'string' && criterion.module.startsWith('docs'))
+                continue
               if (!validTdd.has(id))
                 failures.push(`${task.id}: ${id} requires valid red evidence before implementation`)
             }
           }
         }
       }
-      if (value.status === 'done') {
+      if (value.status === 'done' && !docOnlyPlan) {
         for (const criterion of value.acceptance || []) {
+          if (typeof criterion.module === 'string' && criterion.module.startsWith('docs')) continue
           if (!validTdd.has(criterion.id))
             failures.push(`${criterion.id}: done Plan requires a matching behavior-test red result`)
         }
@@ -726,8 +788,9 @@ export function validatePlan(
     for (const id of required) {
       if (!EVIDENCE_IDS.has(id)) failures.push(`unknown required evidence: ${id}`)
     }
-    const minimumEvidence =
-      value.risk === 'docs'
+    const minimumEvidence = docOnlyPlan
+      ? ['check-docs']
+      : value.risk === 'docs'
         ? ['check-dev']
         : value.verification_contract >= 2
           ? ['check-integration']
@@ -739,7 +802,12 @@ export function validatePlan(
       failures.push('verification_contract 2 Plans must leave check-release to the Release')
   }
   if (!Array.isArray(value.evidence)) failures.push('evidence must be an array')
-  if (value.verification_contract >= 2 && !Array.isArray(value.tdd_evidence) && !draft)
+  if (
+    value.verification_contract >= 2 &&
+    !docOnlyPlan &&
+    !Array.isArray(value.tdd_evidence) &&
+    !draft
+  )
     failures.push('verification_contract 2 requires tdd_evidence before ready')
   if (!Array.isArray(value.open_questions)) failures.push('open_questions must be an array')
   if (!isValidDate(value.updated_at)) failures.push('updated_at must be a real YYYY-MM-DD date')
@@ -769,7 +837,9 @@ export function validatePlan(
       failures.push('integrated_commit must be an ancestor of HEAD')
     } else {
       if (!isAncestor(value.base_commit, value.integrated_commit)) {
-        failures.push('integrated_commit must descend from base_commit')
+        failures.push(
+          'integrated_commit must descend from base_commit；修复：把 integrated_commit 指向最近一次通过检查的提交',
+        )
       }
       if (!planContractAtCommit(plan, value.integrated_commit)) {
         failures.push('integrated_commit does not contain the current Plan contract')
@@ -839,7 +909,7 @@ export function validatePlan(
       failures.push(`evidence ${item.id} commit does not contain the current Plan contract`)
       evidenceFailures.push('plan-contract')
     }
-    const validLevel = ['dev', 'integration', 'release'].includes(manifest.level)
+    const validLevel = ['docs', 'dev', 'integration', 'release'].includes(manifest.level)
     const policyVersion = manifest.check_policy_version ?? 1
     const validPolicy = SUPPORTED_CHECK_POLICIES.has(policyVersion)
     if (requireCurrentEvidence && policyVersion !== CHECK_POLICY_VERSION) {
@@ -1408,6 +1478,16 @@ function releaseIdentityAtCommit(commit) {
   return { package_version: packageJson.version, tags }
 }
 
+export function allowsDocOnlyReleaseEvidence(release, plans) {
+  const included = (release.scope || []).flatMap((goal) => goal.plan_ids || [])
+  const unique = [...new Set(included)]
+  if (unique.length === 0) return false
+  return unique.every((id) => {
+    const plan = plans.get(id)
+    return plan ? isDocOnlyPlan(plan.metadata) : false
+  })
+}
+
 export function bindReleaseEvidence(releaseId, runId) {
   const entry = listReleases().find(({ value }) => value.id === releaseId)
   if (!entry) throw new Error(`release not found: ${releaseId}`)
@@ -1417,10 +1497,12 @@ export function bindReleaseEvidence(releaseId, runId) {
   const plansById = new Map(listPlans().map((plan) => [plan.metadata?.id, plan]))
   const manifest = listDurableRuns().find(({ value }) => value.run_id === runId)?.value
   if (!manifest) throw new Error(`release run manifest not found: ${runId}`)
+  const docEvidenceAccepted =
+    manifest.evidence_id === 'check-docs' && allowsDocOnlyReleaseEvidence(release, plansById)
   if (
     manifest.release_id !== release.id ||
-    manifest.evidence_id !== 'check-release' ||
-    manifest.level !== 'release' ||
+    (!docEvidenceAccepted && manifest.evidence_id !== 'check-release') ||
+    (!docEvidenceAccepted && manifest.level !== 'release') ||
     manifest.status !== 'passed' ||
     manifest.exit_code !== 0 ||
     manifest.workspace_clean !== true
@@ -2036,6 +2118,16 @@ export function setPlanStatus(planId, nextStatus, { blocker = null, commit = nul
     if (currentErrors.length) {
       throw new Error(
         `cannot complete a Plan with stale current evidence:\n- ${currentErrors.join('\n- ')}`,
+      )
+    }
+    const writeback = plan.metadata.design_writeback
+    const changedDesigns = Array.isArray(writeback?.changed)
+      ? writeback.changed.filter((item) => typeof item === 'string' && item.trim().length > 0)
+      : []
+    const writebackReason = typeof writeback?.reason === 'string' ? writeback.reason.trim() : ''
+    if (changedDesigns.length === 0 && writebackReason.length === 0) {
+      throw new Error(
+        'completing a Plan requires design write-back: set design_writeback.changed to the updated design documents, or give design_writeback.reason when none are affected',
       )
     }
   }

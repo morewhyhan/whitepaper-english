@@ -49,6 +49,20 @@ export function validateTraceability() {
       )
       .flatMap((path) => [...acceptanceTestTitles(readFileSync(path, 'utf8'))]),
   )
+  const retiredAcceptance = new Set(
+    listPlans()
+      .filter((plan) => {
+        if (!['cancelled', 'superseded'].includes(plan.metadata?.status)) return false
+        const commit = plan.metadata?.integrated_commit
+        if (!commit || !gitCommitExists(commit) || !isAncestor(commit, 'HEAD')) return false
+        const file = relativePath(plan.path || plan.relativePath || '')
+        if (!file) return false
+        const snapshot = runGit(['show', commit + ':' + file], { allowFailure: true })
+        if (snapshot.exitCode !== 0) return false
+        return ['done', 'verifying'].includes(extractPlanMetadata(snapshot.stdout)?.value?.status)
+      })
+      .flatMap((plan) => (plan.metadata?.acceptance || []).map((entry) => entry.id)),
+  )
   const requirementsWithAcceptance = new Set()
   for (const [id, spec] of registry.acceptance) {
     if (spec.requirements.length === 0) {
@@ -59,7 +73,8 @@ export function validateTraceability() {
         failures.push(`${id} references unknown ${requirement}`)
       requirementsWithAcceptance.add(requirement)
     }
-    if (!coveredAcceptance.has(id)) failures.push(`${id} is not named by an automated test`)
+    if (!coveredAcceptance.has(id) && !retiredAcceptance.has(id))
+      failures.push(`${id} is not named by an automated test`)
   }
   for (const id of registry.requirements.keys()) {
     if (!requirementsWithAcceptance.has(id)) failures.push(`${id} has no acceptance criterion`)

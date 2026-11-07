@@ -2,8 +2,9 @@ import { extname } from 'node:path'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { changedFilesForPlan, normalizePath, repositoryRoot, validateWriteScope } from './core.mjs'
+import { isDocOnlyPlan } from './state.mjs'
 
-const LEVEL_RANK = { dev: 1, integration: 2, release: 3 }
+const LEVEL_RANK = { docs: 1, dev: 2, integration: 3, release: 4 }
 export const CHECK_POLICY_VERSION = 7
 export const SUPPORTED_CHECK_POLICIES = new Set([1, 2, 3, 4, 5, 6, 7])
 const SAFE_DOC_PATTERNS = [
@@ -33,11 +34,15 @@ const GOVERNANCE_PATTERNS = [
   /^tests\//,
   /^docs\/features\//,
   /^docs\/designs\//,
-  /^docs\/standards\/(?:workflow|testing|development|security|api|database|architecture|ai-agents|adoption)\.md$/,
+  /^docs\/standards\/(?:workflow|testing|development|security|api|database|architecture|ai-agents|adoption|specification-to-implementation-ddd)\.md$/,
 ]
 
 function matchesAny(path, patterns) {
   return patterns.some((pattern) => pattern.test(path))
+}
+
+export function isGovernedPath(path) {
+  return matchesAny(normalizePath(path), GOVERNANCE_PATTERNS)
 }
 
 /**
@@ -46,6 +51,10 @@ function matchesAny(path, patterns) {
  */
 export function minimumLevel(files, risk = null) {
   const normalized = files.map(normalizePath)
+  const docsOnly =
+    normalized.length > 0 &&
+    normalized.every((path) => /^docs\//.test(path) || path === 'AGENTS.md')
+  if (risk === 'docs' && docsOnly) return 'docs'
   const fileLevel =
     normalized.length === 0
       ? 'dev'
@@ -227,6 +236,22 @@ export function commandsForLevel(
   const commands = [
     command('node', ['scripts/check-diff.mjs', '--base', plan.metadata.base_commit], 'git-diff'),
   ]
+  if (level === 'docs') {
+    commands.push(pnpm(['docs:check'], 'docs'))
+    const docsFormatTargets = files.filter((path) => ['.md', '.json'].includes(extname(path)))
+    if (docsFormatTargets.length) {
+      commands.push(pnpm(['exec', 'prettier', '--check', ...docsFormatTargets], 'format'))
+    }
+    const docsMapped = (plan.metadata.acceptance || [])
+      .flatMap((item) => (item.checks || []).map((check) => check.test))
+      .map((path) => String(path).split('::', 1)[0])
+      .filter((path) => /\.test\.tsx?$/.test(path))
+    const docsSelected = [...new Set([...targetedTests(files, fileExists), ...docsMapped])]
+    if (docsSelected.length) {
+      commands.push(pnpm(['exec', 'vitest', 'run', ...docsSelected], 'behavior'))
+    }
+    return commands
+  }
   if (level === 'dev') {
     if (changedDocs(files)) commands.push(pnpm(['docs:check'], 'docs'))
     const formatTargets = files.filter((path) =>
@@ -375,6 +400,9 @@ export function planCheck({
       'Plan risk docs understates the actual changes; update risk and required_evidence',
     )
   }
-  const { level, minimum } = resolveLevel(requestedLevel, files, plan.metadata.risk)
+  const docOnly = isDocOnlyPlan(plan.metadata)
+  const { level, minimum } = docOnly
+    ? { level: 'docs', minimum: 'docs' }
+    : resolveLevel(requestedLevel, files, plan.metadata.risk)
   return { level, minimum, changedFiles: files, commands: commandsForLevel(level, files, plan) }
 }

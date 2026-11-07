@@ -1,4 +1,4 @@
-import { CheckSquare, Home, Settings, type LucideIcon } from 'lucide-react'
+import { BookOpen, CheckSquare, Home, Settings, type LucideIcon } from 'lucide-react'
 
 export type DashboardNavigationItem = {
   description: string
@@ -15,6 +15,13 @@ export const dashboardNavigation = [
     label: '概览',
     description: '返回工作台首页。',
     showOnDashboard: false,
+  },
+  {
+    href: '/vocabulary',
+    icon: BookOpen,
+    label: '词汇白纸',
+    description: '打开九宫格扫词与多轮筛选。',
+    showOnDashboard: true,
   },
   {
     href: '/dashboard/tasks',

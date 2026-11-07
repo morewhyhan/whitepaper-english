@@ -1,8 +1,7 @@
 export const siteConfig = {
-  name: 'Ignite',
-  slug: 'ignite',
-  repositoryUrl: 'https://github.com/morewhyhan/Ignite',
-  tagline: '从一个问题开始，快速做出产品，并且继续做下去',
-  description:
-    '为个人开发者与小团队准备的 AI 协作全栈模板，帮助你更快验证真实问题，并沿着清晰的工程流程持续迭代。',
+  name: '白纸英语',
+  slug: 'whitepaper-english',
+  repositoryUrl: 'https://github.com/morewhyhan/whitepaper-english',
+  tagline: '直接写，直接学',
+  description: '一张可以直接打开、直接扫词、直接留下学习痕迹的英语白纸。',
 } as const

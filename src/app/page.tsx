@@ -1,5 +1,5 @@
-import { LandingScreen } from '@/modules/landing'
+import { VocabularyScreen } from '@/modules/vocabulary'
 
 export default function Home() {
-  return <LandingScreen />
+  return <VocabularyScreen />
 }
