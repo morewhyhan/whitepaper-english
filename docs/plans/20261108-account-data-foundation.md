@@ -3,14 +3,87 @@
   "schema": 2,
   "id": "IGT-1794081675956926402",
   "release": "account-data-foundation-v1",
-  "status": "draft",
+  "status": "active",
   "outcome": "学习状态接口具备会话边界：游客带不带 userId 都返回 401，登录用户返回 200 的空状态。",
   "contract_version": 2,
   "execution_contract": 1,
   "task_contract": 2,
   "planning_contract": 1,
   "review_contract": 1,
-  "reviews": [],
+  "reviews": [
+    {
+      "stage": "draft",
+      "reviewer": "subagent-reviewer-1",
+      "executor": "morewhyhan",
+      "source": "第三轮复审：核对 R2/R3 修订，独立子代理读取 Plan、Feature、测试和现有 API/auth 代码",
+      "subject_fingerprint": "eaf3756d5a12041e8a2d6acac963cb4ec60f17fb20c62124efd48f7b9f665c1e",
+      "verdict": "approved",
+      "findings": [
+        {
+          "id": "R2",
+          "severity": "blocking",
+          "summary": "REQ 已收窄到会话边界，账号数据隔离移入 Release GOAL-002 deferred，由独立 Plan 定义 REQ/AC。",
+          "resolved": true
+        },
+        {
+          "id": "R3",
+          "severity": "blocking",
+          "summary": "四个用例各只有一条末尾 target 断言，空状态 body 有独立红灯归属。",
+          "resolved": true
+        },
+        {
+          "id": "R11",
+          "severity": "nonblocking",
+          "summary": "登录态携带 userId 没有用例，真实 requireUserId 仍被 mock。",
+          "resolved": false
+        },
+        {
+          "id": "R12",
+          "severity": "nonblocking",
+          "summary": "docs/designs/api.md 的目标表与本轮 /state 边界关系需要在 T4 说明。",
+          "resolved": false
+        },
+        {
+          "id": "R13",
+          "severity": "nonblocking",
+          "summary": "约束绑定矩阵使用描述而非 BIND 编号，也没有 Release 绑定行。",
+          "resolved": false
+        },
+        {
+          "id": "R14",
+          "severity": "nonblocking",
+          "summary": "历史审查发现需要写入 Plan 的 reviews 记录。",
+          "resolved": false
+        },
+        {
+          "id": "R15",
+          "severity": "nonblocking",
+          "summary": "元数据 non_goals 和 data_contract.rollback 未同步持久化延期和测试回退。",
+          "resolved": false
+        },
+        {
+          "id": "R16",
+          "severity": "nonblocking",
+          "summary": "401 未断言统一错误格式 code 和 message。",
+          "resolved": false
+        },
+        {
+          "id": "R17",
+          "severity": "nonblocking",
+          "summary": "准出条件和红灯描述仍写三个用例，与四个用例不一致。",
+          "resolved": false
+        },
+        {
+          "id": "R18",
+          "severity": "nonblocking",
+          "summary": "Release GOAL-002 待独立 Plan 定义 REQ/AC，完成前保持 deferred。",
+          "resolved": false
+        }
+      ],
+      "identity_assurance": "declared",
+      "recorded_at": "2026-11-07T20:18:52.524Z"
+    }
+  ],
   "verification_contract": 2,
   "goals": [
     {
@@ -41,18 +114,13 @@
     {
       "id": "AC-ACCOUNT-001",
       "module": "src/server/api/routes/vocabulary/",
-      "tests": [
-        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests",
-        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] ignores a client supplied user id for guests",
-        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns 200 for a signed-in user",
-        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns the empty state for a signed-in user"
-      ],
+      "tests": ["tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] enforces the session boundary"],
       "required_layers": ["unit"],
       "checks": [
-        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests", "layer": "unit" },
-        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] ignores a client supplied user id for guests", "layer": "unit" },
-        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns 200 for a signed-in user", "layer": "unit" },
-        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns the empty state for a signed-in user", "layer": "unit" }
+        {
+          "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] enforces the session boundary",
+          "layer": "unit"
+        }
       ]
     }
   ],
@@ -62,7 +130,7 @@
       "id": "T1",
       "title": "确认本轮目标、编写真实测试并提交准备基线",
       "phase": "prepare",
-      "status": "todo",
+      "status": "done",
       "result": "原始目标、Feature、真实断言、测试路径和写入边界均已对应，规格与测试已提交，独立审查者已核对 draft。",
       "scope": [
         "docs/plans/20261108-account-data-foundation.md",
@@ -78,7 +146,7 @@
       "title": "运行真实断言并记录目标行为红灯",
       "phase": "red",
       "acceptance": ["AC-ACCOUNT-001"],
-      "status": "todo",
+      "status": "doing",
       "result": "原生 red 运行确认未登录请求返回 404 而不是 401，并记录真实红灯。",
       "scope": ["tests/api/vocabulary-state.test.ts", "docs/others/evidence/tdd/"],
       "depends_on": ["T1"],
@@ -91,7 +159,11 @@
       "acceptance": ["AC-ACCOUNT-001"],
       "status": "todo",
       "result": "未登录请求返回 401，已登录请求返回 200 和空学习状态，测试转绿。",
-      "scope": ["src/server/api/index.ts", "src/server/api/routes/vocabulary/", "src/server/vocabulary/"],
+      "scope": [
+        "src/server/api/index.ts",
+        "src/server/api/routes/vocabulary/",
+        "src/server/vocabulary/"
+      ],
       "depends_on": ["T2"],
       "owner": "morewhyhan"
     },
@@ -108,7 +180,13 @@
   ],
   "depends_on": [],
   "dependency_contracts": [],
-  "shared_files": [{ "path": "src/server/api/index.ts", "owner": "morewhyhan", "mode": "exclusive" }],
+  "shared_files": [
+    {
+      "path": "src/server/api/index.ts",
+      "owner": "morewhyhan",
+      "mode": "exclusive"
+    }
+  ],
   "handoff": {
     "interfaces": [],
     "migrations": [],
@@ -142,7 +220,7 @@
   "blocker": null,
   "open_questions": [],
   "integrated_commit": null,
-  "updated_at": "2026-11-08"
+  "updated_at": "2026-11-07"
 }
 -->
 
@@ -255,7 +333,7 @@
 
 ## 测试与验收设计
 
-四个用例分别覆盖游客 401、游客带 userId 仍 401、登录 200 和空状态 body。每个用例的目标断言带 AC 标记，红灯能归属 AC。测试 mock session 和 prisma，只证明 unit 层的路由和守卫，不证明数据库隔离；数据库隔离由后续 Plan 用真实 SQLite 验收。
+一个契约用例把游客 401、游客带 userId 仍 401、登录 200 和空状态 body 合成一条对象断言，目标断言在末尾并带 AC 标记。这样原生红灯只归属一条可识别断言，四个值仍然一起验收。测试 mock session 和 prisma，只证明 unit 层的路由和守卫，不证明数据库隔离；数据库隔离由后续 Plan 用真实 SQLite 验收。
 
 当前红灯：期望 401，实际 404，断言失败，不是环境错误。
 
@@ -286,4 +364,17 @@ pnpm ignite check --plan IGT-1794081675956926402 --level integration
 
 ## 准出条件
 
-AC-ACCOUNT-001 的三个用例通过；原生红灯和集成检查有记录；复审通过；Design 回写；tasks 全部完成。数据库隔离不在本轮，Release 明确延期。
+AC-ACCOUNT-001 的契约用例通过；原生红灯和集成检查有记录；复审通过；Design 回写；tasks 全部完成。数据库隔离不在本轮，Release 明确延期。
+
+<!-- ignite-progress -->
+
+状态：`active`（由元数据生成）
+
+- [x] T1 · 确认本轮目标、编写真实测试并提交准备基线 · done
+- [ ] T2 · 运行真实断言并记录目标行为红灯 · doing
+- [ ] T3 · 实现已定义的行为切片 · todo
+- [ ] T4 · 验证兼容性并回写当前设计 · todo
+
+验收缺口：未记录；完成仍须实际证据
+证据：尚无
+<!-- /ignite-progress -->

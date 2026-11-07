@@ -43,35 +43,27 @@ beforeEach(() => {
 })
 
 describe('account-scoped vocabulary state', () => {
-  it('[AC-ACCOUNT-001] rejects guests', async () => {
-    const response = await api.request('http://localhost/api/vocabulary/state')
+  it('[AC-ACCOUNT-001] enforces the session boundary', async () => {
+    const guest = await api.request('http://localhost/api/vocabulary/state')
+    const spoofed = await api.request('http://localhost/api/vocabulary/state?userId=user-b')
 
-    expect(response.status, '[AC-ACCOUNT-001] target guest must receive 401').toBe(401)
-  })
-
-  it('[AC-ACCOUNT-001] ignores a client supplied user id for guests', async () => {
-    const response = await api.request('http://localhost/api/vocabulary/state?userId=user-b')
+    testState.userId = 'user-a'
+    const signedIn = await api.request('http://localhost/api/vocabulary/state')
+    const signedInBody = await signedIn.json()
 
     expect(
-      response.status,
-      '[AC-ACCOUNT-001] target guest with client userId must receive 401',
-    ).toBe(401)
-  })
-
-  it('[AC-ACCOUNT-001] returns 200 for a signed-in user', async () => {
-    testState.userId = 'user-a'
-    const response = await api.request('http://localhost/api/vocabulary/state')
-
-    expect(response.status, '[AC-ACCOUNT-001] target signed-in request must receive 200').toBe(200)
-  })
-
-  it('[AC-ACCOUNT-001] returns the empty state for a signed-in user', async () => {
-    testState.userId = 'user-a'
-    const response = await api.request('http://localhost/api/vocabulary/state')
-    const body = await response.json()
-
-    expect(body, '[AC-ACCOUNT-001] target signed-in body must be the empty state').toEqual({
-      data: { activeBook: null, wordStates: [] },
+      {
+        guest: guest.status,
+        spoofed: spoofed.status,
+        signedIn: signedIn.status,
+        signedInBody,
+      },
+      '[AC-ACCOUNT-001] target session boundary and empty state',
+    ).toEqual({
+      guest: 401,
+      spoofed: 401,
+      signedIn: 200,
+      signedInBody: { data: { activeBook: null, wordStates: [] } },
     })
   })
 })
