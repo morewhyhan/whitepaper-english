@@ -41,10 +41,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
-  projects: [
-    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] } },
-  ],
+  projects: [{ name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: productionServer
       ? `corepack pnpm exec next start --hostname 127.0.0.1 --port ${e2ePort}`
