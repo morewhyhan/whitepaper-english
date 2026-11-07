@@ -1,0 +1,38 @@
+{
+  "schema": 2,
+  "test_scope": "acceptance-case",
+  "test_sha256": "55b051e05b2e0123b817a878354c0f83cd4098f108c3eca50493f02f07b25611",
+  "context_schema": 1,
+  "context_sha256": "911fb50273ba78487ad42476b5554b57401ef46e15db753d4867d94d3950b46a",
+  "context_files": ["tests/api/vocabulary-state.test.ts"],
+  "warnings": [],
+  "run_id": "tdd-20261107202633-1962dd",
+  "plan_id": "IGT-1794081675956926402",
+  "acceptance_id": "AC-ACCOUNT-001",
+  "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] enforces the session boundary",
+  "layer": "unit",
+  "status": "assertion-failed",
+  "target_assertion_contract": "ac-message-marker-v1",
+  "red_commit": "bbeafc2ff974af09f9a1007296d8ecb8dde54154",
+  "output_sha256": "bd0ae8562634dccebec25370e0ec10141b1f670f7fa12a993104a2540cceec20",
+  "failure_sha256": "b7d17ce8d9bbaac3aea009698cc4e1ba97ae1862e198c1d23ef1730cfdac1e86",
+  "failure_summary": [
+    "AssertionError: [AC-ACCOUNT-001] target session boundary and empty state: expected { guest: 404, spoofed: 404, …(2) } to deeply equal { guest: 401, spoofed: 401, …(2) } at /mnt/c/Users/why/Documents/ChatGPT/whitepaper-english/tests/api/vocabulary-state.test.ts:62:7 at processTicksAndRejections (node:internal/process/task_queues:104:5) at file:///mnt/c/Users/why/Documents/ChatGPT/whitepaper-english/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+  ],
+  "failure_summary_sha256": "fb38ec4fa249566302cbd6a85983d89e777d5637a6e68a141c598459e294268e",
+  "command": [
+    "corepack",
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/api/vocabulary-state.test.ts",
+    "--testNamePattern",
+    "AC-ACCOUNT-001",
+    "--reporter=json",
+    "--outputFile=<temporary-json-report>"
+  ],
+  "started_at": "2026-11-07T20:26:33.298Z",
+  "ended_at": "2026-11-07T20:26:47.052Z",
+  "executor": "ignite-tdd-runner"
+}

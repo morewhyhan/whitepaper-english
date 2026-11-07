@@ -82,6 +82,96 @@
       ],
       "identity_assurance": "declared",
       "recorded_at": "2026-11-07T20:18:52.524Z"
+    },
+    {
+      "stage": "draft",
+      "reviewer": "subagent-reviewer-1",
+      "executor": "morewhyhan",
+      "source": "第五轮复审：核对 R19 与同步修订，独立子代理读取 Plan、Feature、测试和 API/auth 代码",
+      "subject_fingerprint": "9b32d934eb761812fd300e122eb4663ae9aeed379f209beae8f3383b364a6c9d",
+      "verdict": "approved",
+      "findings": [
+        {
+          "id": "R2",
+          "severity": "blocking",
+          "summary": "REQ 收窄到会话身份，账号数据隔离留在 Release GOAL-002 deferred。",
+          "resolved": true
+        },
+        {
+          "id": "R3",
+          "severity": "blocking",
+          "summary": "聚合断言满足一条末尾 target 要求。",
+          "resolved": true
+        },
+        {
+          "id": "R19",
+          "severity": "blocking",
+          "summary": "json().catch(() => null) 让红灯落在对象断言，不再抛 SyntaxError。",
+          "resolved": true
+        },
+        {
+          "id": "R11",
+          "severity": "nonblocking",
+          "summary": "Feature AC 的客户端 userId 声明已收窄到游客。",
+          "resolved": true
+        },
+        {
+          "id": "R15",
+          "severity": "nonblocking",
+          "summary": "non_goals 和 rollback 已同步持久化延期与测试回退。",
+          "resolved": true
+        },
+        {
+          "id": "R17",
+          "severity": "nonblocking",
+          "summary": "红灯描述改为聚合对象断言失败。",
+          "resolved": true
+        },
+        {
+          "id": "R18",
+          "severity": "nonblocking",
+          "summary": "Release GOAL-002 写明待独立 Plan 定义 REQ/AC。",
+          "resolved": true
+        },
+        {
+          "id": "R20",
+          "severity": "nonblocking",
+          "summary": "正文状态句不再复制元数据状态。",
+          "resolved": true
+        },
+        {
+          "id": "R12",
+          "severity": "nonblocking",
+          "summary": "设计目标表与本轮 /state 边界关系留到 T4 说明。",
+          "resolved": false
+        },
+        {
+          "id": "R13",
+          "severity": "nonblocking",
+          "summary": "约束矩阵未使用 BIND 编号。",
+          "resolved": false
+        },
+        {
+          "id": "R14",
+          "severity": "nonblocking",
+          "summary": "第四轮 needs-revision 记录未单独写入。",
+          "resolved": false
+        },
+        {
+          "id": "R16",
+          "severity": "nonblocking",
+          "summary": "401 未断言统一错误 body。",
+          "resolved": false
+        },
+        {
+          "id": "R21",
+          "severity": "nonblocking",
+          "summary": "状态记录中的红灯描述需在真实红灯后回填。",
+          "resolved": false
+        }
+      ],
+      "identity_assurance": "declared",
+      "recorded_at": "2026-11-07T20:26:21.092Z"
     }
   ],
   "verification_contract": 2,
@@ -115,7 +205,9 @@
     {
       "id": "AC-ACCOUNT-001",
       "module": "src/server/api/routes/vocabulary/",
-      "tests": ["tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] enforces the session boundary"],
+      "tests": [
+        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] enforces the session boundary"
+      ],
       "required_layers": ["unit"],
       "checks": [
         {
@@ -215,7 +307,13 @@
     "docs/plans/releases/account-data-foundation-v1.json",
     "docs/others/evidence/tdd/"
   ],
-  "tdd_evidence": [],
+  "tdd_evidence": [
+    {
+      "acceptance_id": "AC-ACCOUNT-001",
+      "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] enforces the session boundary",
+      "run_id": "tdd-20261107202633-1962dd"
+    }
+  ],
   "required_evidence": ["check-integration"],
   "evidence": [],
   "blocker": null,
