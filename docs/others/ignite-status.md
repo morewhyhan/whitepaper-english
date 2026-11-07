@@ -2,12 +2,11 @@
 
 模板状态：`adopted`
 输入指纹：`69aa91f74f81`
-当前 Plan：3；结构化历史：2；未迁移历史：0
+当前 Plan：2；结构化历史：3；未迁移历史：0
 
 ## 当前工作
 
 - `IGT-2026110402` · `draft` · `vocabulary-paper`
-- `IGT-1794084050047780048` · `active` · `account-data-persistence-v1`
 - `IGT-2026110801` · `draft` · `template-refresh`
 
 ## 发布范围
@@ -18,12 +17,12 @@
   - 最终版本验收：missing
   - 下一步：null
   - 未完成原始目标：GOAL-001 学习状态接口的会话边界：游客返回 401，客户端 userId 不能绕过，登录返回 200 空状态；GOAL-002 账号数据写入数据库、双账号隔离和跨会话恢复
-- `account-data-persistence-v1` · `active`
+- `account-data-persistence-v1` · `verifying`
   - Plan：`IGT-1794084050047780048`
   - 缺少证据：无
   - 最终版本验收：missing
-  - 下一步：pnpm ignite next --plan IGT-1794084050047780048
-  - 未完成原始目标：GOAL-ACCOUNT-PERSISTENCE 登录用户的学习状态接口返回自己保存的词状态
+  - 下一步：pnpm ignite release verify account-data-persistence-v1 --plan IGT-1794084050047780048
+  - 未完成原始目标：无已登记缺口（仍需语义核对）
 - `template-refresh` · `draft`
   - Plan：`IGT-2026110801`
   - 缺少证据：`IGT-2026110801:check-integration`（missing：no run is bound to this evidence requirement）

@@ -3,7 +3,7 @@
   "schema": 2,
   "id": "IGT-1794084050047780048",
   "release": "account-data-persistence-v1",
-  "status": "active",
+  "status": "done",
   "outcome": "登录用户请求学习状态时，接口返回自己保存的词状态，而不是永远空数组。",
   "contract_version": 2,
   "execution_contract": 1,
@@ -148,6 +148,90 @@
       ],
       "identity_assurance": "declared",
       "recorded_at": "2026-11-07T21:06:43.931Z"
+    },
+    {
+      "stage": "delivery",
+      "reviewer": "subagent-reviewer-1",
+      "executor": "morewhyhan",
+      "source": "第二轮交付审查：设计事实与当前证据，独立审查账号词状态接口",
+      "subject_fingerprint": "27c7b8b486234b1bf0fa859d7477ce9ee6b3eec890d4199922f7047a09392449",
+      "verdict": "approved",
+      "findings": [
+        {
+          "id": "R11",
+          "severity": "blocking",
+          "summary": "api.md 不再声称不访问 Prisma，改为有记录的单资源例外。",
+          "resolved": true
+        },
+        {
+          "id": "R12",
+          "severity": "blocking",
+          "summary": "设计来源补 REQ-ACCOUNT-003、AC-ACCOUNT-003。",
+          "resolved": true
+        },
+        {
+          "id": "R13",
+          "severity": "blocking",
+          "summary": "当前提交重跑集成检查，AC-003 database passed，证据已提交。",
+          "resolved": true
+        },
+        {
+          "id": "R14",
+          "severity": "nonblocking",
+          "summary": "ignite-status 作为派生执行状态提交。",
+          "resolved": true
+        },
+        {
+          "id": "R15",
+          "severity": "nonblocking",
+          "summary": "集成运行记录已纳入提交。",
+          "resolved": true
+        },
+        {
+          "id": "R20",
+          "severity": "blocking",
+          "summary": "红灯与绿灯对应同一测试，真实 SQLite 和 Better Auth 会话。",
+          "resolved": true
+        },
+        {
+          "id": "R21",
+          "severity": "nonblocking",
+          "summary": "api.yaml 非空响应与 word/known 字段已同步。",
+          "resolved": true
+        },
+        {
+          "id": "R22",
+          "severity": "nonblocking",
+          "summary": "api.md 旧来源行重复，待清理。",
+          "resolved": false
+        },
+        {
+          "id": "R16",
+          "severity": "nonblocking",
+          "summary": "database-adapter 未纳入 red context，接受为已知 warning。",
+          "resolved": false
+        },
+        {
+          "id": "R17",
+          "severity": "nonblocking",
+          "summary": "T1 scope 未列测试基础设施三项。",
+          "resolved": false
+        },
+        {
+          "id": "R18",
+          "severity": "nonblocking",
+          "summary": "T3 对上一 Plan 单测的兼容修改需注明历史证据。",
+          "resolved": false
+        },
+        {
+          "id": "R19",
+          "severity": "nonblocking",
+          "summary": "接口测试未覆盖 user-b 会话身份。",
+          "resolved": false
+        }
+      ],
+      "identity_assurance": "declared",
+      "recorded_at": "2026-11-07T21:39:48.728Z"
     }
   ],
   "verification_contract": 2,
@@ -230,7 +314,7 @@
       "id": "T4",
       "title": "运行集成检查、交付审查并回写设计",
       "phase": "verify",
-      "status": "doing",
+      "status": "done",
       "result": "check integration 和独立 delivery 审查通过，api.md 和 api.yaml 记录非空响应事实。",
       "scope": ["docs/designs/api.md", "docs/designs/api.yaml", "docs/others/evidence/"],
       "depends_on": ["T3"],
@@ -290,7 +374,7 @@
   },
   "blocker": null,
   "open_questions": [],
-  "integrated_commit": null,
+  "integrated_commit": "f8047deadd1d4be5e29ab2b14bb7865f1275440b",
   "updated_at": "2026-11-07"
 }
 -->
@@ -425,12 +509,12 @@ AC-ACCOUNT-003 的 database 测试通过；原生红灯和集成检查有记录�
 
 <!-- ignite-progress -->
 
-状态：`active`（由元数据生成）
+状态：`done`（由元数据生成）
 
 - [x] T1 · 确认目标、编写真实接口数据测试并提交准备基线 · done
 - [x] T2 · 运行接口数据测试并记录红灯 · done
 - [x] T3 · 把状态接口接到账号词状态 store · done
-- [ ] T4 · 运行集成检查、交付审查并回写设计 · doing
+- [x] T4 · 运行集成检查、交付审查并回写设计 · done
 
 验收缺口：未记录；完成仍须实际证据
 证据：check-integration / run-20261107212434-3d8a10
