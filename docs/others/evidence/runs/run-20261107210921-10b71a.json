@@ -1,0 +1,109 @@
+{
+  "schema": 2,
+  "run_id": "run-20261107210921-10b71a",
+  "check_policy_version": 7,
+  "plan_id": "IGT-1794084050047780048",
+  "evidence_id": "check-integration",
+  "level": "integration",
+  "status": "passed",
+  "exit_code": 0,
+  "started_at": "2026-11-07T21:09:29.200Z",
+  "ended_at": "2026-11-07T21:20:54.152Z",
+  "commit": "be3ad61ad360d4386f38f7ef15ee805568e91032",
+  "input_fingerprint": "59f01a25158e36538a8c9732b65441ee03d7c817178cd6c25b61d1480d361b58",
+  "environment_fingerprint": "e73ab4a40c6b7141120afff35ca73e610ff1a7311abcaabed94c952c6caed87a",
+  "environment": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "24.19.0",
+    "pnpm": "9.11.0",
+    "app_env": "test",
+    "e2e_server_mode": "development",
+    "database_provider": "sqlite",
+    "ci": false
+  },
+  "workspace_clean": true,
+  "repository_fingerprint": "7ee697c28deb8d9b94b7fcd95a45689b75506a0b2a35f47f18c8e2efde628ae1",
+  "acceptance_results": [
+    {
+      "plan_id": "IGT-1794084050047780048",
+      "criterion": "AC-ACCOUNT-003",
+      "test": "tests/api/vocabulary-state-data.test.ts::[AC-ACCOUNT-003] returns the signed-in account word states",
+      "layer": "database",
+      "passed": true,
+      "cases": 1
+    }
+  ],
+  "commands": [
+    {
+      "label": "git-diff",
+      "command": [
+        "node",
+        "scripts/check-diff.mjs",
+        "--base",
+        "1a9e6a72c4cdeb8499e86f44740e0fe9863f102e"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 2187
+    },
+    {
+      "label": "template-doctor",
+      "command": ["corepack", "pnpm", "template:doctor"],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 928
+    },
+    {
+      "label": "governance",
+      "command": ["corepack", "pnpm", "ignite", "validate"],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 4968
+    },
+    {
+      "label": "docs",
+      "command": ["corepack", "pnpm", "docs:check"],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 7780
+    },
+    {
+      "label": "typecheck",
+      "command": ["corepack", "pnpm", "typecheck"],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 42576
+    },
+    {
+      "label": "tools-typecheck",
+      "command": ["corepack", "pnpm", "tools:check"],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 10424
+    },
+    {
+      "label": "lint",
+      "command": ["corepack", "pnpm", "lint"],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 48548
+    },
+    {
+      "label": "format",
+      "command": ["corepack", "pnpm", "format:check"],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 14069
+    },
+    {
+      "label": "tests",
+      "command": ["corepack", "pnpm", "test"],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 455859
+    }
+  ],
+  "log_sha256": "14f72e32c12264150c8abf2e1248439250d5c810b49a520597a1db9850a3c679",
+  "execution_source": "ignite-runner-local"
+}

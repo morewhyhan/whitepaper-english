@@ -12,7 +12,9 @@
 
 `GET /api/vocabulary/state` 需要 session。未登录返回 401；登录返回 `{ "data": { "activeBook": null, "wordStates": [{ "word": "apple", "known": true }] } }`。`wordStates` 只包含当前账号保存的词状态，新账号为空数组。目标 `/api/vocabulary` 资源在后续 Plan 替换或扩展。
 
-该边界路由位于 `src/server/api/vocabulary.ts`，由 `src/server/api/index.ts` 挂载。它不访问 Prisma，因此不放进 `routes/`，依据 STD-ARCH-101 按已出现复杂度分层。后续访问数据库的数据路由仍必须放在 `routes/` 并提供 database 验收。
+该路由位于 `src/server/api/vocabulary.ts`，由 `src/server/api/index.ts` 挂载。它现在读取 `word_state`，属于有记录的单资源例外：只做一次按 session 的只读查询，没有业务编排。后续多资源或写入型数据路由仍必须放在 `routes/` 并提供 database 验收。
+
+来源：REQ-ACCOUNT-001、AC-ACCOUNT-001；REQ-ACCOUNT-003、AC-ACCOUNT-003。
 
 来源：REQ-ACCOUNT-001、AC-ACCOUNT-001。
 

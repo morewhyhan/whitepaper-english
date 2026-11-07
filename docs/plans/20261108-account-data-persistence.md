@@ -278,7 +278,12 @@
     }
   ],
   "required_evidence": ["check-integration"],
-  "evidence": [],
+  "evidence": [
+    {
+      "id": "check-integration",
+      "run_id": "run-20261107210921-10b71a"
+    }
+  ],
   "design_writeback": {
     "changed": ["docs/designs/api.md", "docs/designs/api.yaml"],
     "reason": "接口响应从空状态变为当前账号的词状态。"
@@ -428,5 +433,5 @@ AC-ACCOUNT-003 的 database 测试通过；原生红灯和集成检查有记录�
 - [ ] T4 · 运行集成检查、交付审查并回写设计 · doing
 
 验收缺口：未记录；完成仍须实际证据
-证据：尚无
+证据：check-integration / run-20261107210921-10b71a
 <!-- /ignite-progress -->
