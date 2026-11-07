@@ -63,6 +63,7 @@
 - R9（REQ-ACCOUNT-002）：学习数据按账号持久化并隔离。两个账号保存的词状态互不可见，读取只返回当前 session 用户自己的记录。
 - R10（REQ-ACCOUNT-003）：学习状态接口返回当前 session 用户已经保存的词状态，而不是固定空数组。
 - R11（REQ-ACCOUNT-004）：词汇白纸提供可见的登录入口；登录或注册成功后回到词汇白纸，退出后回到访客状态。
+- R12（REQ-ACCOUNT-005）：登录用户可以批量提交当前页的会/不会判定；同一账号同一词重复提交时覆盖旧值，其他账号不可见。
 
 ## 验收标准
 
@@ -77,6 +78,7 @@
 - AC-ACCOUNT-002（REQ-ACCOUNT-002）：Given 账号 A 和账号 B 各自保存词状态，When 分别读取自己的词状态，Then 只返回本账号保存的记录，看不到对方的记录。
 - AC-ACCOUNT-003（REQ-ACCOUNT-003）：Given 账号 A 已保存词状态，When A 请求 /api/vocabulary/state，Then 返回 A 自己的词状态，而不是空数组。
 - AC-ACCOUNT-004（REQ-ACCOUNT-004）：Given 访客打开词汇白纸，When 点击登录并完成注册，Then 回到 /vocabulary 且显示退出；点击退出后重新显示登录。
+- AC-ACCOUNT-005（REQ-ACCOUNT-005）：Given 登录用户 A 提交 apple=true、tree=false 两条判定，When A 读取状态，Then 返回这两条；账号 B 读取不到 A 的记录。
 
 ## 后续讨论边界
 

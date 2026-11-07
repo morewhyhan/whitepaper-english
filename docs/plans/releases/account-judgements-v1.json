@@ -1,0 +1,25 @@
+{
+  "schema": 2,
+  "id": "account-judgements-v1",
+  "coverage_version": 2,
+  "verification_contract": 2,
+  "plan_ids": ["IGT-1794090800136711353"],
+  "scope": [
+    {
+      "id": "GOAL-ACCOUNT-JUDGEMENTS",
+      "text": "登录用户批量保存当前页判定",
+      "source": "2026-11-08 V1 GOAL 的 M1",
+      "requirements": ["REQ-ACCOUNT-005"],
+      "acceptance": ["AC-ACCOUNT-005"],
+      "plan_ids": ["IGT-1794090800136711353"],
+      "disposition": "included",
+      "reason": "判定必须先落库，页面才能接。",
+      "authorization": "用户接受 V1 GOAL。"
+    }
+  ],
+  "must_pass": ["check-release"],
+  "evidence": [],
+  "integrated_commit": null,
+  "excluded": [],
+  "updated_at": "2026-11-08"
+}
