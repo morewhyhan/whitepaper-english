@@ -140,7 +140,7 @@
       "title": "实现批量判定并归位词汇路由",
       "phase": "implement",
       "acceptance": ["AC-ACCOUNT-005"],
-      "status": "doing",
+      "status": "done",
       "result": "POST 批量 upsert，GET 复用同一路由，测试转绿。",
       "scope": [
         "src/server/vocabulary/store.ts",
@@ -155,7 +155,7 @@
       "id": "T4",
       "title": "运行集成检查、交付审查并回写设计",
       "phase": "verify",
-      "status": "todo",
+      "status": "doing",
       "result": "check integration 和 delivery 审查通过，api.md/api.yaml 记录批量判定。",
       "scope": ["docs/designs/api.md", "docs/designs/api.yaml", "docs/others/evidence/"],
       "depends_on": ["T3"],
@@ -209,7 +209,12 @@
     }
   ],
   "required_evidence": ["check-integration"],
-  "evidence": [],
+  "evidence": [
+    {
+      "id": "check-integration",
+      "run_id": "run-20261107224458-173800"
+    }
+  ],
   "design_writeback": {
     "changed": ["docs/designs/api.md", "docs/designs/api.yaml"],
     "reason": "新增批量判定接口，词汇路由归位到 routes/vocabulary/。"
@@ -358,9 +363,9 @@ AC-ACCOUNT-005 的 database 测试通过；原生红灯和集成检查有记录�
 
 - [x] T1 · 确认目标、编写判定接口数据库测试并提交准备基线 · done
 - [x] T2 · 运行判定接口测试并记录红灯 · done
-- [ ] T3 · 实现批量判定并归位词汇路由 · doing
-- [ ] T4 · 运行集成检查、交付审查并回写设计 · todo
+- [x] T3 · 实现批量判定并归位词汇路由 · done
+- [ ] T4 · 运行集成检查、交付审查并回写设计 · doing
 
 验收缺口：未记录；完成仍须实际证据
-证据：尚无
+证据：check-integration / run-20261107224458-173800
 <!-- /ignite-progress -->

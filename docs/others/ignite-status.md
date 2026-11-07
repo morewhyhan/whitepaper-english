@@ -1,7 +1,7 @@
 # Ignite 状态摘要
 
 模板状态：`adopted`
-输入指纹：`cf75ff4fa355`
+输入指纹：`8f7ad19bddce`
 当前 Plan：3；结构化历史：3；未迁移历史：0
 
 ## 当前工作
@@ -26,7 +26,7 @@
   - 未完成原始目标：无已登记缺口（仍需语义核对）
 - `account-judgements-v1` · `active`
   - Plan：`IGT-1794090800136711353`
-  - 缺少证据：`IGT-1794090800136711353:check-integration`（missing：no run is bound to this evidence requirement）
+  - 缺少证据：无
   - 最终版本验收：missing
   - 下一步：pnpm ignite next --plan IGT-1794090800136711353
   - 未完成原始目标：GOAL-ACCOUNT-JUDGEMENTS 登录用户批量保存当前页判定
