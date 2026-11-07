@@ -1,16 +1,23 @@
 # Ignite 状态摘要
 
 模板状态：`adopted`
-输入指纹：`e582ec3e722d`
-当前 Plan：2；结构化历史：1；未迁移历史：0
+输入指纹：`94b0a0abc5b2`
+当前 Plan：3；结构化历史：1；未迁移历史：0
 
 ## 当前工作
 
 - `IGT-2026110402` · `draft` · `vocabulary-paper`
+- `IGT-1794081675956926402` · `draft` · `account-data-foundation-v1`
 - `IGT-2026110801` · `draft` · `template-refresh`
 
 ## 发布范围
 
+- `account-data-foundation-v1` · `draft`
+  - Plan：`IGT-1794081675956926402`
+  - 缺少证据：`IGT-1794081675956926402:check-integration`（missing：no run is bound to this evidence requirement）
+  - 最终版本验收：missing
+  - 下一步：pnpm ignite next --plan IGT-1794081675956926402
+  - 未完成原始目标：GOAL-001 待填写原始目标
 - `template-refresh` · `draft`
   - Plan：`IGT-2026110801`
   - 缺少证据：`IGT-2026110801:check-integration`（missing：no run is bound to this evidence requirement）
