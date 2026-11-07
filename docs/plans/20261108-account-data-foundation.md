@@ -239,7 +239,7 @@
       "title": "运行真实断言并记录目标行为红灯",
       "phase": "red",
       "acceptance": ["AC-ACCOUNT-001"],
-      "status": "doing",
+      "status": "done",
       "result": "原生 red 运行确认聚合断言失败：guest、spoofed、signedIn 都是 404，signedInBody 为 null。",
       "scope": ["tests/api/vocabulary-state.test.ts", "docs/others/evidence/tdd/"],
       "depends_on": ["T1"],
@@ -250,7 +250,7 @@
       "title": "实现已定义的行为切片",
       "phase": "implement",
       "acceptance": ["AC-ACCOUNT-001"],
-      "status": "todo",
+      "status": "doing",
       "result": "未登录请求返回 401，已登录请求返回 200 和空学习状态，测试转绿。",
       "scope": [
         "src/server/api/index.ts",
@@ -470,8 +470,8 @@ AC-ACCOUNT-001 的契约用例通过；原生红灯和集成检查有记录；�
 状态：`active`（由元数据生成）
 
 - [x] T1 · 确认本轮目标、编写真实测试并提交准备基线 · done
-- [ ] T2 · 运行真实断言并记录目标行为红灯 · doing
-- [ ] T3 · 实现已定义的行为切片 · todo
+- [x] T2 · 运行真实断言并记录目标行为红灯 · done
+- [ ] T3 · 实现已定义的行为切片 · doing
 - [ ] T4 · 验证兼容性并回写当前设计 · todo
 
 验收缺口：未记录；完成仍须实际证据

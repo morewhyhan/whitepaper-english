@@ -1,6 +1,7 @@
 import { handleError } from './error'
 import { Hono } from 'hono'
 import tasksRoute from './routes/tasks'
+import vocabularyRoute from './routes/vocabulary'
 import { auth } from '@/server/auth'
 
 const app = new Hono().basePath('/api')
@@ -14,7 +15,7 @@ app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-export const routes = app.route('/', tasksRoute)
+export const routes = app.route('/', tasksRoute).route('/vocabulary', vocabularyRoute)
 
 export default routes
 

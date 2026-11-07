@@ -4,9 +4,15 @@
 
 ## 当前实现事实
 
-当前 API 组合真源是 `src/server/api/index.ts`，Next.js 适配入口是 `src/app/api/[[...route]]/route.ts`，类型入口是 `AppType`。当前模板资源仍为 `/api/health`、Better Auth `/api/auth/*` 和受 session 保护的 `/api/tasks` CRUD。
+当前 API 组合真源是 `src/server/api/index.ts`，Next.js 适配入口是 `src/app/api/[[...route]]/route.ts`，类型入口是 `AppType`。当前模板资源仍为 `/api/health`、Better Auth `/api/auth/*` 和受 session 保护的 `/api/tasks` CRUD，以及 `GET /api/vocabulary/state`。
 
 统一成功响应为 `{ "data": ... }`；错误响应为 `{ "code": number, "message": string }`。当前模块请求路径是 `Hook → createApiClient(AppType) → Hono route`。
+
+### 学习状态接口（当前边界）
+
+`GET /api/vocabulary/state` 需要 session。未登录返回 401；登录返回 `{ "data": { "activeBook": null, "wordStates": [] } }`。这是账号数据持久化之前的只读边界，目标 `/api/vocabulary` 资源在后续 Plan 替换或扩展。
+
+来源：REQ-ACCOUNT-001、AC-ACCOUNT-001。
 
 ## 白纸英语目标 API
 
