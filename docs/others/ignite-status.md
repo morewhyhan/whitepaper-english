@@ -2,12 +2,11 @@
 
 模板状态：`adopted`
 输入指纹：`8f7ad19bddce`
-当前 Plan：3；结构化历史：3；未迁移历史：0
+当前 Plan：2；结构化历史：4；未迁移历史：0
 
 ## 当前工作
 
 - `IGT-2026110402` · `draft` · `vocabulary-paper`
-- `IGT-1794090800136711353` · `active` · `account-judgements-v1`
 - `IGT-2026110801` · `draft` · `template-refresh`
 
 ## 发布范围
@@ -24,12 +23,12 @@
   - 最终版本验收：stale
   - 下一步：pnpm ignite release verify account-data-persistence-v1 --plan IGT-1794084050047780048
   - 未完成原始目标：无已登记缺口（仍需语义核对）
-- `account-judgements-v1` · `active`
+- `account-judgements-v1` · `verifying`
   - Plan：`IGT-1794090800136711353`
   - 缺少证据：无
   - 最终版本验收：missing
-  - 下一步：pnpm ignite next --plan IGT-1794090800136711353
-  - 未完成原始目标：GOAL-ACCOUNT-JUDGEMENTS 登录用户批量保存当前页判定
+  - 下一步：pnpm ignite release verify account-judgements-v1 --plan IGT-1794090800136711353
+  - 未完成原始目标：无已登记缺口（仍需语义核对）
 - `template-refresh` · `draft`
   - Plan：`IGT-2026110801`
   - 缺少证据：`IGT-2026110801:check-integration`（missing：no run is bound to this evidence requirement）

@@ -3,7 +3,7 @@
   "schema": 2,
   "id": "IGT-1794090800136711353",
   "release": "account-judgements-v1",
-  "status": "active",
+  "status": "done",
   "outcome": "登录用户可以把当前页的会/不会判定批量保存到自己的账号，另一个账号看不到。",
   "contract_version": 2,
   "execution_contract": 1,
@@ -64,6 +64,60 @@
       ],
       "identity_assurance": "declared",
       "recorded_at": "2026-11-07T22:39:34.731Z"
+    },
+    {
+      "stage": "delivery",
+      "reviewer": "subagent-reviewer-1",
+      "executor": "morewhyhan",
+      "source": "交付审查：批量判定，独立审查 Plan IGT-1794090800136711353",
+      "subject_fingerprint": "fc3cad145bb2050d741c19968cbd10b1a5e93eee9ee55fccc86b37767baa0281",
+      "verdict": "approved",
+      "findings": [
+        {
+          "id": "R1",
+          "severity": "blocking",
+          "summary": "批量判定、重复覆盖和 A/B 隔离由真实数据库测试证明。",
+          "resolved": true
+        },
+        {
+          "id": "R3",
+          "severity": "blocking",
+          "summary": "路由归位完成，旧测试在完整测试中通过。",
+          "resolved": true
+        },
+        {
+          "id": "R2",
+          "severity": "nonblocking",
+          "summary": "api.md 旧来源行重复，待清理。",
+          "resolved": false
+        },
+        {
+          "id": "R4",
+          "severity": "nonblocking",
+          "summary": "36 条上限、422、事务回滚已实现但未行为测试。",
+          "resolved": false
+        },
+        {
+          "id": "R5",
+          "severity": "nonblocking",
+          "summary": "integrated_commit 和 T4 待收尾。",
+          "resolved": false
+        },
+        {
+          "id": "R6",
+          "severity": "nonblocking",
+          "summary": "database-adapter 未纳入 red context，接受为 warning。",
+          "resolved": false
+        },
+        {
+          "id": "R7",
+          "severity": "nonblocking",
+          "summary": "AC-002 基线依赖不冒充本轮验收。",
+          "resolved": false
+        }
+      ],
+      "identity_assurance": "declared",
+      "recorded_at": "2026-11-07T23:00:50.457Z"
     }
   ],
   "verification_contract": 2,
@@ -155,7 +209,7 @@
       "id": "T4",
       "title": "运行集成检查、交付审查并回写设计",
       "phase": "verify",
-      "status": "doing",
+      "status": "done",
       "result": "check integration 和 delivery 审查通过，api.md/api.yaml 记录批量判定。",
       "scope": ["docs/designs/api.md", "docs/designs/api.yaml", "docs/others/evidence/"],
       "depends_on": ["T3"],
@@ -221,7 +275,7 @@
   },
   "blocker": null,
   "open_questions": [],
-  "integrated_commit": null,
+  "integrated_commit": "2769e4a381aa7f3f14217c17733b89dbfe08b4b7",
   "updated_at": "2026-11-07"
 }
 -->
@@ -359,12 +413,12 @@ AC-ACCOUNT-005 的 database 测试通过；原生红灯和集成检查有记录�
 
 <!-- ignite-progress -->
 
-状态：`active`（由元数据生成）
+状态：`done`（由元数据生成）
 
 - [x] T1 · 确认目标、编写判定接口数据库测试并提交准备基线 · done
 - [x] T2 · 运行判定接口测试并记录红灯 · done
 - [x] T3 · 实现批量判定并归位词汇路由 · done
-- [ ] T4 · 运行集成检查、交付审查并回写设计 · doing
+- [x] T4 · 运行集成检查、交付审查并回写设计 · done
 
 验收缺口：未记录；完成仍须实际证据
 证据：check-integration / run-20261107224458-173800
