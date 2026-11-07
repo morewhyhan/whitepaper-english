@@ -47,27 +47,20 @@
       "id": "AC-ACCOUNT-003",
       "module": "src/server/api/",
       "tests": [
-        "tests/api/vocabulary-state-data.test.ts::[AC-ACCOUNT-003] returns the signed-in account word states",
-        "tests/contracts/vocabulary-store.test.ts::[AC-ACCOUNT-002] [AC-ACCOUNT-003] isolates word states by account"
+        "tests/api/vocabulary-state-data.test.ts::[AC-ACCOUNT-003] returns the signed-in account word states"
       ],
       "required_layers": [
-        "unit",
         "database"
       ],
       "checks": [
         {
           "test": "tests/api/vocabulary-state-data.test.ts::[AC-ACCOUNT-003] returns the signed-in account word states",
-          "layer": "unit"
-        },
-        {
-          "test": "tests/contracts/vocabulary-store.test.ts::[AC-ACCOUNT-002] [AC-ACCOUNT-003] isolates word states by account",
           "layer": "database"
         }
       ]
     }
   ],
   "verification_requirements": [
-    "unit",
     "database"
   ],
   "tasks": [
@@ -127,9 +120,10 @@
       "title": "运行集成检查、交付审查并回写设计",
       "phase": "verify",
       "status": "todo",
-      "result": "check integration 和独立 delivery 审查通过，api.md 记录响应事实。",
+      "result": "check integration 和独立 delivery 审查通过，api.md 和 api.yaml 记录非空响应事实。",
       "scope": [
         "docs/designs/api.md",
+        "docs/designs/api.yaml",
         "docs/others/evidence/"
       ],
       "depends_on": [
@@ -157,7 +151,7 @@
     "access_scope": "per-user",
     "access_rationale": "接口只从 session 取用户，并按 userId 查询 word_state。",
     "migration_impact": "none",
-    "rollback": "回退接口读取逻辑即可，不改 schema 或已应用迁移。",
+    "rollback": "回退接口读取逻辑，并把 api.md 和 api.yaml 的响应描述改回空状态；同时移除 AC-ACCOUNT-003 或把它和 REQ-ACCOUNT-003 标记为延期，Release scope 同步。",
     "destructive_authorization": null
   },
   "write_scope": [
@@ -166,6 +160,7 @@
     "tests/api/vocabulary-state.test.ts",
     "src/server/api/vocabulary.ts",
     "docs/designs/api.md",
+    "docs/designs/api.yaml",
     "docs/others/evidence/",
     "docs/plans/20261108-account-data-persistence.md",
     "docs/plans/releases/account-data-persistence-v1.json",
@@ -178,7 +173,8 @@
   "evidence": [],
   "design_writeback": {
     "changed": [
-      "docs/designs/api.md"
+      "docs/designs/api.md",
+      "docs/designs/api.yaml"
     ],
     "reason": "接口响应从空状态变为当前账号的词状态。"
   },
@@ -241,7 +237,7 @@
 ## 次要矛盾
 
 - 旧单测 tests/api/vocabulary-state.test.ts mock 了空 prisma，接口接线后需要 mock store，否则会失败。
-- 数据库测试 mock session，只证明数据接线，不证明真实 Better Auth。
+- 接口数据库测试使用真实 Better Auth 注册会话，没有 mock；store 测试证明 A/B 隔离，接口测试证明当前会话读取。
 
 ## 决策原则
 
@@ -288,7 +284,7 @@
 
 ## 测试与验收设计
 
-tests/api/vocabulary-state-data.test.ts 建真实 SQLite，应用两份迁移，给 user-a 写入 apple，mock session 为 user-a，请求接口并断言 body 含 apple。当前返回空数组，末尾对象断言失败，红灯可归属 AC。
+tests/api/vocabulary-state-data.test.ts 建真实 SQLite，应用两份迁移，通过 Better Auth 注册 user-a 并拿到真实 cookie，给 user-a 写入 apple，带 cookie 请求接口并断言 body 含 apple。测试内没有 mock。当前返回空数组，末尾对象断言失败，红灯可归属 AC。
 
 ## 实现任务
 
@@ -305,7 +301,7 @@ pnpm ignite check --plan IGT-1794084050047780048 --level integration
 
 ## 设计回写
 
-实现后把 api.md 的学习状态接口响应改成返回当前账号的 wordStates，并保留空状态说明。
+实现后把 api.md 和 api.yaml 的学习状态接口响应改成返回当前账号的 wordStates，并更新 word 和 known 字段。
 
 ## 状态记录
 
@@ -315,4 +311,4 @@ pnpm ignite check --plan IGT-1794084050047780048 --level integration
 
 ## 准出条件
 
-AC-ACCOUNT-003 的 database 测试通过；原生红灯和集成检查有记录；交付审查通过；api.md 回写；tasks 全部完成。
+AC-ACCOUNT-003 的 database 测试通过；原生红灯和集成检查有记录；交付审查通过；api.md 和 api.yaml 回写；tasks 全部完成。
