@@ -29,6 +29,7 @@ import {
   type VocabularyState,
   type VocabularyWord,
 } from '../lib/vocabulary'
+import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import styles from './vocabulary-screen.module.css'
 
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
@@ -80,6 +81,9 @@ export function VocabularyScreen() {
   const [hydrated, setHydrated] = useState(false)
   const [undoSession, setUndoSession] = useState<VocabularySession | null>(null)
   const [modal, setModal] = useState<ModalName>(null)
+  const [authOpen, setAuthOpen] = useState(false)
+  const { data: authSession } = useAuthSession()
+  const signOut = useSignOut()
   const [clipOpen, setClipOpen] = useState(false)
   const [clipTarget, setClipTarget] = useState<WorkspaceMode | null>(null)
   const [paste, setPaste] = useState('')
@@ -364,6 +368,20 @@ export function VocabularyScreen() {
           <button className={styles.quiet} type="button" onClick={() => setModal('import')}>
             导入 / 导出
           </button>
+          {authSession?.user ? (
+            <button
+              className={styles.quiet}
+              type="button"
+              title={authSession.user.email}
+              onClick={() => signOut.mutate()}
+            >
+              退出
+            </button>
+          ) : (
+            <button className={styles.quiet} type="button" onClick={() => setAuthOpen(true)}>
+              登录
+            </button>
+          )}
           <button className={styles.quiet} type="button" onClick={() => setModal('settings')}>
             设置
           </button>
@@ -403,6 +421,8 @@ export function VocabularyScreen() {
           </div>
         </nav>
       </header>
+
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
 
       <div className={styles.workspaceBody}>
         {workspaceMode === 'vocabulary' && (
