@@ -7,14 +7,25 @@
   "scope": [
     {
       "id": "GOAL-001",
-      "text": "登录后学习数据按账号隔离，未登录访问受保护的学习接口被拒绝",
-      "source": "2026-11-08 V1 GOAL 的 M1；用户要求使用账号承载学习数据，多个使用者互不可见",
+      "text": "学习状态接口的会话边界：游客返回 401，客户端 userId 不能绕过，登录返回 200 空状态",
+      "source": "2026-11-08 V1 GOAL 的 M1；用户要求使用账号承载学习数据",
       "requirements": ["REQ-ACCOUNT-001"],
       "acceptance": ["AC-ACCOUNT-001"],
       "plan_ids": ["IGT-1794081675956926402"],
       "disposition": "included",
-      "reason": "本轮只建立账号学习状态的接口边界和会话守卫，数据库隔离由后续 Plan 接续。",
+      "reason": "本轮只覆盖接口和会话守卫。",
       "authorization": "用户接受 V1 GOAL，并要求用账号承载学习数据。"
+    },
+    {
+      "id": "GOAL-002",
+      "text": "账号数据写入数据库、双账号隔离和跨会话恢复",
+      "source": "2026-11-08 V1 GOAL 的 M1；用户要求多个使用者互不可见",
+      "requirements": [],
+      "acceptance": [],
+      "plan_ids": [],
+      "disposition": "deferred",
+      "reason": "需要 Prisma 模型、迁移和真实数据库验收，另立 Plan。",
+      "authorization": "用户接受 V1 GOAL。"
     }
   ],
   "must_pass": ["check-release"],

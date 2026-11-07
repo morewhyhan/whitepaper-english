@@ -4,7 +4,7 @@
   "id": "IGT-1794081675956926402",
   "release": "account-data-foundation-v1",
   "status": "draft",
-  "outcome": "登录后，学习数据按账号隔离保存；未登录访问受保护的学习接口被拒绝，同一账号重新进入能恢复自己的进度。",
+  "outcome": "学习状态接口具备会话边界：游客带不带 userId 都返回 401，登录用户返回 200 的空状态。",
   "contract_version": 2,
   "execution_contract": 1,
   "task_contract": 2,
@@ -14,7 +14,7 @@
   "verification_contract": 2,
   "goals": [
     {
-      "text": "登录后学习数据按账号隔离，未登录访问受保护的学习接口被拒绝",
+      "text": "学习状态接口只接受 session 身份，客户端 userId 不能绕过守卫",
       "requirements": ["REQ-ACCOUNT-001"]
     }
   ],
@@ -33,7 +33,7 @@
     "source": "2026-11-08 用户接受 V1 GOAL：使用账号承载学习数据，多个使用者互不可见。对应 docs/others/20261108-vocabulary-goal.md 的 M1。"
   },
   "deliverables": ["账号学习状态接口与会话守卫", "401 与 200 的接口契约测试"],
-  "remaining_work": ["账号数据写入数据库、两账号隔离和跨会话恢复由后续 Plan 接续"],
+  "remaining_work": [],
   "change_type": "存量改动",
   "base_commit": "df562222c1ecb322b9b5081a4bd5807fe2aa8045",
   "requirements": ["REQ-ACCOUNT-001"],
@@ -41,9 +41,17 @@
     {
       "id": "AC-ACCOUNT-001",
       "module": "src/server/api/routes/vocabulary/",
-      "tests": ["tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests and returns only the signed-in account state"],
+      "tests": [
+        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests",
+        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] ignores a client supplied user id for guests",
+        "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns the signed-in empty state"
+      ],
       "required_layers": ["unit"],
-      "checks": [{ "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests and returns only the signed-in account state", "layer": "unit" }]
+      "checks": [
+        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] rejects guests", "layer": "unit" },
+        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] ignores a client supplied user id for guests", "layer": "unit" },
+        { "test": "tests/api/vocabulary-state.test.ts::[AC-ACCOUNT-001] returns the signed-in empty state", "layer": "unit" }
+      ]
     }
   ],
   "verification_requirements": ["unit"],
@@ -81,7 +89,7 @@
       "acceptance": ["AC-ACCOUNT-001"],
       "status": "todo",
       "result": "未登录请求返回 401，已登录请求返回 200 和空学习状态，测试转绿。",
-      "scope": ["src/server/api/index.ts", "src/server/api/routes/vocabulary/", "src/server/vocabulary/", "tests/api/vocabulary-state.test.ts"],
+      "scope": ["src/server/api/index.ts", "src/server/api/routes/vocabulary/", "src/server/vocabulary/"],
       "depends_on": ["T2"],
       "owner": "morewhyhan"
     },
@@ -109,7 +117,7 @@
   "risk": "security",
   "data_contract": {
     "access_scope": "per-user",
-    "access_rationale": "学习状态按 session 用户查询和写入，客户端传入的用户标识不参与查询条件。",
+    "access_rationale": "本轮只读空状态，不查询或写入用户数据；接口只从 session 取身份，不接受客户端标识。",
     "migration_impact": "none",
     "rollback": "移除新接口和路由即可恢复，不修改已应用迁移或现有数据。",
     "destructive_authorization": null
@@ -130,7 +138,7 @@
   "required_evidence": ["check-integration"],
   "evidence": [],
   "blocker": null,
-  "open_questions": ["填写目标、受影响的现有 Feature/Design、验收标准与写入范围"],
+  "open_questions": [],
   "integrated_commit": null,
   "updated_at": "2026-11-08"
 }
@@ -138,164 +146,142 @@
 
 # Ignite 实施计划：account-data-foundation
 
-> 复制本文件到 `docs/plans/YYYYMMDD-account-data-foundation.md`。计划只记录一次任务的过程；完成后保留，最终事实回写 `docs/designs/`。
-
 ## 状态
 
-顶部元数据的 `status` 是唯一状态；正文不复制当前状态。`tasks` 是唯一的子任务状态，使用 `todo`、`doing`、`done`；真正阻塞时由 Plan 的 `status` 与 `blocker` 表达。不要在正文另建任务复选框。下方进度块由工具刷新，勿手改。
+本 Plan 保持 draft。规格、测试和元数据已提交；独立 draft 审查第一轮要求收窄范围，本轮已按审查意见收窄，等待复审。
 
 ## 目标
 
-用一句用户可观察的结果描述本轮成果。先写清原始目标，再将其拆成 `goals`、REQ、AC 和测试。
+游客请求学习状态接口返回 401，携带 userId 参数也不能绕过；登录用户返回 200 和空学习状态。这个切片只固定接口和会话边界，不声称账号数据已经隔离或持久化。
 
 ## 原始目标与覆盖核对
 
-| 用户原话或可追溯来源 | 本轮目标 | REQ    | AC     | 处理结果                 |
-| -------------------- | -------- | ------ | ------ | ------------------------ |
-| 待逐条填写           | 待填写   | 待填写 | 待填写 | 保留 / 明确排除 / 待确认 |
+| 用户原话或可追溯来源                                         | 本轮目标                      | REQ             | AC             | 处理结果                                  |
+| ------------------------------------------------------------ | ----------------------------- | --------------- | -------------- | ----------------------------------------- |
+| 2026-11-08 V1 GOAL 的 M1：用账号承载学习数据，多用户互不可见 | 先固定学习状态接口的会话边界  | REQ-ACCOUNT-001 | AC-ACCOUNT-001 | 本轮只覆盖边界，数据库隔离延期到后续 Plan |
+| 用户要求同一时间只学一本书、账号可选                         | 不在本切片实现                | 无              | 无             | 延期                                      |
+| 审查 R1：不要把 M1 全部写成本轮结果                          | 收窄 outcome 和 Release scope | 无              | 无             | 已修正                                    |
 
-进入 `ready` 前回看原始请求，确认目标、约束、必须保留的能力都已列入；不把 AI 自己改写后的 goals 当作原始输入。此表是语义审查记录，不能伪称机器已证明无遗漏。
-
-除上表外，还要写清三件关于"这一轮"的判断：
-
-- **阶段目标**：为最终结果服务、且本轮必须先达到的中间状态；
-- **代价**：达到它要付出的时间、复杂度、兼容性或维护成本；
-- **假设**：尚未被事实验证、但当前方案暂时依赖的判断。
+阶段目标是让后续数据库隔离有一个可信入口；代价是本轮不能证明真实隔离；假设是 Hono session guard 可以复用现有 Better Auth 配置。
 
 ## 整体判断与推进顺序
 
-按 [推进规则](./README.md#整体判断与推进顺序) 说明以下判断，引用原始目标映射及已有 Design/代码/证据，不再复制目标或任务状态：
-
-- 整体链路与事实：本轮目标如何从输入到结果成立？哪些相关环节受影响，哪些事实已确认，哪些重要未知会改变行动？
-- 当前主要问题：哪个必要条件最阻碍承诺成立？证据与推测分别是什么？有竞争方向时按同一目标比较，单一明确问题无需凑候选。
-- 推进与尺度：先取得什么可观察结果，再推进什么？需求、任务和检查细到哪里足够？其余发现纳入、延期还是不属于本轮，理由是什么？
-- 纠偏与停止：什么证据会推翻当前重点？下一次检查的不同结果怎样改变行动？什么结果意味着排查结束，哪些正式验收仍须执行？
-- 目标函数：本轮最高目标是质量（不降低验收标准），其次是时间与成本。预计耗时 ____ 分钟；实际耗时 ____ 分钟。
-  超预算时只有三种处理：砍范围、改结构、报卡点；不写"再跑一次"或"延长工时"，也不靠减少验收项换速度。
-- 方法选择：方法由目标与约束推导，不照抄步骤。哪一条约束正在拖慢交付？它是否可以改结构消除，而不是逐个绕开？
-
-简单任务可以用几句话回答；当前判断是可更新的依据，不是机器证明的正确性。接续会话先回看此段，出现重要新证据时补充原因，不追加逐工具日志。
+- 链路与事实：请求进入 Hono，session guard 取当前用户，学习状态按用户返回。当前没有这个路由，请求得到 404。
+- 当前主要问题：接口边界不存在，后续数据库隔离没有唯一入口。先做 401 和空 200，再用另一个 Plan 做模型、迁移和双账号隔离。
+- 推进与尺度：只做只读接口和守卫，不挂载登录 UI，不建表。
+- 纠偏与停止：如果 session guard 不能稳定复用，退回 Hono 层最小守卫，不引入第二套认证。
+- 目标函数：质量优先。预计 90 分钟，实际待回填。
+- 方法选择：先读 session、API 组合和测试写法，再写断言。
 
 ## 来源规格
 
-- 需求：`docs/features/account-data-foundation.md`（列出本轮适用的 REQ/AC）。
-- 标准：`docs/standards/<standard>.md` 中限制本轮文件、数据或接口的条目。
-- 决策：仍然生效的 ADR 与替代方案。
-- **不适用来源与理由**：列出本轮检查过但不适用的文件，逐条写为什么。只列已使用的文件不能证明其他来源已排查。
+- 需求：docs/features/product.md 的 REQ-ACCOUNT-001、AC-ACCOUNT-001；REQ-WHITEPAPER-004 的游客本地学习边界。
+- 标准：docs/standards/security.md 的 STD-SEC-101；docs/standards/api.md 的 STD-API-101。
+- 决策：本轮没有新增 ADR。
+- 设计：docs/designs/api.md 的 DES-API-101 当前接口事实。
+- 测试意图：tests/api/vocabulary-state.test.ts。
+- 发布：docs/plans/releases/account-data-foundation-v1.json。
+- 运行记录：本轮尚未新增集成或发布证据。
+- 不适用来源：数据库迁移、关联辅助、词义数据不涉及。
 
 ## 目标映射
 
-- 每条 REQ 对应哪个 Binding ID 与哪个主要任务。
-- 每条 AC 由哪个检查证明。
+| Source          | Binding        | 任务 | 验证                               |
+| --------------- | -------------- | ---- | ---------------------------------- |
+| REQ-ACCOUNT-001 | 本轮需求       | T3   | AC-ACCOUNT-001                     |
+| AC-ACCOUNT-001  | 本轮验收       | T2   | tests/api/vocabulary-state.test.ts |
+| STD-SEC-101     | 会话与密钥边界 | T3   | 游客 401、客户端 userId 无效       |
+| STD-API-101     | 统一会话守卫   | T3   | 路由使用 requireUserId             |
+| DES-API-101     | 当前接口事实   | T4   | 设计回写                           |
 
-目标和事实必须按同一维度比较，不能只做整体印象判断。目标写了哪些维度（结果、边界、代价、时间、兼容性），事实就调查同样的维度，并逐维度写出"差距 / 一致"。缺维度时先补调查，不要直接下结论。
+目标与事实：目标是游客 401、登录 200；当前是 404。差距是路由和守卫都还没有。
 
 ## 主要矛盾
 
-写明目标要求什么、当前结构依赖什么、两者为何不能同时成立。
-再写支撑事实、为什么它最阻碍目标、以及什么新事实会推翻它。
-
-冲突本身必须满足三点，缺一项就不是主要矛盾：
-
-1. **两个条件都真实存在**：都有事实或证据支撑，不是推测或愿望；
-2. **方向相反**：满足一个会削弱另一个；
-3. **相互制约**：在当前范围内不能同时最大化。
-
-写法上至少包含四句：目标要求、当前依赖、冲突点、推翻条件。
+目标要求学习状态只在当前 session 下可读；当前没有路由，也没有账号数据层。冲突是先做数据库还是先做接口边界。边界先行的代价是本轮不能证明隔离，收益是后续实现有唯一入口，不会把认证、数据库和 UI 混进一个无法回滚的改动。推翻条件是现有 session guard 不能在不改认证配置的前提下复用。
 
 ## 次要矛盾
 
-- 真实存在但当前阻碍更小的冲突，以及它何时升级。
+- 空状态响应结构只在 Feature 和 Plan 固定，没有 Design 事实；实现后回写 api.md。
+- 测试 mock session，不能证明真实 Better Auth guard；本轮只证明路由调用了守卫。
 
 ## 决策原则
 
-- 优先什么、保留什么、排除什么，以及依据哪条规律或证据。
-  每条原则都要能回指到主要矛盾或一条已接受的决定。
+- 先边界后数据。依据是主要矛盾。
+- 服务端只信 session。依据是 STD-SEC-101 和 STD-API-101。
+- 小切片可回滚。依据是 Plan 交付单位。
 
 ## 方案比较
 
-- 采用方案、被否方案、代价与复审条件。
-  被否方案必须给出否定的具体理由，而不是“太复杂”。
+- 采用：加 GET /api/vocabulary/state 和 session guard，返回空状态。
+- 否定：一次做账号 UI、数据库和闭环。理由是红灯和审查无法聚焦，且用户可观察结果会被拆散。
+- 否定：直接建表不写接口。理由是本轮没有可观察行为，红灯会退化成结构检查。
+- 复审条件：空状态结构变化时先改 Feature，再改接口。
 
 ## 约束绑定矩阵
 
-| Source ID | Binding  | 任务 | 验证   |
-| --------- | -------- | ---- | ------ |
-| 待填写    | BIND-001 | T3   | 待填写 |
-| 待填写    | BIND-002 | T2   | 待填写 |
-
-矩阵逐条收束来源：每行都能回指真源与验证方式。
+| Source ID       | Binding  | 任务 | 验证                               |
+| --------------- | -------- | ---- | ---------------------------------- |
+| REQ-ACCOUNT-001 | 本轮需求 | T3   | AC-ACCOUNT-001                     |
+| AC-ACCOUNT-001  | 本轮验收 | T2   | tests/api/vocabulary-state.test.ts |
+| STD-SEC-101     | 会话边界 | T3   | 游客与客户端 userId 用例           |
+| STD-API-101     | 统一守卫 | T3   | requireUserId                      |
+| DES-API-101     | 接口事实 | T4   | docs/designs/api.md                |
 
 ## 回退
 
-失败时如何恢复、影响哪些数据或接口。回退不只是数据回滚：只要本轮改了配置默认值、接口契约或对外行为，就要写明兼容期、旧调用方怎么办、以及回退后它们是否仍可用。
-
-回退后检查仍按旧规则运行，不留下半开状态。
+删除新路由和 api/index.ts 的挂载即可恢复。回退时同时移除 Feature 的 AC-ACCOUNT-001 和对应测试，避免留下期望 401 的孤儿断言；不需要改 schema 或数据。
 
 ## 非目标
 
-把本轮不处理的范围写入顶部 `non_goals`，这里仅解释容易误解的边界。
+本轮不挂载登录 UI，不建数据库模型，不做双账号隔离、刷新恢复、学习闭环或学习记录。这些由后续 Plan 和 Release 的延期条目承接。
 
 ## 变更类型
 
-顶部 `change_type` 只选 `[新增模块]` 或 `[存量改动]`；基础设施调整属于存量改动。说明兼容性、数据迁移和回滚策略，并把共享文件写入 `shared_files`，声明 `path`、`owner` 与 `mode`（`exclusive` 或 `integrator`）。
-
-涉及 `prisma/`、认证或业务 API 的 Plan，还要填写顶部 `data_contract`。`access_scope` 使用 `per-user`、`per-organization`、`shared`、`public` 或 `not-applicable`；`migration_impact` 使用 `none`、`additive`、`backfill` 或 `destructive`，具体理由写到相应说明字段。这里记录资源属于谁、访问控制依据、迁移影响和恢复方式。删除或不可逆转换必须记录用户授权。简单决定写在这里即可；只有存在需要长期解释的架构取舍时才新增 ADR。
+存量改动，新增一个只读接口。没有数据迁移，不触碰 Prisma schema。src/server/api/index.ts 是共享文件，由本 Plan 独占写入。
 
 ## 输入规格
 
-只引用本轮相关的 Feature、Standards、Design、代码与测试。存在跨 Plan 依赖、共享写入或交接时按 [跨 Plan 协作](./README.md#跨-plan-依赖与交接) 对齐，在原协作字段保存接口与交接结果。
+读取 product.md、security.md、api.md、designs/api.md、session.ts、api/index.ts 和 tests/api/tasks.test.ts 的 mock 写法。账号数据模型留到后续 Plan。
 
 ## 已关闭问题
 
-顶部 `open_questions` 记录未决问题，`authorization.source` 记录实施授权来源。不要把空问题列表当作目标完整性证明。
+- 空状态结构：activeBook 为 null，wordStates 为空数组，已写入 AC。
+- 未登录状态码：401，沿用现有 guard。
+- 客户端 userId：不作为身份来源，游客带参数仍 401。
+- 数据库隔离：不在本轮，Release 记为延期。
 
 ## 测试与验收设计
 
-按 [测试标准](../standards/testing.md#检查选择与断言尺度) 说明关键检查要回答什么、断言能发现哪种错误；排查有不同结果时，说明各自的下一步。只列本轮适用项，引用现有测试与证据，不重复维护通过状态。
+三个用例分别覆盖游客 401、游客带 userId 仍 401、登录 200 和空状态。每个用例的目标断言带 AC 标记，红灯能归属 AC。测试 mock session 和 prisma，只证明 unit 层的路由和守卫，不证明数据库隔离；数据库隔离由后续 Plan 用真实 SQLite 验收。
 
-每个 AC 的 `tests` 与 `checks[].test` 必须引用同一带 `[AC-*]` 标记的可执行用例。`required_layers` 和 `verification_requirements` 表示必须满足的验证层级：纯逻辑用 `unit`；UI 交互补 `browser`；持久化补 `database`；真实第三方依赖补 `external`。`verification_contract: 2` 的 Plan 在 integration 中执行自己映射的所有行为层；Release 再对已完成的 Plan 组合执行生产构建和全量浏览器回归。prepare T1 编写并声明真实测试，进入 ready 前提交规格与测试基线。ready 只检查测试已存在且不是占位失败，不要求已有红灯证据。
+当前红灯：期望 401，实际 404，断言失败，不是环境错误。
 
 ## 实现任务
 
-从可验收结果拆分顶部 `tasks`，不要按目录数量或工具调用拆任务。**Plan 不是任务清单**：写的是「这轮要证明什么、怎么证明」，任务只是证明的落点；把任务列完当成计划写完，会在验收时暴露出没有可观察结果。
-
-准备任务（T1）与验证任务（末位）同样要有验收指向：前者对齐「规格与测试已提交且审查通过」，后者对齐「本条 AC 有可复现的检查」。没有验收指向的任务不算任务。把一个任务拆成多个实施切片前，确认每个切片都有可观察结果、独立写入范围、明确负责人和已知接口。没有相互依赖、写入范围不重叠且接口已约定的实施任务，可以并行派发；多个切片可以共同实现同一 AC，但都要等待该 AC 的有效红灯。范围重叠、负责人相同或接口未定时，先协调写入边界和接口；共享文件仍由唯一集成人写入。一个完整 CRUD 行为若接口尚未稳定，可以保留为一个纵向切片。
-
-每个任务要能独立判断成败，写明两件事：
-
-- **改变条件**：出现什么事实时，这个任务的方案要调整；
-- **失败判定**：出现什么结果算这个任务没达成，以及退回哪一步。
-
-准备检查的 `planning_diagnostics` 会提示多范围实施任务的拆分复查，以及候选任务间的依赖、验收、范围和接口条件。诊断只提供建议，不阻止可合法执行的单任务 Plan，也不表示 Agent 已派发。`remaining_work` 仅放尚未能转成明确任务的验收缺口，不重复列任务。
+- T1 规格、测试和基线提交。改变条件：AC 或响应结构变化时同步。失败判定：测试没有目标断言。
+- T2 原生红灯。改变条件：测试内容变化时重取。失败判定：失败来自环境或导入错误。
+- T3 实现路由和守卫。改变条件：guard 不能复用时改最小守卫。失败判定：游客不是 401，或登录不是 200。
+- T4 集成检查、复审和设计回写。改变条件：检查失败指向回归时回到 T3。失败判定：把绿灯当成账号隔离完成。
 
 ## 验收方式
 
-prepare T1 编写真实行为测试后，先独立审查 draft，并提交规格和测试基线。然后运行 `node scripts/ignite.mjs plan validate <ID> --prepare`，修正 failures。`ready=true` 仅表示开工文档和测试结构完整，不表示行为已经验证。将 Plan 置为 ready、active 后，T2 运行 `pnpm ignite tdd red --plan <IGT-ID> --ac <AC-ID>` 并记录真实目标断言失败；环境错误和脚手架占位失败均不算。提交红灯记录后再实施，测试文件在红灯与绿灯之间保持不变。随后运行 `pnpm ignite check --plan <IGT-ID> --level integration`，完成本 Plan 后将它标记为 done。Release 中所有 Plan 都完成后，运行 `pnpm ignite release verify <release-id> --plan <done-plan-id>`，只对最终组合执行一次生产构建和全量浏览器回归。历史 `verification_contract: 1` Plan 继续按旧流程验证。
+node scripts/ignite.mjs plan validate IGT-1794081675956926402 --prepare
+node scripts/ignite.mjs tdd red --plan IGT-1794081675956926402 --ac AC-ACCOUNT-001
+pnpm ignite check --plan IGT-1794081675956926402 --level integration
 
 ## 设计回写
 
-完成后只回写受影响的当前事实到 `docs/designs/`，不把本 Plan 的过程说明复制过去。
+实现后更新 docs/designs/api.md 的路由事实，写明 GET /api/vocabulary/state 的 401 和空状态。数据库模型不在本轮。
 
 ## 状态记录
 
-仅记录改变判断的重要结果、原因与未完成影响；按 [接续与纠偏](./README.md#接续与纠偏) 更新判断。修改长期规则时在 [原真源](../standards/ai-agents.md#维护规则) 维护。
-
-<!-- ignite-progress -->
-
-状态：`draft`（由元数据生成）
-
-- [ ] T1 · 确认本轮目标、编写真实测试并提交准备基线 · todo
-- [ ] T2 · 运行真实断言并记录目标行为红灯 · todo
-- [ ] T3 · 实现已定义的行为切片 · todo
-- [ ] T4 · 验证兼容性并回写当前设计 · todo
-
-验收缺口：原始目标尚未细化，无法确认完整验收场景
-证据：尚无
-<!-- /ignite-progress -->
+- 2026-11-08：基线 df56222，docs:check 和 ignite validate 通过。
+- 2026-11-08：新增 REQ-ACCOUNT-001、AC-ACCOUNT-001 和测试，初版 AC 过度声明账号隔离。
+- 2026-11-08：独立审查提出 R1–R10，4 条阻断。已收窄 outcome、AC 和 Release，拆分测试目标断言，移除 T3 的测试写入范围，补标准绑定。
+- 2026-11-08：本地红灯仍是期望 401、实际 404；尚未用原生命令记录。
+- 2026-11-08：等待复审。
 
 ## 准出条件
 
-按 [完成条件](./README.md#完成与证据) 回查原始目标核对表，记录实际结果、对应证据、被测版本及缺口。最终报告按 [沟通规则](../../AGENTS.md#沟通) 说明人能得到什么、依据是什么和未完成影响。
-
-每条 REQ 被 AC 覆盖，AC 有匹配层级的真实测试；`tasks` 全部完成，`remaining_work` 清空；`integrated_commit` 可追溯，所需证据属于当前输入与环境；Design 已回写。只有这些条件经验证成立，才把 Plan 标记为 `done`。
+AC-ACCOUNT-001 的三个用例通过；原生红灯和集成检查有记录；复审通过；Design 回写；tasks 全部完成。数据库隔离不在本轮，Release 明确延期。

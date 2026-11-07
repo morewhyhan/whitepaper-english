@@ -43,15 +43,26 @@ beforeEach(() => {
 })
 
 describe('account-scoped vocabulary state', () => {
-  it('[AC-ACCOUNT-001] rejects guests and returns only the signed-in account state', async () => {
-    const guest = await api.request('http://localhost/api/vocabulary/state')
-    expect(guest.status).toBe(401)
+  it('[AC-ACCOUNT-001] rejects guests', async () => {
+    const response = await api.request('http://localhost/api/vocabulary/state')
 
+    expect(response.status, '[AC-ACCOUNT-001] target guest must receive 401').toBe(401)
+  })
+
+  it('[AC-ACCOUNT-001] ignores a client supplied user id for guests', async () => {
+    const response = await api.request('http://localhost/api/vocabulary/state?userId=user-b')
+
+    expect(
+      response.status,
+      '[AC-ACCOUNT-001] target guest with client userId must receive 401',
+    ).toBe(401)
+  })
+
+  it('[AC-ACCOUNT-001] returns the signed-in empty state', async () => {
     testState.userId = 'user-a'
-    const signedIn = await api.request('http://localhost/api/vocabulary/state')
-    expect(signedIn.status).toBe(200)
+    const response = await api.request('http://localhost/api/vocabulary/state')
 
-    const body = (await signedIn.json()) as { data?: unknown }
-    expect(body).toEqual({ data: { activeBook: null, wordStates: [] } })
+    expect(response.status, '[AC-ACCOUNT-001] target signed-in request must receive 200').toBe(200)
+    expect(await response.json()).toEqual({ data: { activeBook: null, wordStates: [] } })
   })
 })

@@ -70,7 +70,7 @@
 - AC-WHITEPAPER-003（REQ-WHITEPAPER-003）：Given 当前阶段未接入付费、云服务或外部模型，When 核对页面和运行配置，Then 不出现虚假的商业能力或已完成的 AI 结果。
 - AC-WHITEPAPER-004（REQ-WHITEPAPER-004）：Given 未登录访客，When 打开首页并点击第一入口，Then 不需要注册即可进入词汇白纸并开始本地学习。
 - AC-WHITEPAPER-005（REQ-WHITEPAPER-005）：Given 第一阶段产品入口，When 访问首页和工作台，Then 第一动作是进入词汇白纸，未实现的写作/语法不被误标为可用。
-- AC-ACCOUNT-001（REQ-ACCOUNT-001）：Given 未登录或已登录用户，When 请求 /api/vocabulary/state，Then 未登录返回 401，已登录返回 200 且只包含该账号自己的学习状态。
+- AC-ACCOUNT-001（REQ-ACCOUNT-001）：Given 游客、登录用户或携带 userId 参数的游客，When 请求 /api/vocabulary/state，Then 游客返回 401，登录用户返回 200 和 { data: { activeBook: null, wordStates: [] } }，客户端传入的 userId 不能改变身份。
 
 ## 后续讨论边界
 
