@@ -1,7 +1,7 @@
 # Ignite 状态摘要
 
 模板状态：`adopted`
-输入指纹：`69aa91f74f81`
+输入指纹：`718a0a01a3ff`
 当前 Plan：2；结构化历史：3；未迁移历史：0
 
 ## 当前工作
@@ -17,11 +17,10 @@
   - 最终版本验收：missing
   - 下一步：null
   - 未完成原始目标：GOAL-001 学习状态接口的会话边界：游客返回 401，客户端 userId 不能绕过，登录返回 200 空状态；GOAL-002 账号数据写入数据库、双账号隔离和跨会话恢复
-- `account-data-persistence-v1` · `verifying`
+- `account-data-persistence-v1` · `done`
   - Plan：`IGT-1794084050047780048`
   - 缺少证据：无
-  - 最终版本验收：missing
-  - 下一步：pnpm ignite release verify account-data-persistence-v1 --plan IGT-1794084050047780048
+  - 最终版本验收：passed（f129418d1556）
   - 未完成原始目标：无已登记缺口（仍需语义核对）
 - `template-refresh` · `draft`
   - Plan：`IGT-2026110801`
