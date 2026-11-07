@@ -4,19 +4,19 @@
 
 ## 当前实现事实
 
-当前 API 组合真源是 `src/server/api/index.ts`，Next.js 适配入口是 `src/app/api/[[...route]]/route.ts`，类型入口是 `AppType`。当前模板资源仍为 `/api/health`、Better Auth `/api/auth/*` 和受 session 保护的 `/api/tasks` CRUD，以及 `GET /api/vocabulary/state`。
+当前 API 组合真源是 `src/server/api/index.ts`，Next.js 适配入口是 `src/app/api/[[...route]]/route.ts`，类型入口是 `AppType`。当前模板资源仍为 `/api/health`、Better Auth `/api/auth/*` 和受 session 保护的 `/api/tasks` CRUD，以及 `/api/vocabulary/state` 和 `/api/vocabulary/judgements`。
 
 统一成功响应为 `{ "data": ... }`；错误响应为 `{ "code": number, "message": string }`。当前模块请求路径是 `Hook → createApiClient(AppType) → Hono route`。
 
-### 学习状态接口（当前边界）
+### 词汇状态与判定接口
 
-`GET /api/vocabulary/state` 需要 session。未登录返回 401；登录返回 `{ "data": { "activeBook": null, "wordStates": [{ "word": "apple", "known": true }] } }`。`wordStates` 只包含当前账号保存的词状态，新账号为空数组。目标 `/api/vocabulary` 资源在后续 Plan 替换或扩展。
+`GET /api/vocabulary/state` 需要 session。未登录返回 401；登录返回 `{ "data": { "activeBook": null, "wordStates": [{ "word": "apple", "known": true }] } }`。`wordStates` 只包含当前账号保存的词状态，新账号为空数组。
 
-该路由位于 `src/server/api/vocabulary.ts`，由 `src/server/api/index.ts` 挂载。它现在读取 `word_state`，属于有记录的单资源例外：只做一次按 session 的只读查询，没有业务编排。后续多资源或写入型数据路由仍必须放在 `routes/` 并提供 database 验收。
+`POST /api/vocabulary/judgements` 需要 session，请求体为 `{ "judgements": [{ "word": "apple", "known": true }] }`，最多 36 条。接口按 session 用户批量 upsert，返回保存后的 `wordStates`；重复提交同一词覆盖旧值，非法请求返回 422。
 
-来源：REQ-ACCOUNT-001、AC-ACCOUNT-001；REQ-ACCOUNT-003、AC-ACCOUNT-003。
+两个接口都位于 `src/server/api/routes/vocabulary/index.ts`，由 `src/server/api/index.ts` 挂载，使用统一 session guard 和 zValidator，读写 `word_state`。
 
-来源：REQ-ACCOUNT-001、AC-ACCOUNT-001。
+来源：REQ-ACCOUNT-001、AC-ACCOUNT-001；REQ-ACCOUNT-003、AC-ACCOUNT-003；REQ-ACCOUNT-005、AC-ACCOUNT-005。
 
 ## 白纸英语目标 API
 

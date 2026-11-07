@@ -1,7 +1,7 @@
 import { handleError } from './error'
 import { Hono } from 'hono'
 import tasksRoute from './routes/tasks'
-import vocabularyRoute from './vocabulary'
+import vocabularyRoute from './routes/vocabulary'
 import { auth } from '@/server/auth'
 
 const app = new Hono().basePath('/api')

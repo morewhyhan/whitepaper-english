@@ -65,6 +65,66 @@ paths:
                               type: boolean
         '401':
           $ref: '#/components/responses/Unauthorized'
+  /api/vocabulary/judgements:
+    post:
+      operationId: saveVocabularyJudgements
+      summary: Save a page of judgements for the signed-in account
+      description: >-
+        Requires the Better Auth session cookie. Upserts up to 36 word states
+        for the current account; resubmitting a word overwrites its value.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [judgements]
+              properties:
+                judgements:
+                  type: array
+                  minItems: 1
+                  maxItems: 36
+                  items:
+                    type: object
+                    additionalProperties: false
+                    required: [word, known]
+                    properties:
+                      word:
+                        type: string
+                      known:
+                        type: boolean
+      responses:
+        '200':
+          description: Saved vocabulary state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [activeBook, wordStates]
+                    properties:
+                      activeBook:
+                        type: ['object', 'null']
+                        additionalProperties: true
+                      wordStates:
+                        type: array
+                        items:
+                          type: object
+                          additionalProperties: false
+                          required: [word, known]
+                          properties:
+                            word:
+                              type: string
+                            known:
+                              type: boolean
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/InvalidInput'
   /api/tasks:
     get:
       operationId: listTasks

@@ -13,6 +13,22 @@ export async function listWordStates(prisma: PrismaClient, userId: string): Prom
   })
 }
 
+export async function setWordStates(
+  prisma: PrismaClient,
+  userId: string,
+  judgements: WordState[],
+): Promise<void> {
+  await prisma.$transaction(
+    judgements.map(({ word, known }) =>
+      prisma.word_state.upsert({
+        where: { userId_word: { userId, word } },
+        create: { userId, word, known },
+        update: { known },
+      }),
+    ),
+  )
+}
+
 export async function setWordState(
   prisma: PrismaClient,
   userId: string,

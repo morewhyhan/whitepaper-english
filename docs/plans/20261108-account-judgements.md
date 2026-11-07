@@ -129,7 +129,7 @@
       "title": "运行判定接口测试并记录红灯",
       "phase": "red",
       "acceptance": ["AC-ACCOUNT-005"],
-      "status": "doing",
+      "status": "done",
       "result": "原生 red 确认 POST 返回 404，判定没有保存。",
       "scope": ["tests/api/vocabulary-judgements.test.ts", "docs/others/evidence/tdd/"],
       "depends_on": ["T1"],
@@ -140,7 +140,7 @@
       "title": "实现批量判定并归位词汇路由",
       "phase": "implement",
       "acceptance": ["AC-ACCOUNT-005"],
-      "status": "todo",
+      "status": "doing",
       "result": "POST 批量 upsert，GET 复用同一路由，测试转绿。",
       "scope": [
         "src/server/vocabulary/store.ts",
@@ -357,8 +357,8 @@ AC-ACCOUNT-005 的 database 测试通过；原生红灯和集成检查有记录�
 状态：`active`（由元数据生成）
 
 - [x] T1 · 确认目标、编写判定接口数据库测试并提交准备基线 · done
-- [ ] T2 · 运行判定接口测试并记录红灯 · doing
-- [ ] T3 · 实现批量判定并归位词汇路由 · todo
+- [x] T2 · 运行判定接口测试并记录红灯 · done
+- [ ] T3 · 实现批量判定并归位词汇路由 · doing
 - [ ] T4 · 运行集成检查、交付审查并回写设计 · todo
 
 验收缺口：未记录；完成仍须实际证据
