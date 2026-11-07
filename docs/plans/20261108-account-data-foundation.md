@@ -3,7 +3,7 @@
   "schema": 2,
   "id": "IGT-1794081675956926402",
   "release": "account-data-foundation-v1",
-  "status": "active",
+  "status": "superseded",
   "outcome": "学习状态接口具备会话边界：游客带不带 userId 都返回 401，登录用户返回 200 的空状态。",
   "contract_version": 2,
   "execution_contract": 1,
@@ -539,7 +539,7 @@ AC-ACCOUNT-001 的契约用例通过；原生红灯和集成检查有记录；�
 
 <!-- ignite-progress -->
 
-状态：`active`（由元数据生成）
+状态：`superseded`（由元数据生成）
 
 - [x] T1 · 确认本轮目标、编写真实测试并提交准备基线 · done
 - [x] T2 · 运行真实断言并记录目标行为红灯 · done
