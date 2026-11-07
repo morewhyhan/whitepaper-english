@@ -193,7 +193,7 @@ test('[AC-WORKSPACE-009] 词书栏默认收起并在悬停时展开', async ({ p
     .toBeLessThanOrEqual(0)
 })
 
-test('[AC-WORKSPACE-010] 写作和语法页面保持完整纸张宽度', async ({ page }) => {
+test('[AC-WORKSPACE-006] 写作和语法页面保持完整纸张宽度', async ({ page }) => {
   await openFresh(page)
   const viewportWidth = page.viewportSize()?.width ?? 0
   const minimumWidth = Math.min(600, viewportWidth - 20)

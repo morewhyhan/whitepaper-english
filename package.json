@@ -27,6 +27,7 @@
     "test:migrations": "node scripts/test-migrations.mjs",
     "test:e2e": "node scripts/run-e2e.mjs",
     "test:e2e:production": "node scripts/run-e2e.mjs --production",
+    "test:e2e:web": "node scripts/run-e2e.mjs --project=desktop-chromium",
     "auth:schema": "auth generate --config scripts/better-auth.config.ts --output prisma/better-auth.generated.prisma --yes",
     "check": "corepack pnpm runtime:check && corepack pnpm template:doctor && corepack pnpm ignite validate && corepack pnpm docs:check && corepack pnpm typecheck && corepack pnpm tools:check && corepack pnpm lint && corepack pnpm format:check && corepack pnpm test",
     "verify": "corepack pnpm check && corepack pnpm test:migrations && corepack pnpm build",

@@ -18,7 +18,7 @@ const words: VocabularyWord[] = normalizeWords([
 ])
 
 describe('vocabulary learning state', () => {
-  it('parses CSV, TSV, and JSON word lists', () => {
+  it('[AC-VOCABULARY-007] parses CSV, TSV, and JSON word lists', () => {
     expect(parseImport('English,中文\napple,苹果').words.map((word) => word.en)).toEqual(['apple'])
     expect(parseImport('apple\t苹果', 'words.tsv').words[0]).toMatchObject({
       en: 'apple',
@@ -49,7 +49,7 @@ describe('vocabulary learning state', () => {
     expect(initial.words.filter((word) => word.en === 'do')).toHaveLength(2)
   })
 
-  it('keeps only unknown words for the next round', () => {
+  it('[AC-VOCABULARY-004] keeps only unknown words for the next round', () => {
     const session = createSession(words, { mode: 'unknown', groups: 4 })
     const first = toggleMark(session, words[0].id, 'unknown')
     const completed = advanceSession(first, words)

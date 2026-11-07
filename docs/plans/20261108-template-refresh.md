@@ -370,6 +370,8 @@
   },
   "write_scope": [
     ".ai/project.json",
+    ".prettierignore",
+    "CHANGELOG.md",
     "AGENTS.md",
     "docs/",
     "scripts/",
