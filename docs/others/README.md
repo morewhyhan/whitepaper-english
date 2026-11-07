@@ -12,6 +12,7 @@
 
 - [原始输入资料](./inputs/README.md)：按需保存并引用较长或多份需求来源原文
 - [关联辅助技术选型备忘](./association-research.md)：向量、句子生成、校验与数据分发的选项和推荐
+- [V1 完成目标](./20261108-vocabulary-goal.md)：可直接执行的 GOAL 提示词、现状、约束与验收门禁
 - [架构决策记录](./adr/)
 - [测试用例规格](./test-cases/)
 - [执行证据](./evidence/)
