@@ -15,6 +15,10 @@ vi.mock('@/server/database/client', () => ({
   prisma: {},
 }))
 
+vi.mock('@/server/vocabulary/store', () => ({
+  listWordStates: async () => [],
+}))
+
 vi.mock('@/server/api/session', async () => {
   const { HTTPException } =
     await vi.importActual<typeof import('hono/http-exception')>('hono/http-exception')

@@ -137,7 +137,7 @@
       "title": "运行接口数据测试并记录红灯",
       "phase": "red",
       "acceptance": ["AC-ACCOUNT-003"],
-      "status": "doing",
+      "status": "done",
       "result": "原生 red 确认接口返回空数组而不是已保存的词状态。",
       "scope": ["tests/api/vocabulary-state-data.test.ts", "docs/others/evidence/tdd/"],
       "depends_on": ["T1"],
@@ -148,7 +148,7 @@
       "title": "把状态接口接到账号词状态 store",
       "phase": "implement",
       "acceptance": ["AC-ACCOUNT-003"],
-      "status": "todo",
+      "status": "doing",
       "result": "接口按 session 用户读取 listWordStates，返回自己的词状态，测试转绿。",
       "scope": ["src/server/api/vocabulary.ts", "tests/api/vocabulary-state.test.ts"],
       "depends_on": ["T2"],
@@ -348,8 +348,8 @@ AC-ACCOUNT-003 的 database 测试通过；原生红灯和集成检查有记录�
 状态：`active`（由元数据生成）
 
 - [x] T1 · 确认目标、编写真实接口数据测试并提交准备基线 · done
-- [ ] T2 · 运行接口数据测试并记录红灯 · doing
-- [ ] T3 · 把状态接口接到账号词状态 store · todo
+- [x] T2 · 运行接口数据测试并记录红灯 · done
+- [ ] T3 · 把状态接口接到账号词状态 store · doing
 - [ ] T4 · 运行集成检查、交付审查并回写设计 · todo
 
 验收缺口：未记录；完成仍须实际证据

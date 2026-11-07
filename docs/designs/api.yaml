@@ -34,8 +34,8 @@ paths:
       operationId: getVocabularyState
       summary: Read the current user's vocabulary state boundary
       description: >-
-        Requires the Better Auth session cookie. Returns an empty state until
-        account persistence ships.
+        Requires the Better Auth session cookie. Returns the signed-in
+        account's saved word states; a new account gets an empty list.
       responses:
         '200':
           description: Current vocabulary state
@@ -56,7 +56,13 @@ paths:
                         type: array
                         items:
                           type: object
-                          additionalProperties: true
+                          additionalProperties: false
+                          required: [word, known]
+                          properties:
+                            word:
+                              type: string
+                            known:
+                              type: boolean
         '401':
           $ref: '#/components/responses/Unauthorized'
   /api/tasks:
