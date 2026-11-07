@@ -263,7 +263,7 @@
 
 ## 回退
 
-回退接口到空数组即可恢复，不改 schema、迁移或 store。回退时同步移除 AC-ACCOUNT-003 和接口数据测试，避免留下期望词状态的孤儿断言。
+回退接口到空数组即可恢复，不改 schema、迁移或 store。回退时把 api.md 和 api.yaml 的响应描述改回空状态，并移除 AC-ACCOUNT-003 和接口数据测试，或把 AC-ACCOUNT-003 与 REQ-ACCOUNT-003 标记为延期；Release scope 同步移除或改成 deferred，避免留下引用已删除 AC 的发布范围。
 
 ## 非目标
 
