@@ -61,6 +61,18 @@ CREATE TABLE "task" (
   FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE "word_state" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "word" TEXT NOT NULL,
+  "known" BOOLEAN NOT NULL,
+  "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" DATETIME NOT NULL,
+  FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 CREATE INDEX "session_userId_idx" ON "session" ("userId");
 CREATE INDEX "account_userId_idx" ON "account" ("userId");
 CREATE INDEX "task_userId_createdAt_idx" ON "task" ("userId", "createdAt");
+CREATE UNIQUE INDEX "word_state_userId_word_key" ON "word_state" ("userId", "word");
+CREATE INDEX "word_state_userId_idx" ON "word_state" ("userId");

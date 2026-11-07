@@ -37,6 +37,7 @@ model user {
   sessions session[]
   accounts account[]
   tasks   task[]
+  wordStates word_state[]
 }
 
 model session {
@@ -84,4 +85,18 @@ model verification {
   updatedAt  DateTime @updatedAt
 
   @@unique([identifier, value])
+}
+
+model word_state {
+  id        String   @id @default(uuid())
+  userId    String
+  word      String
+  known     Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, word])
+  @@index([userId])
 }

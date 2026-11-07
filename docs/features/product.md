@@ -60,6 +60,7 @@
 - R6（REQ-WHITEPAPER-004）：未登录用户可以开始第一阶段词汇学习；账户只用于同步、备份和跨设备恢复。
 - R7（REQ-WHITEPAPER-005）：第一阶段的首屏直接进入词汇白纸，不先展示 Tasks、设置或模板说明；写作和语法在未实现前不得展示为可用学习功能。
 - R8（REQ-ACCOUNT-001）：学习状态接口只接受 session 身份。未登录访问返回 401；客户端传入的用户标识不能改变身份。账号数据的持久化和双账号隔离在独立 Plan 中定义规格与验收。
+- R9（REQ-ACCOUNT-002）：学习数据按账号持久化并隔离。两个账号保存的词状态互不可见，读取只返回当前 session 用户自己的记录。
 
 ## 验收标准
 
@@ -71,6 +72,7 @@
 - AC-WHITEPAPER-004（REQ-WHITEPAPER-004）：Given 未登录访客，When 打开首页并点击第一入口，Then 不需要注册即可进入词汇白纸并开始本地学习。
 - AC-WHITEPAPER-005（REQ-WHITEPAPER-005）：Given 第一阶段产品入口，When 访问首页和工作台，Then 第一动作是进入词汇白纸，未实现的写作/语法不被误标为可用。
 - AC-ACCOUNT-001（REQ-ACCOUNT-001）：Given 游客或登录用户，When 请求 /api/vocabulary/state，Then 游客返回 401，游客携带 userId 参数仍返回 401，登录用户返回 200 和 { data: { activeBook: null, wordStates: [] } }。客户端 userId 不能改变游客身份。
+- AC-ACCOUNT-002（REQ-ACCOUNT-002）：Given 账号 A 和账号 B 各自保存词状态，When 分别读取自己的词状态，Then 只返回本账号保存的记录，看不到对方的记录。
 
 ## 后续讨论边界
 
