@@ -23,11 +23,10 @@
   - 最终版本验收：stale
   - 下一步：pnpm ignite release verify account-data-persistence-v1 --plan IGT-1794084050047780048
   - 未完成原始目标：无已登记缺口（仍需语义核对）
-- `account-judgements-v1` · `verifying`
+- `account-judgements-v1` · `done`
   - Plan：`IGT-1794090800136711353`
   - 缺少证据：无
-  - 最终版本验收：missing
-  - 下一步：pnpm ignite release verify account-judgements-v1 --plan IGT-1794090800136711353
+  - 最终版本验收：passed（8b8b4f13d70c）
   - 未完成原始目标：无已登记缺口（仍需语义核对）
 - `template-refresh` · `draft`
   - Plan：`IGT-2026110801`
