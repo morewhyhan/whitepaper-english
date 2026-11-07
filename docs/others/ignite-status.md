@@ -1,7 +1,7 @@
 # Ignite 状态摘要
 
 模板状态：`adopted`
-输入指纹：`718a0a01a3ff`
+输入指纹：`ba68efe3bf92`
 当前 Plan：2；结构化历史：3；未迁移历史：0
 
 ## 当前工作
@@ -20,7 +20,7 @@
 - `account-data-persistence-v1` · `done`
   - Plan：`IGT-1794084050047780048`
   - 缺少证据：无
-  - 最终版本验收：passed（f129418d1556）
+  - 最终版本验收：passed（39aaaffa0917）
   - 未完成原始目标：无已登记缺口（仍需语义核对）
 - `template-refresh` · `draft`
   - Plan：`IGT-2026110801`
