@@ -15,7 +15,7 @@ app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-export const routes = app.route('/', tasksRoute).route('/vocabulary', vocabularyRoute)
+export const routes = app.route('/', tasksRoute).route('/', vocabularyRoute)
 
 export default routes
 

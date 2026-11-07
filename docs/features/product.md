@@ -64,6 +64,7 @@
 - R10（REQ-ACCOUNT-003）：学习状态接口返回当前 session 用户已经保存的词状态，而不是固定空数组。
 - R11（REQ-ACCOUNT-004）：词汇白纸提供可见的登录入口；登录或注册成功后回到词汇白纸，退出后回到访客状态。
 - R12（REQ-ACCOUNT-005）：登录用户可以批量提交当前页的会/不会判定；同一账号同一词重复提交时覆盖旧值，其他账号不可见。
+- R13（REQ-ACCOUNT-006）：登录用户点“下一页”时，当前页的判定提交到自己的账号；未登录用户只保存在本机。
 
 ## 验收标准
 
@@ -79,6 +80,7 @@
 - AC-ACCOUNT-003（REQ-ACCOUNT-003）：Given 账号 A 已保存词状态，When A 请求 /api/vocabulary/state，Then 返回 A 自己的词状态，而不是空数组。
 - AC-ACCOUNT-004（REQ-ACCOUNT-004）：Given 访客打开词汇白纸，When 点击登录并完成注册，Then 回到 /vocabulary 且显示退出；点击退出后重新显示登录。
 - AC-ACCOUNT-005（REQ-ACCOUNT-005）：Given 登录用户 A 提交 apple=true、tree=false，When 再提交 apple=false，Then 读取只保留 apple=false 和一条 tree=false；账号 B 读取不到 A 的记录。
+- AC-ACCOUNT-006（REQ-ACCOUNT-006）：Given 登录用户在词汇白纸第一页，When 点击“下一页”，Then 当前页判定写入账号，读取状态返回这些词。
 
 ## 后续讨论边界
 

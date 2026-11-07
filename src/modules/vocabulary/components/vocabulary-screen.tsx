@@ -30,6 +30,7 @@ import {
   type VocabularyWord,
 } from '../lib/vocabulary'
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
+import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
 
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
@@ -84,6 +85,7 @@ export function VocabularyScreen() {
   const [authOpen, setAuthOpen] = useState(false)
   const { data: authSession } = useAuthSession()
   const signOut = useSignOut()
+  const saveJudgements = useSaveJudgements()
   const [clipOpen, setClipOpen] = useState(false)
   const [clipTarget, setClipTarget] = useState<WorkspaceMode | null>(null)
   const [paste, setPaste] = useState('')
@@ -197,19 +199,42 @@ export function VocabularyScreen() {
     })
   }
 
-  function handleNext() {
+  async function commitCurrentPage(size?: number) {
+    if (!authSession?.user) return true
+
+    const currentPage = pageWords(state.words, session, size)
+    const judgements = currentPage.map((word) => ({
+      word: word.en,
+      known:
+        (session.marks[word.id] ?? (session.mode === 'known' ? 'unknown' : 'known')) === 'known',
+    }))
+    if (!judgements.length) return true
+
+    try {
+      await saveJudgements.mutateAsync({ judgements })
+      return true
+    } catch {
+      setNotice('判定提交失败，请重试')
+      return false
+    }
+  }
+
+  async function handleNext() {
     if (session.complete) return
+    if (!(await commitCurrentPage())) return
     setUndoSession(session)
     updateSession((current) => advanceSession(current, state.words))
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
-  function handleZenNext() {
+  async function handleZenNext() {
     if (session.complete) return
+    const pageSize = Math.max(1, zenLayout.count) * ZEN_WORDS_PER_SHEET
+    if (!(await commitCurrentPage(pageSize))) return
     setUndoSession(session)
     updateSession((current) =>
       advanceSession(current, state.words, {
-        pageSize: Math.max(1, zenLayout.count) * ZEN_WORDS_PER_SHEET,
+        pageSize,
       }),
     )
     window.scrollTo({ top: 0, behavior: 'instant' })

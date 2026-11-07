@@ -21,7 +21,7 @@ const judgementSchema = z
   })
   .strict()
 
-const vocabulary = new Hono()
+const vocabulary = new Hono().basePath('/vocabulary')
 
 vocabulary.get('/state', async (c) => {
   const userId = await requireUserId(c.req.raw.headers)
