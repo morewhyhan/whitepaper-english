@@ -172,6 +172,72 @@
       ],
       "identity_assurance": "declared",
       "recorded_at": "2026-11-07T20:26:21.092Z"
+    },
+    {
+      "stage": "draft",
+      "reviewer": "subagent-reviewer-1",
+      "executor": "morewhyhan",
+      "source": "第七轮复审：核对 api.yaml 与设计落点，独立子代理读取 Plan、Feature、测试、api.yaml、api.md 与路由",
+      "subject_fingerprint": "84b7162a92fe65624ff86d99b5714c933bcf5a2f36e20d0fde988af8a3700487",
+      "verdict": "approved",
+      "findings": [
+        {
+          "id": "R24",
+          "severity": "blocking",
+          "summary": "api.yaml 已补 GET /api/vocabulary/state，设计快照测试通过。",
+          "resolved": true
+        },
+        {
+          "id": "R22",
+          "severity": "nonblocking",
+          "summary": "边界路由落点和分层理由已写入 api.md，作为有记录的例外。",
+          "resolved": true
+        },
+        {
+          "id": "R23",
+          "severity": "nonblocking",
+          "summary": "设计文档已记录文件位置、原因和后续数据路由约束。",
+          "resolved": true
+        },
+        {
+          "id": "R2",
+          "severity": "blocking",
+          "summary": "REQ 收窄到会话身份，账号数据隔离留在 Release GOAL-002 deferred。",
+          "resolved": true
+        },
+        {
+          "id": "R3",
+          "severity": "blocking",
+          "summary": "聚合用例仍只有一条末尾 target，红灯与绿灯归属不变。",
+          "resolved": true
+        },
+        {
+          "id": "R13",
+          "severity": "nonblocking",
+          "summary": "约束矩阵未使用 BIND 编号。",
+          "resolved": false
+        },
+        {
+          "id": "R14",
+          "severity": "nonblocking",
+          "summary": "第一、二、四轮审查未单独写入 reviews。",
+          "resolved": false
+        },
+        {
+          "id": "R16",
+          "severity": "nonblocking",
+          "summary": "401 未断言统一错误 body。",
+          "resolved": false
+        },
+        {
+          "id": "R21",
+          "severity": "nonblocking",
+          "summary": "状态记录的红灯描述待用 plan note 追加纠正。",
+          "resolved": false
+        }
+      ],
+      "identity_assurance": "declared",
+      "recorded_at": "2026-11-07T20:39:31.005Z"
     }
   ],
   "verification_contract": 2,
@@ -462,6 +528,8 @@ pnpm ignite check --plan IGT-1794081675956926402 --level integration
 - 2026-11-08：等待复审。
 
 2026-11-07：check --plan integration 被模板规则拒绝：src/server/api/routes 变更要求 database 层验收；本轮只建立会话边界，没有 Prisma 持久化。下一步需要把数据层纳入本 Plan 或另立 Plan，再重新取 integration 证据。
+
+2026-11-07：补充：原生红灯 tdd-20261107202633-1962dd 已记录，聚合断言失败（guest/spoofed/signedIn 404、signedInBody null）；此前“尚未记录”的说法已被取代。接口已移到 src/server/api/vocabulary.ts，不再把数据层纳入本 Plan，账号持久化留在 Release GOAL-002 deferred。
 
 ## 准出条件
 
