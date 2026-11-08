@@ -1,35 +1,16 @@
 'use client'
 
-import type { KokoroTTS } from 'kokoro-js'
-
-const MODEL_ID = 'onnx-community/Kokoro-82M-v1.0-ONNX'
-const VOICE = 'af_heart'
 const CACHE_LIMIT = 60
 
-let kokoro: KokoroTTS | null = null
-let loading: Promise<KokoroTTS | null> | null = null
-let currentAudio: HTMLAudioElement | null = null
+let worker: Worker | null = null
+let workerReady = false
+let workerFailed = false
+let requestId = 0
+const pending = new Map<number, { resolve: (url: string | null) => void }>()
+const pendingText = new Map<string, Promise<string | null>>()
+const prefetchQueue = new Set<string>()
 const audioCache = new Map<string, string>()
-const pending = new Map<string, Promise<string | null>>()
-const HF_PREFIX =
-  'https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/'
-let localFetchInstalled = false
-
-function installLocalModelFetch() {
-  if (localFetchInstalled) return
-  localFetchInstalled = true
-  const original = window.fetch.bind(window)
-  window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
-    const url =
-      typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
-    if (url.startsWith(HF_PREFIX)) {
-      const local = '/kokoro/' + url.slice(HF_PREFIX.length).split('?')[0]
-      if (process.env.NODE_ENV !== 'production') console.info('[speech] local model', local)
-      return original(local, init)
-    }
-    return original(input, init)
-  }
-}
+let currentAudio: HTMLAudioElement | null = null
 
 function remember(text: string, url: string) {
   if (audioCache.size >= CACHE_LIMIT) {
@@ -47,9 +28,7 @@ function playUrl(url: string) {
   currentAudio?.pause()
   const audio = new Audio(url)
   currentAudio = audio
-  void audio.play().catch(() => {
-    // Autoplay can be blocked after an await; the next gesture will retry.
-  })
+  void audio.play().catch(() => {})
 }
 
 export function stopSpeech() {
@@ -62,26 +41,14 @@ export function stopSpeech() {
 
 function pickSystemVoice(): SpeechSynthesisVoice | null {
   if (!('speechSynthesis' in window)) return null
-  const voices = window.speechSynthesis.getVoices()
-  const english = voices.filter((voice) => voice.lang.toLowerCase().startsWith('en'))
-  if (!english.length) return null
-
-  const preferred = [
-    /natural/i,
-    /neural/i,
-    /online/i,
-    /aria/i,
-    /jenny/i,
-    /guy/i,
-    /samantha/i,
-    /google us english/i,
-    /zira/i,
-    /ava/i,
-  ]
+  const voices = window.speechSynthesis
+    .getVoices()
+    .filter((voice) => voice.lang.toLowerCase().startsWith('en'))
+  if (!voices.length) return null
+  const preferred = [/natural/i, /neural/i, /online/i, /aria/i, /jenny/i, /guy/i, /samantha/i, /google us english/i, /zira/i, /ava/i]
   const avoid = /david|mark|espeak|compact|robot/i
-
   return (
-    english
+    voices
       .map((voice) => {
         let score = 0
         if (voice.lang.toLowerCase() === 'en-us') score += 6
@@ -110,111 +77,119 @@ function speakSystem(text: string) {
   window.speechSynthesis.speak(utterance)
 }
 
-export function warmSpeech() {
-  if (typeof window === 'undefined' || kokoro || loading) return
-  installLocalModelFetch()
-
-  // Loaded at runtime so the 50MB browser TTS graph never enters the app bundle.
-  const loadKokoro = new Function(
-    'return import("https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm")',
-  ) as () => Promise<{
-    KokoroTTS: typeof import('kokoro-js').KokoroTTS
-    env: { wasmPaths: string }
-  }>
-
-  const load = loadKokoro().then(({ KokoroTTS, env }) => {
-    if (process.env.NODE_ENV !== 'production') console.info('[speech] module loaded')
-    env.wasmPaths = window.location.origin + '/ort/'
-    return KokoroTTS.from_pretrained(MODEL_ID, {
-      dtype: 'q8',
-      device: 'wasm',
-      progress_callback: (progress) => {
-        if (progress.status === 'done' && process.env.NODE_ENV !== 'production') {
-          console.info('[speech] model file ready', progress.file)
-        }
-      },
-    })
-  })
-
-  loading = Promise.race([
-    load,
-    new Promise<null>((resolve) => window.setTimeout(() => resolve(null), 120_000)),
-  ])
-    .then((instance) => {
-      if (instance) kokoro = instance
-      return instance
-    })
-    .catch((error) => {
-      if (process.env.NODE_ENV !== 'production') console.warn('[speech] Kokoro load failed', error)
-      return null
-    })
-    .finally(() => {
-      loading = null
-    })
+function ensureWorker() {
+  if (typeof window === 'undefined' || worker || workerFailed) return
+  try {
+    worker = new Worker('/kokoro-worker.mjs', { type: 'module' })
+  } catch {
+    workerFailed = true
+    return
+  }
+  worker.onmessage = (event) => {
+    const data = event.data || {}
+    if (data.type === 'ready') {
+      workerReady = true
+      for (const text of [...prefetchQueue].slice(0, 2)) {
+        prefetchQueue.delete(text)
+        void renderKokoro(text, false)
+      }
+      return
+    }
+    if (data.type === 'fatal') {
+      workerFailed = true
+      workerReady = false
+      return
+    }
+    if (data.type === 'audio') {
+      const waiter = pending.get(data.id)
+      pending.delete(data.id)
+      const url = URL.createObjectURL(new Blob([data.wav], { type: 'audio/wav' }))
+      waiter?.resolve(url)
+      return
+    }
+    if (data.type === 'error') {
+      if (process.env.NODE_ENV !== 'production') console.warn('[speech] worker error', data.message)
+      const waiter = pending.get(data.id)
+      pending.delete(data.id)
+      waiter?.resolve(null)
+    }
+  }
+  worker.onerror = () => {
+    workerFailed = true
+    workerReady = false
+    for (const waiter of pending.values()) waiter.resolve(null)
+    pending.clear()
+  }
+  worker.postMessage({ type: 'load' })
 }
 
-async function renderKokoro(text: string): Promise<string | null> {
-  if (!kokoro) return null
+export function warmSpeech() {
+  ensureWorker()
+}
+
+function renderKokoro(text: string, priority: boolean): Promise<string | null> {
+  if (!worker || !workerReady) return Promise.resolve(null)
   const cached = audioCache.get(text)
-  if (cached) return cached
-  const existing = pending.get(text)
+  if (cached) return Promise.resolve(cached)
+  const existing = pendingText.get(text)
   if (existing) return existing
-  const job = kokoro
-    .generate(text, { voice: VOICE, speed: 0.94 })
-    .then((audio) => {
-      const url = URL.createObjectURL(audio.toBlob())
-      remember(text, url)
-      return url
+  const job = new Promise<string | null>((resolve) => {
+    const id = ++requestId
+    const timer = window.setTimeout(() => {
+      pending.delete(id)
+      resolve(null)
+    }, 20_000)
+    pending.set(id, {
+      resolve: (url) => {
+        window.clearTimeout(timer)
+        if (url) remember(text, url)
+        resolve(url)
+      },
     })
-    .catch((error) => {
-      if (process.env.NODE_ENV !== 'production')
-        console.warn('[speech] Kokoro generate failed', error)
-      return null
-    })
-    .finally(() => pending.delete(text))
-  pending.set(text, job)
+    worker?.postMessage({ type: 'speak', id, text, priority })
+  }).finally(() => pendingText.delete(text))
+  pendingText.set(text, job)
   return job
 }
 
 export function prefetchSpeech(texts: string[]) {
-  if (!kokoro) return
-  for (const raw of new Set(texts.map((text) => text.trim()).filter(Boolean))) {
-    if (audioCache.has(raw) || pending.has(raw)) continue
-    void renderKokoro(raw)
+  for (const text of new Set(texts.map((item) => item.trim()).filter(Boolean))) {
+    if (audioCache.has(text) || pendingText.has(text)) continue
+    if (workerReady) void renderKokoro(text, false)
+    else prefetchQueue.add(text)
   }
+}
+
+async function speakKokoro(text: string, priority: boolean) {
+  const url = await renderKokoro(text, priority)
+  if (!url) return false
+  playUrl(url)
+  return true
 }
 
 export async function speakText(text: string) {
   if (typeof window === 'undefined') return
   const clean = text.trim()
   if (!clean) return
-
   stopSpeech()
-
   const cached = audioCache.get(clean)
   if (cached) {
     playUrl(cached)
     return
   }
-
-  if (kokoro) {
-    const url = await renderKokoro(clean)
-    if (url) {
-      playUrl(url)
-      return
-    }
-  }
-
+  if (workerReady && (await speakKokoro(clean, true))) return
   speakSystem(clean)
   warmSpeech()
 }
 
 if (typeof window !== 'undefined') {
   ;(
-    window as unknown as { __whiteSpeech: () => { ready: boolean; loading: boolean } }
+    window as unknown as {
+      __whiteSpeech: () => { ready: boolean; loading: boolean; cached: number }
+    }
   ).__whiteSpeech = () => ({
-    ready: Boolean(kokoro),
-    loading: Boolean(loading),
+    ready: workerReady,
+    loading: Boolean(worker && !workerReady && !workerFailed),
     cached: audioCache.size,
   })
 }

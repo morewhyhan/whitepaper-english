@@ -663,6 +663,7 @@ export function VocabularyScreen() {
                       networks={state.networks}
                       onWordClick={handleWordClick}
                       onSpeak={speakText}
+                      onPrefetch={(text) => prefetchSpeech([text])}
                       onMark={handleMark}
                       onFocus={(id) => focusWord(id, session, state, commit, today)}
                     />
@@ -1182,6 +1183,7 @@ function AssociationView({
   networks,
   onWordClick,
   onSpeak,
+  onPrefetch,
   onMark,
   onFocus,
 }: {
@@ -1191,6 +1193,7 @@ function AssociationView({
   networks: VocabularyState['networks']
   onWordClick: (id: string, reverse: boolean) => void
   onSpeak: (text: string) => void
+  onPrefetch: (text: string) => void
   onMark: (id: string, mark: Judgement) => void
   onFocus: (id: string) => void
 }) {
@@ -1262,6 +1265,8 @@ function AssociationView({
                 key={link.word}
                 type="button"
                 aria-label={`朗读：${link.sentence}`}
+                onPointerEnter={() => onPrefetch(link.sentence)}
+                onFocus={() => onPrefetch(link.sentence)}
                 onClick={() => onSpeak(link.sentence)}
               >
                 <span className={styles.assocWord}>{link.word}</span>

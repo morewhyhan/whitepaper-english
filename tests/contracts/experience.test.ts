@@ -8,8 +8,9 @@ const read = (file: string) => readFileSync(join(root, file), 'utf8')
 describe('体验领域契约', () => {
   it('[AC-EXPERIENCE-001] 优先本地神经语音，只有失败才系统兜底', () => {
     const speech = read('src/modules/vocabulary/lib/speech.ts')
-    expect(speech).toContain("'/kokoro/'")
-    expect(speech).toContain("af_heart")
+    const worker = read('public/kokoro-worker.mjs')
+    expect(worker).toContain("'/kokoro/'")
+    expect(worker).toContain("af_heart")
     expect(speech).toContain('speakSystem')
     expect(speech).toMatch(/speakSystem\(clean\)/)
   })
