@@ -137,6 +137,7 @@ export function VocabularyScreen() {
     restoredSession.current = key
 
     if (remote.cursor > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUndoSession({
         round: remote.round,
         ids: remote.ids,

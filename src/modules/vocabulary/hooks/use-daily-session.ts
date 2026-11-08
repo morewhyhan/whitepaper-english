@@ -1,4 +1,4 @@
-import { readApiJson } from '@/lib/api-client'
+import { client, readApiJson } from '@/lib/api-client'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
 export type DailySessionPayload = {
@@ -21,8 +21,7 @@ export function useDailySession(bookId: string, date: string, enabled: boolean) 
     queryKey: ['vocabulary-session', bookId, date],
     enabled,
     queryFn: async () => {
-      const params = new URLSearchParams({ bookId, date })
-      const response = await fetch(`/api/vocabulary/session?${params.toString()}`)
+      const response = await client.api.vocabulary.session.$get({ query: { bookId, date } })
       const payload = await readApiJson<{ data: { session: DailySessionPayload | null } }>(response)
       return { bookId, date, session: payload.data.session }
     },
@@ -40,10 +39,8 @@ export function useSaveDailySession() {
       date: string
       session: DailySessionPayload
     }) => {
-      const response = await fetch('/api/vocabulary/session', {
-        method: 'PUT',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ bookId, date, ...session }),
+      const response = await client.api.vocabulary.session.$put({
+        json: { bookId, date, ...session },
       })
       const payload = await readApiJson<{ data: { session: DailySessionPayload } }>(response)
       return payload.data.session

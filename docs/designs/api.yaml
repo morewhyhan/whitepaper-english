@@ -177,6 +177,24 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '422':
           $ref: '#/components/responses/InvalidInput'
+  /api/vocabulary/history:
+    get:
+      operationId: listVocabularyHistory
+      summary: List daily study history for the signed-in account
+      responses:
+        '200':
+          description: Daily study history
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/vocabulary/reset:
+    post:
+      operationId: resetVocabularyToday
+      summary: Reset today's judgements and session
+      responses:
+        '200':
+          description: Today reset
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /api/tasks:
     get:
       operationId: listTasks

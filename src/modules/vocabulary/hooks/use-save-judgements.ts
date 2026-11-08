@@ -1,4 +1,4 @@
-import { readApiJson } from '@/lib/api-client'
+import { client, readApiJson } from '@/lib/api-client'
 import { useMutation } from '@tanstack/react-query'
 
 export type JudgementInput = {
@@ -15,11 +15,7 @@ type SavedState = {
 export function useSaveJudgements() {
   return useMutation<SavedState, Error, JudgementInput>({
     mutationFn: async (input) => {
-      const response = await fetch('/api/vocabulary/judgements', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(input),
-      })
+      const response = await client.api.vocabulary.judgements.$post({ json: input })
       const payload = await readApiJson<{ data: SavedState }>(response)
       return payload.data
     },

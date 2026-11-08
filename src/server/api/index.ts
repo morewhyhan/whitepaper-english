@@ -20,3 +20,4 @@ export const routes = app.route('/', tasksRoute).route('/', vocabularyRoute)
 export default routes
 
 export type AppType = typeof routes
+export type VocabularyAppType = typeof vocabularyRoute

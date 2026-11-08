@@ -67,14 +67,14 @@ const stateQuerySchema = z.object({
 const sessionQuerySchema = z
   .object({
     bookId: z.string().trim().min(1).max(64),
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    date: z.string().regex(datePattern),
   })
   .strict()
 
 const sessionSchema = z
   .object({
     bookId: z.string().trim().min(1).max(64),
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    date: z.string().regex(datePattern),
     round: z.number().int().min(1),
     cursor: z.number().int().min(0),
     ids: z.array(z.string()).max(10_000),
@@ -94,67 +94,61 @@ const sessionSchema = z
   })
   .strict()
 
-const vocabulary = new Hono().basePath('/vocabulary')
+const vocabulary = new Hono()
+  .basePath('/vocabulary')
+  .get('/state', zValidator('query', stateQuerySchema), async (c) => {
+    const userId = await requireUserId(c.req.raw.headers)
+    const { bookId = 'parallel-world', date = localDate() } = c.req.valid('query')
+    const wordStates = await listWordStates(prisma, userId, bookId, date)
 
-vocabulary.get('/state', zValidator('query', stateQuerySchema), async (c) => {
-  const userId = await requireUserId(c.req.raw.headers)
-  const { bookId = 'parallel-world', date = localDate() } = c.req.valid('query')
-  const wordStates = await listWordStates(prisma, userId, bookId, date)
+    return c.json({ data: { activeBook: null, wordStates } })
+  })
+  .post('/judgements', zValidator('json', judgementSchema), async (c) => {
+    const userId = await requireUserId(c.req.raw.headers)
+    const { bookId = 'parallel-world', date = localDate(), judgements } = c.req.valid('json')
 
-  return c.json({ data: { activeBook: null, wordStates } })
-})
+    await setWordStates(prisma, userId, bookId, date, judgements)
+    const wordStates = await listWordStates(prisma, userId, bookId, date)
 
-vocabulary.post('/judgements', zValidator('json', judgementSchema), async (c) => {
-  const userId = await requireUserId(c.req.raw.headers)
-  const { bookId = 'parallel-world', date = localDate(), judgements } = c.req.valid('json')
+    return c.json({ data: { activeBook: null, wordStates } })
+  })
+  .delete('/judgements', zValidator('json', clearSchema), async (c) => {
+    const userId = await requireUserId(c.req.raw.headers)
+    const { bookId = 'parallel-world', date = localDate(), words } = c.req.valid('json')
 
-  await setWordStates(prisma, userId, bookId, date, judgements)
-  const wordStates = await listWordStates(prisma, userId, bookId, date)
+    await clearWordStates(prisma, userId, words, bookId, date)
+    const wordStates = await listWordStates(prisma, userId, bookId, date)
 
-  return c.json({ data: { activeBook: null, wordStates } })
-})
+    return c.json({ data: { activeBook: null, wordStates } })
+  })
+  .get('/session', zValidator('query', sessionQuerySchema), async (c) => {
+    const userId = await requireUserId(c.req.raw.headers)
+    const { bookId, date } = c.req.valid('query')
+    const session = await getDailySession(prisma, userId, bookId, date)
 
-vocabulary.delete('/judgements', zValidator('json', clearSchema), async (c) => {
-  const userId = await requireUserId(c.req.raw.headers)
-  const { bookId = 'parallel-world', date = localDate(), words } = c.req.valid('json')
+    return c.json({ data: { session } })
+  })
+  .put('/session', zValidator('json', sessionSchema), async (c) => {
+    const userId = await requireUserId(c.req.raw.headers)
+    const { bookId, date, ...session } = c.req.valid('json')
+    const saved = await saveDailySession(prisma, userId, bookId, date, session)
 
-  await clearWordStates(prisma, userId, words, bookId, date)
-  const wordStates = await listWordStates(prisma, userId, bookId, date)
+    return c.json({ data: { session: saved } })
+  })
+  .post('/reset', zValidator('json', resetSchema), async (c) => {
+    const userId = await requireUserId(c.req.raw.headers)
+    const { bookId = 'parallel-world', date = localDate() } = c.req.valid('json')
 
-  return c.json({ data: { activeBook: null, wordStates } })
-})
+    await resetBookDay(prisma, userId, bookId, date)
 
-vocabulary.get('/session', zValidator('query', sessionQuerySchema), async (c) => {
-  const userId = await requireUserId(c.req.raw.headers)
-  const { bookId, date } = c.req.valid('query')
-  const session = await getDailySession(prisma, userId, bookId, date)
+    return c.json({ data: { reset: true } })
+  })
+  .get('/history', zValidator('query', historyQuerySchema), async (c) => {
+    const userId = await requireUserId(c.req.raw.headers)
+    const { bookId = 'parallel-world', days = 30 } = c.req.valid('query')
+    const history = await listDailyHistory(prisma, userId, bookId, days)
 
-  return c.json({ data: { session } })
-})
-
-vocabulary.put('/session', zValidator('json', sessionSchema), async (c) => {
-  const userId = await requireUserId(c.req.raw.headers)
-  const { bookId, date, ...session } = c.req.valid('json')
-  const saved = await saveDailySession(prisma, userId, bookId, date, session)
-
-  return c.json({ data: { session: saved } })
-})
-
-vocabulary.post('/reset', zValidator('json', resetSchema), async (c) => {
-  const userId = await requireUserId(c.req.raw.headers)
-  const { bookId = 'parallel-world', date = localDate() } = c.req.valid('json')
-
-  await resetBookDay(prisma, userId, bookId, date)
-
-  return c.json({ data: { reset: true } })
-})
-
-vocabulary.get('/history', zValidator('query', historyQuerySchema), async (c) => {
-  const userId = await requireUserId(c.req.raw.headers)
-  const { bookId = 'parallel-world', days = 30 } = c.req.valid('query')
-  const history = await listDailyHistory(prisma, userId, bookId, days)
-
-  return c.json({ data: { history } })
-})
+    return c.json({ data: { history } })
+  })
 
 export default vocabulary
