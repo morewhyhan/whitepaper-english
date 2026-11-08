@@ -1282,6 +1282,19 @@ function AssociationView({
                 <span className={styles.assocSkeletonLine} />
               </div>
             ))}
+            <div className={styles.assocCenter}>
+              <button
+                className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
+                type="button"
+                onClick={(event) => onWordClick(word.id, event.shiftKey)}
+              >
+                <span className={styles.targetNote}>TARGET WORD</span>
+                <span className={styles.targetEn}>{word.en}</span>
+                <span className={styles.targetZh}>
+                  {mark === 'unknown' ? word.zh || '暂无释义' : '\u00a0'}
+                </span>
+              </button>
+            </div>
           </div>
         ) : (
           <div className={styles.assocNoData}>
