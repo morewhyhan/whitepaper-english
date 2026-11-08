@@ -58,13 +58,15 @@ test('[AC-ACCOUNT-017] 神经语音不可用时系统语音兜底且无手动音
   await page.goto('/vocabulary')
   await page.waitForFunction(() => Boolean(localStorage.getItem('whitepaper-vocabulary-v2')))
   const word = page.locator('button[class*=word]').first()
-  const text = await word.locator('[class*=en]').innerText()
-  await word.click()
+  const label = await word.getAttribute('aria-label')
+  const text = (label ?? '').split(',')[0] ?? ''
+  await word.evaluate((element) => (element as HTMLElement).click())
   await expect
     .poll(() => page.evaluate(() => (window as unknown as { __spoken: string[] }).__spoken.at(-1)))
     .toBe(text)
 
   await page.getByRole('button', { name: '设置', exact: true }).click()
+  await page.getByRole('button', { name: /发音与声音/ }).click()
   await expect(page.getByText(/不提供手动音色选择|只提供总开关/)).toBeVisible()
   await expect(page.getByRole('combobox', { name: /音色|声音/ })).toHaveCount(0)
 })
