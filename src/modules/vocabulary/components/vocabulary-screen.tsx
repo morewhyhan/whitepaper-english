@@ -34,10 +34,20 @@ import { useClearJudgements } from '../hooks/use-clear-judgements'
 import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
 import { useResetToday } from '../hooks/use-reset-today'
 import { useStudyHistory, type StudyHistoryDay } from '../hooks/use-study-history'
+import { SettingsPanel } from './settings-panel'
 import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
 
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
+
+function speakWord(text: string) {
+  if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return
+  window.speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = 'en-US'
+  utterance.rate = 1
+  window.speechSynthesis.speak(utterance)
+}
 
 type ModalName = 'import' | 'settings' | 'history' | null
 type WorkspaceMode = 'vocabulary' | 'writing' | 'grammar'
@@ -87,6 +97,8 @@ export function VocabularyScreen() {
   const [undoSession, setUndoSession] = useState<VocabularySession | null>(null)
   const [modal, setModal] = useState<ModalName>(null)
   const [authOpen, setAuthOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [soundOn, setSoundOn] = useState(true)
   const { data: authSession } = useAuthSession()
   const signOut = useSignOut()
   const saveJudgements = useSaveJudgements()
@@ -97,7 +109,7 @@ export function VocabularyScreen() {
   const studyHistory = useStudyHistory(
     activeBookId,
     30,
-    Boolean(authSession?.user) && modal === 'history',
+    Boolean(authSession?.user) && (modal === 'history' || settingsOpen),
   )
   const restoredSession = useRef<string | null>(null)
   const [clipOpen, setClipOpen] = useState(false)
@@ -126,6 +138,10 @@ export function VocabularyScreen() {
     setStarterState(loadedStarter)
     saveState(loaded)
     setHydrated(true)
+
+    const savedBook = window.localStorage.getItem('whitepaper-active-book')
+    if (savedBook === 'starter') setActiveBookId('starter')
+    setSoundOn(window.localStorage.getItem('whitepaper-sound') !== 'off')
   }, [today])
 
   useEffect(() => {
@@ -249,6 +265,7 @@ export function VocabularyScreen() {
   }
 
   function handleWordClick(id: string, reverse: boolean) {
+    if (soundOn) speakWord(state.words.find((word) => word.id === id)?.en ?? '')
     const mark: Judgement = reverse
       ? session.mode === 'known'
         ? 'unknown'
@@ -353,6 +370,7 @@ export function VocabularyScreen() {
   }
 
   function switchWordbook(id: WordbookId) {
+    window.localStorage.setItem('whitepaper-active-book', id)
     const source = document.querySelector(`[data-wordbook="${id}"]`)
     const paper = paperRef.current
     if (source && paper && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -501,9 +519,6 @@ export function VocabularyScreen() {
               禅模式
             </button>
           )}
-          <button className={styles.quiet} type="button" onClick={() => setModal('import')}>
-            导入 / 导出
-          </button>
           {authSession?.user ? (
             <button
               className={styles.quiet}
@@ -518,7 +533,7 @@ export function VocabularyScreen() {
               登录
             </button>
           )}
-          <button className={styles.quiet} type="button" onClick={() => setModal('settings')}>
+          <button className={styles.quiet} type="button" onClick={() => setSettingsOpen(true)}>
             设置
           </button>
           <button className={styles.quiet} type="button" onClick={() => setClipOpen(true)}>
@@ -749,6 +764,29 @@ export function VocabularyScreen() {
           onWordClick={handleWordClick}
           onNext={handleZenNext}
           onExit={() => setZenMode(false)}
+        />
+      )}
+
+      {settingsOpen && (
+        <SettingsPanel
+          session={session}
+          history={studyHistory.data ?? []}
+          soundOn={soundOn}
+          email={authSession?.user.email}
+          bookTitle={WORDBOOKS.find((book) => book.id === activeBookId)?.title ?? '平行世界'}
+          onToggleSound={() => {
+            const next = !soundOn
+            setSoundOn(next)
+            window.localStorage.setItem('whitepaper-sound', next ? 'on' : 'off')
+          }}
+          onModeChange={(mode) => updateSettings({ ...state.settings, mode })}
+          onReset={resetToday}
+          onLogin={() => {
+            setSettingsOpen(false)
+            setAuthOpen(true)
+          }}
+          onLogout={() => signOut.mutate()}
+          onClose={() => setSettingsOpen(false)}
         />
       )}
 
@@ -1276,7 +1314,7 @@ function AssociationView({
               >
                 <span className={styles.targetNote}>TARGET WORD</span>
                 <span className={styles.targetEn}>{word.en}</span>
-                <span className={styles.targetZh}>{mark === 'unknown' ? word.zh : '\u00a0'}</span>
+                <span className={styles.targetZh}>{mark === 'unknown' ? word.zh || '暂无释义' : '\u00a0'}</span>
               </button>
             </div>
           </div>
@@ -1347,7 +1385,7 @@ function WordButton({
       }}
     >
       <span className={`${styles.zh} ${mark === 'unknown' || previewUnknown ? '' : styles.empty}`}>
-        {mark === 'unknown' || previewUnknown ? word.zh : '—'}
+        {mark === 'unknown' || previewUnknown ? word.zh || '暂无释义' : '—'}
       </span>
       <span className={styles.en}>{word.en}</span>
     </button>
