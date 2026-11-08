@@ -1,70 +1,88 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { join } from 'node:path'
+import { spawnSync } from 'node:child_process'
 
 const root = process.cwd()
-const text = readFileSync(join(root, 'docs/GOAL.md'), 'utf8')
-const lines = text.split(/\r?\n/)
+const goalPath = join(root, 'docs/GOAL.md')
+const raw = readFileSync(goalPath, 'utf8')
+const allLines = raw.split(/\r?\n/)
+const treeAt = allLines.findIndex((line) => line.startsWith('## 四、文字金字塔'))
+const lines = treeAt >= 0 ? allLines.slice(treeAt) : allLines
 const problems = []
 
-const goalLine = lines.find((line) => /^> 让|^> /.test(line)) || ''
-if (!goalLine) problems.push('A1 目标缺失：需要一个一句话目标')
-if (/页面|接口|数据库|算法|框架/.test(goalLine))
-  problems.push('A1 目标里出现方案词：' + goalLine.slice(0, 40))
+const goalLine = lines.find((line) => line.trimStart().startsWith('- **目标**'))
+if (!goalLine) problems.push('A1 目标缺失')
+else if (/页面|接口|数据库|算法|框架/.test(goalLine)) problems.push('A1 目标里出现方案词')
 
-const domainRows = lines.filter((line) => /^\| (认证|任务|外壳)/.test(line))
-if (domainRows.length === 0) problems.push('A2 领域表为空')
-for (const row of domainRows) {
-  const cells = row
-    .split('|')
-    .map((cell) => cell.trim())
-    .filter(Boolean)
-  if (cells.length < 5) problems.push('A2 领域行缺少“管什么/不管什么”：' + row.slice(0, 40))
-}
-
-const reqs = []
-let current = null
+const domains = []
+let domain = null
+let req = null
 for (const line of lines) {
-  const req = /^\*\*(REQ-[A-Z]+-\d+)\b(.*)$/.exec(line)
-  if (req) {
-    current = { id: req[1], text: req[2], acs: [] }
-    reqs.push(current)
+  const text = line.trim()
+  const indent = line.length - line.trimStart().length
+  const domainMatch = /^- \*\*(.+?)\*\*/.exec(text)
+  if (domainMatch && indent === 2 && domainMatch[1].includes('领域')) {
+    domain = { name: domainMatch[1], reqs: [], acs: [] }
+    domains.push(domain)
+    req = null
     continue
   }
-  const ac = /^- (AC-[A-Z]+-\d+)（[^）]*）：(.*)$/.exec(line)
-  if (ac && current) current.acs.push({ id: ac[1], text: ac[2] })
+  const reqMatch = /^- \*\*(REQ-[A-Z]+-\d+)/.exec(text)
+  if (reqMatch && domain && indent >= 4) {
+    req = { id: reqMatch[1], acs: [] }
+    domain.reqs.push(req)
+    continue
+  }
+  const acMatch = /^- (AC-[A-Z]+-\d+)（([^）]*)）：(.*)$/.exec(text)
+  if (acMatch && domain) {
+    const entry = { id: acMatch[1], reqs: acMatch[2], text: acMatch[3] }
+    domain.acs.push(entry)
+    if (req) req.acs.push(entry)
+    continue
+  }
 }
-if (reqs.length === 0) problems.push('A3 没有 REQ')
-for (const req of reqs) {
-  if (req.acs.length < 1) problems.push('A3 ' + req.id + ' 没有 AC')
 
-  if (/支持|优化|完善/.test(req.text)) problems.push('A3 ' + req.id + ' 写成了功能名')
+if (domains.length === 0) problems.push('A2 没有领域')
+let reqCount = 0
+let acCount = 0
+for (const item of domains) {
+  if (item.name.includes('非领域')) continue
+  if (item.reqs.length === 0) problems.push('A7 领域“' + item.name + '”没有 REQ')
+  const boundary = lines.some((line) => line.includes('边界：'))
+  if (!boundary) problems.push('A2 领域“' + item.name + '”没有写边界')
+  for (const r of item.reqs) {
+    reqCount += 1
+    if (r.acs.length === 0) problems.push('A3 ' + r.id + ' 没有 AC')
+    acCount += r.acs.length
+  }
+  const edges = item.acs.filter((ac) => /未|失败|拒绝|为空|并发|重复|超过|越权|不合法/.test(ac.text))
+  if (edges.length === 0) problems.push('A5 领域“' + item.name + '”没有异常或边界场景')
+  for (const ac of item.acs) {
+    if (/返回 *`?(200|401|404|422)|状态码|字段|表结构/.test(ac.text)) problems.push('A4 ' + ac.id + ' 验收的是实现细节')
+  }
 }
 
-const termRows = lines.filter((line) => /^\| TERM-/.test(line))
+const reasonCount = (raw.match(/为什么这样切：/g) ?? []).length
+const realDomains = domains.filter((d) => !d.name.includes('非领域')).length
+if (reasonCount < realDomains) problems.push('A8 每个领域都要写“为什么这样切”（缺 ' + (realDomains - reasonCount) + ' 个）')
+
+const termRows = allLines.filter((line) => /^\| TERM-/.test(line.trim()))
 if (termRows.length < 2) problems.push('A6 术语表不足 2 条')
 
-const index = lines.indexOf('## 领域')
-const sections = lines.slice(index).filter((line) => /^### 领域：/.test(line))
-for (const section of sections) {
-  const name = section.replace('### 领域：', '').trim()
-  const startAt = lines.indexOf(section)
-  const nextAt = lines.findIndex((line, i) => i > startAt && /^### /.test(line))
-  const body = lines.slice(startAt, nextAt === -1 ? undefined : nextAt).join('\n')
-  if (name.includes('非领域')) continue
-  if (!/\*\*REQ-/.test(body)) problems.push('A7 领域“' + name + '”没有任何 REQ')
-}
-
-// A5 领域级：每个领域至少一条异常/边界 AC。
-for (const section of sections) {
-  const name = section.replace('### 领域：', '').trim()
-  if (name.includes('非领域')) continue
-  const startAt = lines.indexOf(section)
-  const nextAt = lines.findIndex((line, i) => i > startAt && /^### /.test(line))
-  const body = lines.slice(startAt, nextAt === -1 ? undefined : nextAt)
-  const edges = body.filter(
-    (line) => /^- AC-/.test(line) && /未|失败|拒绝|为空|并发|重复|超过|越权|不合法/.test(line),
-  )
-  if (edges.length === 0) problems.push('A5 领域“' + name + '”没有异常或边界场景')
+const recordAt = process.argv.indexOf('--record')
+if (recordAt >= 0) {
+  const verdict = process.argv[recordAt + 1]
+  if (!verdict) { console.error('usage: pnpm goal:audit --record "<结论>"'); process.exit(1) }
+  if (problems.length > 0) { console.error('结构审计未通过，不能记录'); process.exit(1) }
+  const goalSha = createHash('sha256').update(raw.replace(/<!-- goal-status -->[\s\S]*?<!-- \/goal-status -->/, '').replace(/<!-- goal-current -->[\s\S]*?<!-- \/goal-current -->/, '').replace(/<!-- goal-summary -->[\s\S]*?<!-- \/goal-summary -->/, '')).digest('hex').slice(0, 16)
+  const commit = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim()
+  const at = new Date().toISOString().slice(0, 16).replace('T', ' ')
+  const dir = join(root, 'docs', 'others', 'evidence', 'goal-audit')
+  mkdirSync(dir, { recursive: true })
+  const name = at.replace(/[: ]/g, '-') + '.json'
+  writeFileSync(join(dir, name), JSON.stringify({ at, commit, goal_sha: goalSha, verdict, findings: [] }, null, 2) + String.fromCharCode(10))
+  console.log('语义审计已记录：' + name + '（goal ' + goalSha + '）')
 }
 
 if (problems.length > 0) {
@@ -72,49 +90,5 @@ if (problems.length > 0) {
   for (const problem of [...new Set(problems)]) console.error('- ' + problem)
   process.exitCode = 1
 } else {
-  console.log(
-    '需求审计通过：' +
-      reqs.length +
-      ' 条 REQ，' +
-      reqs.reduce((sum, req) => sum + req.acs.length, 0) +
-      ' 条 AC',
-  )
-}
-
-const recordAt = process.argv.indexOf('--record')
-if (recordAt >= 0) {
-  const verdict = process.argv[recordAt + 1]
-  if (!verdict) {
-    console.error('usage: pnpm goal:audit --record "<语义审计结论>"')
-    process.exit(1)
-  }
-  if (problems.length > 0) {
-    console.error('结构审计未通过，不能记录审计结论')
-    process.exit(1)
-  }
-  const { createHash } = await import('node:crypto')
-  const { mkdirSync, writeFileSync } = await import('node:fs')
-  const { spawnSync } = await import('node:child_process')
-  const goalSha = createHash('sha256')
-    .update(
-      readFileSync(join(root, 'docs/GOAL.md'), 'utf8')
-        .replace(/<!-- goal-status -->[\s\S]*?<!-- \/goal-status -->/, '')
-        .replace(/<!-- goal-current -->[\s\S]*?<!-- \/goal-current -->/, ''),
-    )
-    .digest('hex')
-    .slice(0, 16)
-  const commit = spawnSync('git', ['rev-parse', '--short', 'HEAD'], {
-    cwd: root,
-    encoding: 'utf8',
-  }).stdout.trim()
-  const at = new Date().toISOString().slice(0, 16).replace('T', ' ')
-  const dir = join(root, 'docs', 'others', 'evidence', 'goal-audit')
-  mkdirSync(dir, { recursive: true })
-  const name = at.replace(/[: ]/g, '-') + '.json'
-  writeFileSync(
-    join(dir, name),
-    JSON.stringify({ at, commit, goal_sha: goalSha, verdict, findings: [] }, null, 2) +
-      String.fromCharCode(10),
-  )
-  console.log('语义审计已记录：' + name + '（goal ' + goalSha + '）')
+  console.log('需求审计通过：' + realDomains + ' 个领域，' + reqCount + ' 条 REQ，' + acCount + ' 条 AC')
 }
