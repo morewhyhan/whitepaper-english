@@ -4,6 +4,7 @@ import { prisma } from '@/server/database/client'
 import {
   clearWordStates,
   getDailySession,
+  listDailyHistory,
   listWordStates,
   resetBookDay,
   saveDailySession,
@@ -41,6 +42,13 @@ const clearSchema = z
     bookId: z.string().trim().min(1).max(64).optional(),
     date: z.string().regex(datePattern).optional(),
     words: z.array(z.string().trim().min(1).max(120)).min(1).max(36),
+  })
+  .strict()
+
+const historyQuerySchema = z
+  .object({
+    bookId: z.string().trim().min(1).max(64).optional(),
+    days: z.coerce.number().int().min(1).max(365).optional(),
   })
   .strict()
 
@@ -139,6 +147,14 @@ vocabulary.post('/reset', zValidator('json', resetSchema), async (c) => {
   await resetBookDay(prisma, userId, bookId, date)
 
   return c.json({ data: { reset: true } })
+})
+
+vocabulary.get('/history', zValidator('query', historyQuerySchema), async (c) => {
+  const userId = await requireUserId(c.req.raw.headers)
+  const { bookId = 'parallel-world', days = 30 } = c.req.valid('query')
+  const history = await listDailyHistory(prisma, userId, bookId, days)
+
+  return c.json({ data: { history } })
 })
 
 export default vocabulary

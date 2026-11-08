@@ -148,3 +148,46 @@ export async function resetBookDay(
     prisma.daily_session.deleteMany({ where: { userId, bookId, localDate } }),
   ])
 }
+
+export type DailyHistory = {
+  date: string
+  words: number
+  known: number
+  unknown: number
+  rounds: number
+  complete: boolean
+}
+
+export async function listDailyHistory(
+  prisma: PrismaClient,
+  userId: string,
+  bookId: string,
+  days: number,
+): Promise<DailyHistory[]> {
+  const sessions = await prisma.daily_session.findMany({
+    where: { userId, bookId },
+    orderBy: { localDate: 'desc' },
+    take: days,
+  })
+
+  return Promise.all(
+    sessions.map(async (session) => {
+      const groups = await prisma.word_state.groupBy({
+        by: ['known'],
+        where: { userId, bookId, localDate: session.localDate },
+        _count: { _all: true },
+      })
+      const known = groups.find((group) => group.known)?._count._all ?? 0
+      const unknown = groups.find((group) => !group.known)?._count._all ?? 0
+
+      return {
+        date: session.localDate,
+        words: known + unknown,
+        known,
+        unknown,
+        rounds: session.round,
+        complete: session.complete,
+      }
+    }),
+  )
+}

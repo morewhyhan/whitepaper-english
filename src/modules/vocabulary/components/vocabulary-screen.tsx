@@ -33,6 +33,7 @@ import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import { useClearJudgements } from '../hooks/use-clear-judgements'
 import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
 import { useResetToday } from '../hooks/use-reset-today'
+import { useStudyHistory, type StudyHistoryDay } from '../hooks/use-study-history'
 import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
 
@@ -93,6 +94,11 @@ export function VocabularyScreen() {
   const dailySession = useDailySession(activeBookId, today, Boolean(authSession?.user))
   const saveDailySession = useSaveDailySession()
   const resetTodayMutation = useResetToday()
+  const studyHistory = useStudyHistory(
+    activeBookId,
+    30,
+    Boolean(authSession?.user) && modal === 'history',
+  )
   const restoredSession = useRef<string | null>(null)
   const [clipOpen, setClipOpen] = useState(false)
   const [clipTarget, setClipTarget] = useState<WorkspaceMode | null>(null)
@@ -750,6 +756,7 @@ export function VocabularyScreen() {
           name={modal}
           state={state}
           session={session}
+          accountHistory={studyHistory.data ?? []}
           paste={paste}
           onPasteChange={setPaste}
           onClose={() => setModal(null)}
@@ -1411,6 +1418,7 @@ function Modal({
   name,
   state,
   session,
+  accountHistory,
   paste,
   onPasteChange,
   onClose,
@@ -1426,6 +1434,7 @@ function Modal({
   name: Exclude<ModalName, null>
   state: VocabularyState
   session: VocabularySession
+  accountHistory: StudyHistoryDay[]
   paste: string
   onPasteChange: (value: string) => void
   onClose: () => void
@@ -1546,6 +1555,18 @@ function Modal({
         )}
         {name === 'history' && (
           <>
+            {accountHistory.length > 0 && (
+              <>
+                <div className={styles.fieldTitle}>账号按天记录</div>
+                {accountHistory.map((day) => (
+                  <p key={day.date}>
+                    <strong>{day.date}</strong>　{day.words} 词 · 会 {day.known} · 不会{' '}
+                    {day.unknown} · 第 {day.rounds} 轮 · {day.complete ? '已完成' : '未完成'}
+                  </p>
+                ))}
+                <div className={styles.divider} />
+              </>
+            )}
             <p>无论在九宫格扫词还是关联辅助中，所有判定都进入同一份每日记录。</p>
             {session.history.map((history) => (
               <p key={history.round}>

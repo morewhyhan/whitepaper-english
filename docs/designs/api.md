@@ -18,6 +18,8 @@
 
 `POST /api/vocabulary/reset` 需要 session，请求体为 `{ "bookId": "parallel-world", "date": "2026-11-08" }`，删除当前账号该词书当天的判定和每日会话；用于“重新开始今天”。
 
+`GET /api/vocabulary/history?bookId=parallel-world&days=30` 需要 session，按日期从新到旧返回当前词书每天的词数、会、不会、轮次和完成状态；`days` 默认 30，最大 365。
+
 两个接口都位于 `src/server/api/routes/vocabulary/index.ts`，由 `src/server/api/index.ts` 挂载，使用统一 session guard 和 zValidator，读写 `word_state`。三个判定/状态接口都接受可选 `bookId` 和 `date`（`YYYY-MM-DD`）；缺省为 `parallel-world` 和服务器当日。`word_state` 按 `userId + bookId + localDate + word` 唯一。
 
 来源：REQ-ACCOUNT-001、AC-ACCOUNT-001；REQ-ACCOUNT-003、AC-ACCOUNT-003；REQ-ACCOUNT-005、AC-ACCOUNT-005。
