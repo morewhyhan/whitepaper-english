@@ -2345,7 +2345,8 @@
   background: linear-gradient(90deg, transparent, rgb(65 62 52 / 0.16), transparent);
 }
 
-.paperStage > .paper {
+.paperStage > .paper,
+.paperStage > .unavailablePaper {
   position: relative;
   z-index: 1;
   width: 100%;

@@ -751,7 +751,18 @@ export function VocabularyScreen() {
               </p>
             </>
           ) : (
-            <UnavailableModule mode={workspaceMode} />
+            <>
+              <div className={styles.toolbar}>
+                <div className={styles.segment} aria-label="当前模块状态">
+                  <button className={styles.activeSegment} type="button" disabled>
+                    {workspaceMode === 'writing' ? '写作' : '语法'}
+                  </button>
+                </div>
+              </div>
+              <div className={styles.paperStage}>
+                <UnavailableModule mode={workspaceMode} />
+              </div>
+            </>
           )}
         </div>
       </div>
