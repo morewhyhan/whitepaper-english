@@ -172,7 +172,9 @@ export function VocabularyScreen() {
 
     const apply = (current: VocabularyState): VocabularyState => {
       const local = current.sessions[today] ?? createSession(current.words, current.settings)
-      if (local.cursor === remote.cursor && local.round === remote.round) return current
+      const sameRound = local.round === remote.round
+      const cursor = sameRound ? Math.max(local.cursor, remote.cursor) : remote.cursor
+      if (local.cursor === cursor && local.round === remote.round) return current
 
       return {
         ...current,
@@ -181,7 +183,7 @@ export function VocabularyScreen() {
           [today]: {
             ...local,
             round: remote.round,
-            cursor: remote.cursor,
+            cursor,
             ids: remote.ids,
             missed: remote.missed,
             history: remote.history,
@@ -1305,7 +1307,7 @@ function AssociationView({
                 const choice = allWords.find((item) => item.id === id)
                 return choice ? (
                   <option key={id} value={id}>
-                    {index + 1}. {choice.en}
+                    {session.cursor + index + 1}. {choice.en}
                   </option>
                 ) : null
               })}
