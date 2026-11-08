@@ -118,8 +118,28 @@ const associationQuerySchema = z
   })
   .strict()
 
+const associationBatchQuerySchema = z
+  .object({
+    words: z.string().trim().min(1).max(3000),
+  })
+  .strict()
+
 const vocabulary = new Hono()
   .basePath('/vocabulary')
+  .get('/associations', zValidator('query', associationBatchQuerySchema), async (c) => {
+    const words = c.req
+      .valid('query')
+      .words.split(',')
+      .map((word) => word.trim().toLowerCase())
+      .filter(Boolean)
+      .slice(0, 36)
+    const all = getAssociations()
+    const networks: Record<string, AssociationNetwork | null> = {}
+
+    for (const word of words) networks[word] = all[word] ?? null
+
+    return c.json({ data: { networks } })
+  })
   .get('/association', zValidator('query', associationQuerySchema), async (c) => {
     const { word } = c.req.valid('query')
     const network = getAssociations()[word.toLowerCase()] ?? null

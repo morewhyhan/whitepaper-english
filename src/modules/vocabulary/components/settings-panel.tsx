@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import type { StudyHistoryDay } from '../hooks/use-study-history'
 import type { VocabularySession } from '../lib/vocabulary'
+import styles from './settings-panel.module.css'
 
 type Category = 'account' | 'history' | 'sound' | 'judgement' | 'data' | 'appearance'
 
@@ -41,6 +42,7 @@ export function SettingsPanel({
   onClose: () => void
 }) {
   const [active, setActive] = useState<Category>('account')
+  const [confirmReset, setConfirmReset] = useState(false)
 
   const points = useMemo(() => {
     const days = [...history].reverse()
@@ -58,112 +60,87 @@ export function SettingsPanel({
       .join(' ')
   }, [history])
 
+  const current = CATEGORIES.find((category) => category.id === active) ?? CATEGORIES[0]
+
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 p-4 md:p-8"
+      className={styles.backdrop}
       role="presentation"
       onClick={(event) => event.target === event.currentTarget && onClose()}
     >
       <section
-        className="grid h-[82vh] w-full max-w-5xl grid-cols-1 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl md:grid-cols-[220px_1fr]"
+        className={styles.panel}
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-title"
       >
-        <aside className="border-b border-border bg-muted/30 p-4 md:border-b-0 md:border-r">
-          <div className="mb-4 flex items-center justify-between md:block">
-            <h2 id="settings-title" className="text-lg font-semibold">
-              设置
-            </h2>
-            <button
-              className="text-sm text-muted-foreground md:hidden"
-              type="button"
-              onClick={onClose}
-            >
-              关闭 ×
-            </button>
+        <aside className={styles.side}>
+          <div className={styles.brand}>
+            <span id="settings-title">设置</span>
+            <small>SETTINGS</small>
           </div>
-          <nav className="grid grid-cols-2 gap-1 md:grid-cols-1" aria-label="设置分类">
-            {CATEGORIES.map((category) => (
+          <nav className={styles.nav} aria-label="设置分类">
+            {CATEGORIES.map((category, index) => (
               <button
                 key={category.id}
                 type="button"
                 onClick={() => setActive(category.id)}
-                className={`rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                  active === category.id
-                    ? 'bg-foreground text-background'
-                    : 'text-muted-foreground hover:bg-muted'
-                }`}
+                className={`${styles.navItem} ${active === category.id ? styles.navItemActive : ''}`}
               >
+                <span className={styles.navIndex}>{String(index + 1).padStart(2, '0')}</span>
                 {category.label}
               </button>
             ))}
           </nav>
+          <p className={styles.sideNote}>一天一张纸。设置只影响当前这张纸的用法。</p>
         </aside>
 
-        <div className="flex min-h-0 flex-col">
-          <header className="flex items-center justify-between border-b border-border px-5 py-4">
-            <strong>{CATEGORIES.find((category) => category.id === active)?.label}</strong>
-            <button className="text-sm text-muted-foreground" type="button" onClick={onClose}>
-              关闭 ×
+        <div className={styles.main}>
+          <header className={styles.header}>
+            <span className={styles.headerTitle}>{current.label}</span>
+            <button className={styles.close} type="button" onClick={onClose} aria-label="关闭设置">
+              ×
             </button>
           </header>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 text-sm leading-6 md:px-7">
+          <div className={styles.body}>
             {active === 'account' && (
-              <div className="space-y-4">
-                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                  当前账号
-                </p>
-                <p className="text-lg font-medium">{email ?? '访客（进度只在本机）'}</p>
+              <section className={styles.section}>
+                <p className={styles.label}>当前账号</p>
+                <p className={styles.value}>{email ?? '访客（进度只在本机）'}</p>
                 {email ? (
-                  <button className="rounded-lg border px-3 py-2" type="button" onClick={onLogout}>
+                  <button className={styles.ghostButton} type="button" onClick={onLogout}>
                     退出登录
                   </button>
                 ) : (
-                  <button
-                    className="rounded-lg bg-foreground px-3 py-2 text-background"
-                    type="button"
-                    onClick={onLogin}
-                  >
+                  <button className={styles.primaryButton} type="button" onClick={onLogin}>
                     登录 / 注册
                   </button>
                 )}
-                <p className="text-muted-foreground">登录后，判定、轮次和学习记录会保存到账号。</p>
-              </div>
+                <p className={styles.hint}>登录后，判定、轮次和学习记录会保存到账号。</p>
+              </section>
             )}
 
             {active === 'history' && (
-              <div className="space-y-4">
-                <p className="text-muted-foreground">
-                  当前词书每天首轮识别率。点某天看当天词数、会和不会。
-                </p>
+              <section className={styles.section}>
+                <p className={styles.hint}>当前词书每天首轮识别率。每一行是当天词数和判定。</p>
                 {history.length === 0 ? (
-                  <p>今天还没有学习记录。</p>
+                  <p className={styles.value}>今天还没有学习记录。</p>
                 ) : (
                   <>
                     <svg
+                      className={styles.chart}
                       viewBox="0 0 560 160"
-                      className="h-40 w-full rounded-lg border bg-background p-2"
                       role="img"
                       aria-label="首轮识别率曲线"
                     >
-                      <polyline
-                        points={points}
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        className="text-foreground"
-                      />
+                      <polyline points={points} fill="none" stroke="currentColor" strokeWidth="3" />
                     </svg>
-                    <div className="space-y-1">
+                    <div className={styles.dayList}>
                       {history.map((day) => (
-                        <div
-                          key={day.date}
-                          className="flex items-center justify-between border-b py-1.5"
-                        >
+                        <div className={styles.dayRow} key={day.date}>
                           <span>{day.date}</span>
-                          <span className="text-muted-foreground">
+                          <span className={styles.dayMeta}>
                             {day.words} 词 · 会 {day.known} · 不会 {day.unknown} · 第 {day.rounds}{' '}
                             轮 · {day.complete ? '已完成' : '未完成'}
                           </span>
@@ -172,25 +149,25 @@ export function SettingsPanel({
                     </div>
                   </>
                 )}
-              </div>
+              </section>
             )}
 
             {active === 'sound' && (
-              <div className="space-y-4">
-                <label className="flex items-center gap-3">
+              <section className={styles.section}>
+                <label className={styles.checkRow}>
                   <input type="checkbox" checked={soundOn} onChange={onToggleSound} />
-                  <span>每次点击词条播放美式发音</span>
+                  <span>每次点击词条或关联句时朗读</span>
                 </label>
-                <p className="text-muted-foreground">
-                  使用系统语音；没有可用语音时，判定和翻页照常。
+                <p className={styles.hint}>
+                  优先使用本地神经语音，首次加载需要一点时间；不可用时自动退回系统英文语音。
                 </p>
-              </div>
+              </section>
             )}
 
             {active === 'judgement' && (
-              <div className="space-y-4">
-                <p className="font-medium">普通点击的判定</p>
-                <label className="flex items-center gap-2">
+              <section className={styles.section}>
+                <p className={styles.label}>普通点击的判定</p>
+                <label className={styles.checkRow}>
                   <input
                     type="radio"
                     name="panel-mode"
@@ -199,7 +176,7 @@ export function SettingsPanel({
                   />
                   点击 = 不会
                 </label>
-                <label className="flex items-center gap-2">
+                <label className={styles.checkRow}>
                   <input
                     type="radio"
                     name="panel-mode"
@@ -208,39 +185,63 @@ export function SettingsPanel({
                   />
                   点击 = 会
                 </label>
-                <p className="text-muted-foreground">
+                <p className={styles.hint}>
                   Shift + 点击始终执行相反判定。未点击词按当前模式默认提交。
                 </p>
-                <p className="text-muted-foreground">每页固定 4 组九宫格，共 36 词。</p>
-              </div>
+                <p className={styles.hint}>每页固定 4 组九宫格，共 36 词。</p>
+              </section>
             )}
 
             {active === 'data' && (
-              <div className="space-y-4">
-                <p>
-                  当前词书：<strong>{bookTitle}</strong>
-                </p>
-                <p className="text-muted-foreground">
+              <section className={styles.section}>
+                <p className={styles.label}>当前词书</p>
+                <p className={styles.value}>{bookTitle}</p>
+                <p className={styles.hint}>
                   同一时间只有一本活动词书。切换词书会保留另一本的进度。
                 </p>
-                <button
-                  className="rounded-lg border border-destructive/40 px-3 py-2 text-destructive"
-                  type="button"
-                  onClick={onReset}
-                >
-                  重置今天这本书
-                </button>
-                <p className="text-muted-foreground">
-                  只清空今天当前词书的轮次和判定，历史日期保留。
-                </p>
-              </div>
+                {confirmReset ? (
+                  <div className={styles.confirmBox}>
+                    <p className={styles.confirmTitle}>确定清空今天这本书的轮次和判定？</p>
+                    <p className={styles.hint}>历史日期会保留。</p>
+                    <div className={styles.confirmActions}>
+                      <button
+                        className={styles.dangerButton}
+                        type="button"
+                        onClick={() => {
+                          setConfirmReset(false)
+                          onReset()
+                        }}
+                      >
+                        确认重置
+                      </button>
+                      <button
+                        className={styles.ghostButton}
+                        type="button"
+                        onClick={() => setConfirmReset(false)}
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    className={styles.dangerGhost}
+                    type="button"
+                    onClick={() => setConfirmReset(true)}
+                  >
+                    重置今天这本书
+                  </button>
+                )}
+                <p className={styles.hint}>只清空今天当前词书的轮次和判定，历史日期保留。</p>
+              </section>
             )}
 
             {active === 'appearance' && (
-              <div className="space-y-4">
-                <p>当前使用纸张浅色主题，跟随系统配色。</p>
-                <p className="text-muted-foreground">字体大小和纸张密度在后续版本提供。</p>
-              </div>
+              <section className={styles.section}>
+                <p className={styles.label}>纸张外观</p>
+                <p className={styles.value}>当前使用纸张浅色主题，跟随系统配色。</p>
+                <p className={styles.hint}>这一版不提供字体大小和纸张密度调整。</p>
+              </section>
             )}
           </div>
         </div>

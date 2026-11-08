@@ -31,7 +31,8 @@ import {
 } from '../lib/vocabulary'
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import { useClearJudgements } from '../hooks/use-clear-judgements'
-import { useAssociation } from '../hooks/use-association'
+import { useAssociations, usePrefetchAssociations } from '../hooks/use-association'
+import { speakText } from '../lib/speech'
 import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
 import { useResetToday } from '../hooks/use-reset-today'
 import { useStudyHistory, type StudyHistoryDay } from '../hooks/use-study-history'
@@ -40,15 +41,6 @@ import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
 
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
-
-function speakWord(text: string) {
-  if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return
-  window.speechSynthesis.cancel()
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = 'en-US'
-  utterance.rate = 1
-  window.speechSynthesis.speak(utterance)
-}
 
 type ModalName = 'import' | 'settings' | 'history' | null
 type WorkspaceMode = 'vocabulary' | 'writing' | 'grammar'
@@ -113,8 +105,6 @@ export function VocabularyScreen() {
     Boolean(authSession?.user) && (modal === 'history' || settingsOpen),
   )
   const restoredSession = useRef<string | null>(null)
-  const [clipOpen, setClipOpen] = useState(false)
-  const [clipTarget, setClipTarget] = useState<WorkspaceMode | null>(null)
   const [paste, setPaste] = useState('')
   const [notice, setNotice] = useState<string | null>(null)
   const [shelfOpen, setShelfOpen] = useState(false)
@@ -268,7 +258,7 @@ export function VocabularyScreen() {
   }
 
   function handleWordClick(id: string, reverse: boolean) {
-    if (soundOn) speakWord(state.words.find((word) => word.id === id)?.en ?? '')
+    if (soundOn) speakText(state.words.find((word) => word.id === id)?.en ?? '')
     const mark: Judgement = reverse
       ? session.mode === 'known'
         ? 'unknown'
@@ -399,8 +389,6 @@ export function VocabularyScreen() {
 
   function switchWorkspaceMode(mode: WorkspaceMode) {
     setWorkspaceMode(mode)
-    setClipOpen(false)
-    setClipTarget(null)
   }
 
   function enterZenMode() {
@@ -416,15 +404,6 @@ export function VocabularyScreen() {
       }),
     )
     setZenMode(true)
-  }
-
-  function chooseClipTarget(target: WorkspaceMode) {
-    setClipTarget(target)
-    setNotice(
-      target === 'vocabulary'
-        ? '已生成词汇纸之间的剪贴预览'
-        : '已生成带来源标记的剪贴预览，目标模块暂未开放',
-    )
   }
 
   function replaceWordlist(words: VocabularyWord[], networks = DEMO_NETWORKS) {
@@ -466,8 +445,6 @@ export function VocabularyScreen() {
   }
 
   async function resetToday() {
-    if (!window.confirm('确定清空今天的轮次记录，从完整词库重新开始吗？')) return
-
     if (authSession?.user) {
       try {
         await resetTodayMutation.mutateAsync({ bookId: activeBookId, date: today })
@@ -479,8 +456,9 @@ export function VocabularyScreen() {
 
     updateSession(() => createSession(state.words, state.settings))
     setUndoSession(null)
+    setSettingsOpen(false)
     setModal(null)
-    setNotice('已重新开始今天的学习')
+    setNotice('今日进度已清零，从第 1 页重新开始')
   }
 
   function download(name: string, content: string, type: string) {
@@ -540,9 +518,6 @@ export function VocabularyScreen() {
           )}
           <button className={styles.quiet} type="button" onClick={() => setSettingsOpen(true)}>
             设置
-          </button>
-          <button className={styles.quiet} type="button" onClick={() => setClipOpen(true)}>
-            剪到另一张纸
           </button>
         </div>
         <nav className={styles.workspaceNav} aria-label="学习模块">
@@ -625,7 +600,11 @@ export function VocabularyScreen() {
               </div>
               <div className={styles.paperStage}>
                 <PaperSurface
-                  key={`${session.round}-${session.cursor}-${session.view}`}
+                  key={
+                    session.view === 'connect'
+                      ? `${session.round}-connect`
+                      : `${session.round}-${session.cursor}-${session.view}`
+                  }
                   paperRef={paperRef}
                   ariaLabel="一张可交互的 A4 记忆纸"
                 >
@@ -679,6 +658,7 @@ export function VocabularyScreen() {
                       session={session}
                       networks={state.networks}
                       onWordClick={handleWordClick}
+                      onSpeak={speakText}
                       onMark={handleMark}
                       onFocus={(id) => focusWord(id, session, state, commit, today)}
                     />
@@ -827,23 +807,6 @@ export function VocabularyScreen() {
           onReset={resetToday}
           onModeChange={(mode) => updateSettings({ ...state.settings, mode })}
           onGroupsChange={(groups) => updateSettings({ ...state.settings, groups })}
-        />
-      )}
-      {clipOpen && (
-        <ClipDialog
-          source={
-            workspaceMode === 'vocabulary'
-              ? `${WORDBOOKS.find((item) => item.id === activeBookId)?.title ?? '当前'}词汇纸`
-              : workspaceMode === 'writing'
-                ? '当前写作纸'
-                : '当前语法纸'
-          }
-          selectedTarget={clipTarget}
-          onSelect={chooseClipTarget}
-          onClose={() => {
-            setClipOpen(false)
-            setClipTarget(null)
-          }}
         />
       )}
       <input
@@ -1107,63 +1070,6 @@ function UnavailableModule({ mode }: { mode: Exclude<WorkspaceMode, 'vocabulary'
   )
 }
 
-function ClipDialog({
-  source,
-  selectedTarget,
-  onSelect,
-  onClose,
-}: {
-  source: string
-  selectedTarget: WorkspaceMode | null
-  onSelect: (target: WorkspaceMode) => void
-  onClose: () => void
-}) {
-  const targets = [
-    { id: 'vocabulary', label: '词汇纸', detail: '保存为另一张词汇纸的剪贴片段' },
-    { id: 'writing', label: '写作纸', detail: '作为写作时可回看的词或句子' },
-    { id: 'grammar', label: '语法纸', detail: '作为机制学习的真实情境' },
-  ] satisfies Array<{ id: WorkspaceMode; label: string; detail: string }>
-
-  return (
-    <div
-      className={styles.dialogBackdrop}
-      role="presentation"
-      onClick={(event) => event.target === event.currentTarget && onClose()}
-    >
-      <div className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="clip-title">
-        <div className={styles.rowBetween}>
-          <h2 id="clip-title">剪到另一张纸</h2>
-          <button className={styles.quiet} type="button" onClick={onClose}>
-            关闭 ×
-          </button>
-        </div>
-        <p>
-          当前来源是 <strong>{source}</strong>。这是交互预览，原文不会消失，目标纸会保留来源标记。
-        </p>
-        <div className={styles.clipTargets}>
-          {targets.map((target) => (
-            <button
-              className={`${styles.clipTarget} ${selectedTarget === target.id ? styles.selectedClip : ''}`}
-              type="button"
-              aria-pressed={selectedTarget === target.id}
-              key={target.id}
-              onClick={() => onSelect(target.id)}
-            >
-              <span>{target.label}</span>
-              <small>{target.detail}</small>
-            </button>
-          ))}
-        </div>
-        {selectedTarget && (
-          <p className={styles.clipNotice}>
-            已选目标。当前只生成带来源的交互预览，实际跨纸张保存将在联动规则确定后开放。
-          </p>
-        )}
-      </div>
-    </div>
-  )
-}
-
 function ScanView({
   words,
   session,
@@ -1271,6 +1177,7 @@ function AssociationView({
   session,
   networks,
   onWordClick,
+  onSpeak,
   onMark,
   onFocus,
 }: {
@@ -1279,13 +1186,37 @@ function AssociationView({
   session: VocabularySession
   networks: VocabularyState['networks']
   onWordClick: (id: string, reverse: boolean) => void
+  onSpeak: (text: string) => void
   onMark: (id: string, mark: Judgement) => void
   onFocus: (id: string) => void
 }) {
   const word = words[0]
-  const remoteNetwork = useAssociation(word?.en ?? '')
+  const chunkStart = Math.floor(session.cursor / 36) * 36
+  const chunkWords = useMemo(
+    () =>
+      session.ids
+        .slice(chunkStart, chunkStart + 36)
+        .map((id) => allWords.find((item) => item.id === id)?.en)
+        .filter((item): item is string => Boolean(item)),
+    [allWords, session.ids, chunkStart],
+  )
+  const nextWords = useMemo(
+    () =>
+      session.ids
+        .slice(chunkStart + 36, chunkStart + 72)
+        .map((id) => allWords.find((item) => item.id === id)?.en)
+        .filter((item): item is string => Boolean(item)),
+    [allWords, session.ids, chunkStart],
+  )
+  const chunkKey = `${session.round}:${chunkStart}:${session.ids[chunkStart] ?? ''}`
+  const batch = useAssociations(chunkWords, chunkKey)
+  usePrefetchAssociations(
+    nextWords,
+    `${session.round}:${chunkStart + 36}:${session.ids[chunkStart + 36] ?? ''}`,
+  )
   if (!word) return <div className={styles.paperInner} />
-  const network = remoteNetwork.data ?? getAssociation(networks, word)
+  const network = batch.data?.[word.en.toLowerCase()] ?? getAssociation(networks, word)
+  const loading = batch.isLoading && !network
   const mark = session.marks[word.id]
 
   return (
@@ -1317,10 +1248,16 @@ function AssociationView({
         {network ? (
           <div className={styles.assocBoard}>
             {network.links.map((link) => (
-              <div className={styles.assocNode} key={link.word}>
-                <div className={styles.assocWord}>{link.word}</div>
-                <div className={styles.assocSentence}>{highlight(link.sentence, link.word)}</div>
-              </div>
+              <button
+                className={styles.assocNode}
+                key={link.word}
+                type="button"
+                aria-label={`朗读：${link.sentence}`}
+                onClick={() => onSpeak(link.sentence)}
+              >
+                <span className={styles.assocWord}>{link.word}</span>
+                <span className={styles.assocSentence}>{highlight(link.sentence, link.word)}</span>
+              </button>
             ))}
             <div className={styles.assocCenter}>
               <button
@@ -1336,6 +1273,15 @@ function AssociationView({
                 </span>
               </button>
             </div>
+          </div>
+        ) : loading ? (
+          <div className={styles.assocBoard} aria-busy="true" aria-label="正在加载关联句">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div className={styles.assocNode} key={index}>
+                <span className={styles.assocSkeletonWord} />
+                <span className={styles.assocSkeletonLine} />
+              </div>
+            ))}
           </div>
         ) : (
           <div className={styles.assocNoData}>

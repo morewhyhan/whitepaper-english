@@ -1,20 +1,10 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
-import { ArrowRight, LoaderCircle, Zap } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { useEffect, useState, type FormEvent } from 'react'
 import { authConfig } from '@/config/auth'
-import { siteConfig } from '@/config/site'
 import { toast } from 'sonner'
 import { useSignIn, useSignUp } from '../hooks/use-auth'
+import styles from './auth-modal.module.css'
 
 type AuthMode = 'login' | 'register'
 
@@ -24,9 +14,6 @@ interface AuthModalProps {
   initialMode?: AuthMode
 }
 
-const inputClassName =
-  'h-11 rounded-lg border-input bg-background px-3.5 text-sm shadow-none placeholder:text-muted-foreground/80 focus-visible:ring-2 focus-visible:ring-primary/20'
-
 export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode)
   const [email, setEmail] = useState('')
@@ -35,6 +22,17 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
   const [name, setName] = useState('')
   const signIn = useSignIn()
   const signUp = useSignUp()
+
+  useEffect(() => {
+    if (!isOpen) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isOpen, onClose])
+
+  if (!isOpen) return null
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -61,81 +59,51 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
   }
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        if (!open) onClose()
-      }}
+    <div
+      className={styles.backdrop}
+      role="presentation"
+      onClick={(event) => event.target === event.currentTarget && onClose()}
     >
-      <DialogContent className="grid max-h-[calc(100dvh-1.5rem)] w-[calc(100%-1.5rem)] max-w-4xl grid-cols-1 gap-0 overflow-y-auto rounded-2xl border border-border bg-card p-0 shadow-2xl md:grid-cols-[0.88fr_1.12fr]">
-        <aside className="hidden flex-col bg-foreground p-9 text-background md:flex lg:p-11">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Zap aria-hidden="true" className="h-5 w-5" />
-            </span>
+      <div className={styles.shell} role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <aside className={styles.aside}>
+          <div className={styles.brand}>
+            <span className={styles.mark}>白</span>
             <div>
-              <p className="text-sm font-semibold tracking-tight">{siteConfig.name}</p>
-              <p className="mt-0.5 text-[11px] text-background/60">AI-ready full-stack starter</p>
+              <p className={styles.brandName}>白纸英语</p>
+              <p className={styles.brandNote}>MEMORY, IN THE OPEN.</p>
             </div>
           </div>
 
-          <div className="mt-16">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-background/60">
-              Build with clarity
-            </p>
-            <h2 className="mt-5 text-3xl font-semibold leading-tight tracking-tight lg:text-4xl">
-              把重复的工程准备好，
+          <div className={styles.quote}>
+            <p className={styles.quoteKicker}>ONE SHEET A DAY</p>
+            <h2>
+              一天一张纸，
               <br />
-              把注意力留给问题本身。
+              把词放回句子里。
             </h2>
-            <p className="mt-5 max-w-xs text-sm leading-6 text-background/70">
-              从清晰的目标开始，让 AI 沿着规格、任务和验收路径，把每一轮开发继续做下去。
-            </p>
+            <p>扫词、判定、关联，都在同一张纸上完成。登录只是让这张纸跨设备留下来。</p>
           </div>
 
-          <div className="mt-auto border-t border-background/15 pt-5">
-            <p className="text-xs font-medium text-background/60">一轮开发</p>
-            <p className="mt-2 text-sm font-medium tracking-wide text-background">
-              Feature <span className="px-1 text-background/40">→</span> Plan{' '}
-              <span className="px-1 text-background/40">→</span> Test{' '}
-              <span className="px-1 text-background/40">→</span> Verify
-            </p>
-          </div>
+          <p className={styles.asideFoot}>会与不会，都只是今天的痕迹。</p>
         </aside>
 
-        <section className="px-6 py-8 sm:px-10 sm:py-10 md:px-10 md:py-12 lg:px-14">
-          <div className="mb-8 flex items-center gap-2 md:hidden">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Zap aria-hidden="true" className="h-4 w-4" />
-            </span>
-            <span className="text-sm font-semibold">{siteConfig.name}</span>
+        <section className={styles.formSide}>
+          <button className={styles.close} type="button" onClick={onClose} aria-label="关闭登录">
+            ×
+          </button>
+
+          <div className={styles.heading}>
+            <p className={styles.kicker}>{mode === 'login' ? 'WELCOME BACK' : 'NEW SHEET'}</p>
+            <h1 id="auth-title">{mode === 'login' ? '欢迎回来' : '创建账户'}</h1>
+            <p>{mode === 'login' ? '继续你上次停下的那一页。' : '注册后，进度会跟着账号走。'}</p>
           </div>
 
-          <DialogHeader className="mb-7 space-y-2 text-left sm:text-left">
-            <DialogTitle className="text-2xl font-semibold tracking-tight">
-              {mode === 'login' ? '欢迎回来' : '创建账户'}
-            </DialogTitle>
-            <DialogDescription className="max-w-sm leading-6">
-              {mode === 'login'
-                ? '登录后继续使用你的项目工作台。'
-                : `创建账户，开始使用 ${siteConfig.name}。`}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div
-            className="mb-7 grid grid-cols-2 border-b border-border"
-            role="group"
-            aria-label="登录或注册"
-          >
+          <div className={styles.tabs} role="group" aria-label="登录或注册">
             <button
               type="button"
               aria-pressed={mode === 'login'}
               onClick={() => switchMode('login')}
-              className={`-mb-px border-b-2 py-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                mode === 'login'
-                  ? 'border-primary font-semibold text-foreground'
-                  : 'border-transparent font-medium text-muted-foreground hover:text-foreground'
-              }`}
+              className={mode === 'login' ? styles.tabActive : styles.tab}
             >
               登录
             </button>
@@ -143,57 +111,43 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
               type="button"
               aria-pressed={mode === 'register'}
               onClick={() => switchMode('register')}
-              className={`-mb-px border-b-2 py-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                mode === 'register'
-                  ? 'border-primary font-semibold text-foreground'
-                  : 'border-transparent font-medium text-muted-foreground hover:text-foreground'
-              }`}
+              className={mode === 'register' ? styles.tabActive : styles.tab}
             >
               注册
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className={styles.form}>
             {mode === 'register' && (
-              <div className="space-y-2">
-                <label htmlFor="auth-name" className="text-sm font-medium">
-                  用户名
-                </label>
-                <Input
-                  id="auth-name"
+              <label className={styles.field}>
+                <span>用户名</span>
+                <input
                   type="text"
                   autoComplete="name"
                   placeholder="你的用户名"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   required
-                  className={inputClassName}
                 />
-              </div>
+              </label>
             )}
 
-            <div className="space-y-2">
-              <label htmlFor="auth-email" className="text-sm font-medium">
-                邮箱
-              </label>
-              <Input
-                id="auth-email"
+            <label className={styles.field}>
+              <span>邮箱</span>
+              <input
                 type="email"
                 autoComplete="email"
                 placeholder="name@example.com"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required
-                className={inputClassName}
+                autoFocus
               />
-            </div>
+            </label>
 
-            <div className="space-y-2">
-              <label htmlFor="auth-password" className="text-sm font-medium">
-                密码
-              </label>
-              <Input
-                id="auth-password"
+            <label className={styles.field}>
+              <span>密码</span>
+              <input
                 type="password"
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 placeholder="输入密码"
@@ -202,17 +156,13 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
                 required
                 minLength={authConfig.minPasswordLength}
                 maxLength={authConfig.maxPasswordLength}
-                className={inputClassName}
               />
-            </div>
+            </label>
 
             {mode === 'register' && (
-              <div className="space-y-2">
-                <label htmlFor="auth-confirm-password" className="text-sm font-medium">
-                  确认密码
-                </label>
-                <Input
-                  id="auth-confirm-password"
+              <label className={styles.field}>
+                <span>确认密码</span>
+                <input
                   type="password"
                   autoComplete="new-password"
                   placeholder="再次输入密码"
@@ -221,32 +171,19 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
                   required
                   minLength={authConfig.minPasswordLength}
                   maxLength={authConfig.maxPasswordLength}
-                  className={inputClassName}
                 />
-              </div>
+              </label>
             )}
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              aria-live="polite"
-              className="mt-2 h-11 w-full gap-2 font-medium shadow-none"
-            >
-              {isLoading ? (
-                <>
-                  <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
-                  处理中...
-                </>
-              ) : (
-                <>
-                  {mode === 'login' ? '登录' : '创建账户'}
-                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                </>
-              )}
-            </Button>
+            <button className={styles.submit} type="submit" disabled={isLoading} aria-live="polite">
+              {isLoading ? '处理中…' : mode === 'login' ? '登录' : '创建账户'}
+              {!isLoading && <span aria-hidden="true">→</span>}
+            </button>
           </form>
+
+          <p className={styles.footNote}>游客也可以继续使用；登录后判定和记录会保存到账号。</p>
         </section>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   )
 }
