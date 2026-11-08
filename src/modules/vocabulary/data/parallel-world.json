@@ -7,7 +7,7 @@
     "end": 3976
   },
   "entryCount": 3976,
-  "nonEmptyEntryCount": 280,
+  "nonEmptyEntryCount": 483,
   "blankSourceNumbers": [
     3476
   ],
@@ -20,35 +20,35 @@
   "entries": [
     {
       "en": "lesson",
-      "zh": ""
+      "zh": "课"
     },
     {
       "en": "excuse",
-      "zh": ""
+      "zh": "借口；原谅"
     },
     {
       "en": "me",
-      "zh": ""
+      "zh": "我"
     },
     {
       "en": "listen",
-      "zh": ""
+      "zh": "听"
     },
     {
       "en": "to",
-      "zh": ""
+      "zh": "向；到"
     },
     {
       "en": "the",
-      "zh": ""
+      "zh": "这个；那个"
     },
     {
       "en": "tape",
-      "zh": ""
+      "zh": "磁带；录音带"
     },
     {
       "en": "then",
-      "zh": ""
+      "zh": "然后"
     },
     {
       "en": "answer",
@@ -56,71 +56,71 @@
     },
     {
       "en": "this",
-      "zh": ""
+      "zh": "这个"
     },
     {
       "en": "question",
-      "zh": ""
+      "zh": "问题"
     },
     {
       "en": "whose",
-      "zh": ""
+      "zh": "谁的"
     },
     {
       "en": "handbag",
-      "zh": ""
+      "zh": "手提包"
     },
     {
       "en": "is",
-      "zh": ""
+      "zh": "是"
     },
     {
       "en": "it",
-      "zh": ""
+      "zh": "它"
     },
     {
       "en": "yes",
-      "zh": ""
+      "zh": "是"
     },
     {
       "en": "your",
-      "zh": ""
+      "zh": "你的"
     },
     {
       "en": "pardon",
-      "zh": ""
+      "zh": "请再说一遍；原谅"
     },
     {
       "en": "thank",
-      "zh": ""
+      "zh": "感谢"
     },
     {
       "en": "you",
-      "zh": ""
+      "zh": "你"
     },
     {
       "en": "very",
-      "zh": ""
+      "zh": "非常"
     },
     {
       "en": "much",
-      "zh": ""
+      "zh": "很多"
     },
     {
       "en": "sorry",
-      "zh": ""
+      "zh": "抱歉"
     },
     {
       "en": "sir",
-      "zh": ""
+      "zh": "先生"
     },
     {
       "en": "my",
-      "zh": ""
+      "zh": "我的"
     },
     {
       "en": "coat",
-      "zh": ""
+      "zh": "外套"
     },
     {
       "en": "and",
@@ -128,63 +128,63 @@
     },
     {
       "en": "umbrella",
-      "zh": ""
+      "zh": "雨伞"
     },
     {
       "en": "please",
-      "zh": ""
+      "zh": "请"
     },
     {
       "en": "here",
-      "zh": ""
+      "zh": "这里"
     },
     {
       "en": "ticket",
-      "zh": ""
+      "zh": "票"
     },
     {
       "en": "number",
-      "zh": ""
+      "zh": "号码"
     },
     {
       "en": "five",
-      "zh": ""
+      "zh": "五"
     },
     {
       "en": "not",
-      "zh": ""
+      "zh": "不"
     },
     {
       "en": "no",
-      "zh": ""
+      "zh": "不；没有"
     },
     {
       "en": "isn’t",
-      "zh": ""
+      "zh": "不是"
     },
     {
       "en": "nice",
-      "zh": ""
+      "zh": "好的；友好的"
     },
     {
       "en": "meet (v.1)",
-      "zh": ""
+      "zh": "遇见"
     },
     {
       "en": "good",
-      "zh": ""
+      "zh": "好的"
     },
     {
       "en": "morning",
-      "zh": ""
+      "zh": "早上"
     },
     {
       "en": "Mr.",
-      "zh": ""
+      "zh": "先生"
     },
     {
       "en": "miss (n.)",
-      "zh": ""
+      "zh": "小姐"
     },
     {
       "en": "a",
@@ -192,43 +192,43 @@
     },
     {
       "en": "new",
-      "zh": ""
+      "zh": "新的"
     },
     {
       "en": "student",
-      "zh": ""
+      "zh": "学生"
     },
     {
       "en": "she",
-      "zh": ""
+      "zh": "她"
     },
     {
       "en": "French",
-      "zh": ""
+      "zh": "法语；法国的"
     },
     {
       "en": "he",
-      "zh": ""
+      "zh": "他"
     },
     {
       "en": "German",
-      "zh": ""
+      "zh": "德语；德国的"
     },
     {
       "en": "Japanese",
-      "zh": ""
+      "zh": "日语；日本的"
     },
     {
       "en": "Korean",
-      "zh": ""
+      "zh": "韩语；韩国的"
     },
     {
       "en": "Chinese",
-      "zh": ""
+      "zh": "中文；中国的"
     },
     {
       "en": "too",
-      "zh": ""
+      "zh": "也；太"
     },
     {
       "en": "are",
@@ -236,11 +236,11 @@
     },
     {
       "en": "teacher",
-      "zh": ""
+      "zh": "老师"
     },
     {
       "en": "I",
-      "zh": ""
+      "zh": "我"
     },
     {
       "en": "am",
@@ -248,31 +248,31 @@
     },
     {
       "en": "name",
-      "zh": ""
+      "zh": "名字"
     },
     {
       "en": "what",
-      "zh": ""
+      "zh": "什么"
     },
     {
       "en": "nationality",
-      "zh": ""
+      "zh": "国籍"
     },
     {
       "en": "Italian",
-      "zh": ""
+      "zh": "意大利语；意大利的"
     },
     {
       "en": "job",
-      "zh": ""
+      "zh": "工作"
     },
     {
       "en": "keyboard",
-      "zh": ""
+      "zh": "键盘"
     },
     {
       "en": "operator",
-      "zh": ""
+      "zh": "操作员"
     },
     {
       "en": "an",
@@ -280,159 +280,159 @@
     },
     {
       "en": "engineer",
-      "zh": ""
+      "zh": "工程师"
     },
     {
       "en": "how",
-      "zh": ""
+      "zh": "怎样"
     },
     {
       "en": "today",
-      "zh": ""
+      "zh": "今天"
     },
     {
       "en": "hello",
-      "zh": ""
+      "zh": "你好"
     },
     {
       "en": "hi",
-      "zh": ""
+      "zh": "嗨"
     },
     {
       "en": "well",
-      "zh": ""
+      "zh": "好；健康"
     },
     {
       "en": "fine (adj.)",
-      "zh": ""
+      "zh": "好的"
     },
     {
       "en": "thanks",
-      "zh": ""
+      "zh": "谢谢"
     },
     {
       "en": "goodbye",
-      "zh": ""
+      "zh": "再见"
     },
     {
       "en": "see",
-      "zh": ""
+      "zh": "看见"
     },
     {
       "en": "shirt",
-      "zh": ""
+      "zh": "衬衫"
     },
     {
       "en": "that",
-      "zh": ""
+      "zh": "那个"
     },
     {
       "en": "blue",
-      "zh": ""
+      "zh": "蓝色"
     },
     {
       "en": "perhaps",
-      "zh": ""
+      "zh": "也许"
     },
     {
       "en": "white",
-      "zh": ""
+      "zh": "白色"
     },
     {
       "en": "here you are",
-      "zh": ""
+      "zh": "给你"
     },
     {
       "en": "catch",
-      "zh": ""
+      "zh": "抓住；赶上"
     },
     {
       "en": "dress",
-      "zh": ""
+      "zh": "连衣裙；穿衣"
     },
     {
       "en": "color/colour",
-      "zh": ""
+      "zh": "颜色"
     },
     {
       "en": "green",
-      "zh": ""
+      "zh": "绿色"
     },
     {
       "en": "come",
-      "zh": ""
+      "zh": "来"
     },
     {
       "en": "upstairs",
-      "zh": ""
+      "zh": "楼上"
     },
     {
       "en": "look",
-      "zh": ""
+      "zh": "看"
     },
     {
       "en": "smart",
-      "zh": ""
+      "zh": "漂亮的；聪明的"
     },
     {
       "en": "hat",
-      "zh": ""
+      "zh": "帽子"
     },
     {
       "en": "same",
-      "zh": ""
+      "zh": "相同的"
     },
     {
       "en": "lovely",
-      "zh": ""
+      "zh": "可爱的"
     },
     {
       "en": "passport",
-      "zh": ""
+      "zh": "护照"
     },
     {
       "en": "Swedish",
-      "zh": ""
+      "zh": "瑞典语；瑞典的"
     },
     {
       "en": "we",
-      "zh": ""
+      "zh": "我们"
     },
     {
       "en": "Danish",
-      "zh": ""
+      "zh": "丹麦语；丹麦的"
     },
     {
       "en": "friend",
-      "zh": ""
+      "zh": "朋友"
     },
     {
       "en": "they",
-      "zh": ""
+      "zh": "他们"
     },
     {
       "en": "Norwegian",
-      "zh": ""
+      "zh": "挪威语；挪威的"
     },
     {
       "en": "these",
-      "zh": ""
+      "zh": "这些"
     },
     {
       "en": "case",
-      "zh": ""
+      "zh": "箱子；情况"
     },
     {
       "en": "our",
-      "zh": ""
+      "zh": "我们的"
     },
     {
       "en": "brown",
-      "zh": ""
+      "zh": "棕色"
     },
     {
       "en": "tourist",
-      "zh": ""
+      "zh": "游客"
     },
     {
       "en": "do",
@@ -444,63 +444,63 @@
     },
     {
       "en": "employee",
-      "zh": ""
+      "zh": "雇员"
     },
     {
       "en": "those",
-      "zh": ""
+      "zh": "那些"
     },
     {
       "en": "women",
-      "zh": ""
+      "zh": "女人（复数）"
     },
     {
       "en": "hard",
-      "zh": ""
+      "zh": "困难的；努力地"
     },
     {
       "en": "work (n./v.)",
-      "zh": ""
+      "zh": "工作"
     },
     {
       "en": "hard-working",
-      "zh": ""
+      "zh": "勤奋的"
     },
     {
       "en": "their",
-      "zh": ""
+      "zh": "他们的"
     },
     {
       "en": "busy",
-      "zh": ""
+      "zh": "忙的"
     },
     {
       "en": "sale",
-      "zh": ""
+      "zh": "销售；出售"
     },
     {
       "en": "rep (representative)",
-      "zh": ""
+      "zh": "代表"
     },
     {
       "en": "lazy",
-      "zh": ""
+      "zh": "懒的"
     },
     {
       "en": "who",
-      "zh": ""
+      "zh": "谁"
     },
     {
       "en": "young",
-      "zh": ""
+      "zh": "年轻的"
     },
     {
       "en": "man",
-      "zh": ""
+      "zh": "男人"
     },
     {
       "en": "office",
-      "zh": ""
+      "zh": "办公室"
     },
     {
       "en": "assistant",
@@ -508,31 +508,31 @@
     },
     {
       "en": "tried",
-      "zh": ""
+      "zh": "疲倦的；尝试过"
     },
     {
       "en": "thirsty",
-      "zh": ""
+      "zh": "渴的"
     },
     {
       "en": "matter (n.)",
-      "zh": ""
+      "zh": "事情；问题"
     },
     {
       "en": "children",
-      "zh": ""
+      "zh": "孩子们"
     },
     {
       "en": "mum",
-      "zh": ""
+      "zh": "妈妈"
     },
     {
       "en": "sit",
-      "zh": ""
+      "zh": "坐"
     },
     {
       "en": "down",
-      "zh": ""
+      "zh": "向下"
     },
     {
       "en": "all",
@@ -540,7 +540,7 @@
     },
     {
       "en": "right (adj.1)",
-      "zh": ""
+      "zh": "右边的；正确的"
     },
     {
       "en": "all right",
@@ -548,163 +548,163 @@
     },
     {
       "en": "now",
-      "zh": ""
+      "zh": "现在"
     },
     {
       "en": "two",
-      "zh": ""
+      "zh": "二"
     },
     {
       "en": "ice",
-      "zh": ""
+      "zh": "冰"
     },
     {
       "en": "cream",
-      "zh": ""
+      "zh": "奶油"
     },
     {
       "en": "ice cream",
-      "zh": ""
+      "zh": "冰淇淋"
     },
     {
       "en": "which",
-      "zh": ""
+      "zh": "哪一个"
     },
     {
       "en": "book",
-      "zh": ""
+      "zh": "书"
     },
     {
       "en": "give",
-      "zh": ""
+      "zh": "给"
     },
     {
       "en": "one",
-      "zh": ""
+      "zh": "一"
     },
     {
       "en": "red",
-      "zh": ""
+      "zh": "红色"
     },
     {
       "en": "glass",
-      "zh": ""
+      "zh": "玻璃杯；玻璃"
     },
     {
       "en": "some (pron.)",
-      "zh": ""
+      "zh": "一些"
     },
     {
       "en": "on",
-      "zh": ""
+      "zh": "在……上"
     },
     {
       "en": "shelf",
-      "zh": ""
+      "zh": "架子"
     },
     {
       "en": "Mrs.",
-      "zh": ""
+      "zh": "夫人"
     },
     {
       "en": "kitchen",
-      "zh": ""
+      "zh": "厨房"
     },
     {
       "en": "small",
-      "zh": ""
+      "zh": "小的"
     },
     {
       "en": "there",
-      "zh": ""
+      "zh": "那里"
     },
     {
       "en": "there is",
-      "zh": ""
+      "zh": "有（单数）"
     },
     {
       "en": "refrigerator",
-      "zh": ""
+      "zh": "冰箱"
     },
     {
       "en": "right（n.1）",
-      "zh": ""
+      "zh": "右边；权利"
     },
     {
       "en": "electric",
-      "zh": ""
+      "zh": "电的"
     },
     {
       "en": "cooker",
-      "zh": ""
+      "zh": "炊具"
     },
     {
       "en": "left",
-      "zh": ""
+      "zh": "左边"
     },
     {
       "en": "table",
-      "zh": ""
+      "zh": "桌子"
     },
     {
       "en": "middle",
-      "zh": ""
+      "zh": "中间"
     },
     {
       "en": "of",
-      "zh": ""
+      "zh": "……的"
     },
     {
       "en": "room",
-      "zh": ""
+      "zh": "房间"
     },
     {
       "en": "bottle",
-      "zh": ""
+      "zh": "瓶子"
     },
     {
       "en": "empty",
-      "zh": ""
+      "zh": "空的"
     },
     {
       "en": "cup",
-      "zh": ""
+      "zh": "杯子"
     },
     {
       "en": "clean",
-      "zh": ""
+      "zh": "干净的；打扫"
     },
     {
       "en": "living room",
-      "zh": ""
+      "zh": "客厅"
     },
     {
       "en": "large",
-      "zh": ""
+      "zh": "大的"
     },
     {
       "en": "television",
-      "zh": ""
+      "zh": "电视"
     },
     {
       "en": "in",
-      "zh": ""
+      "zh": "在……里"
     },
     {
       "en": "near",
-      "zh": ""
+      "zh": "在……附近"
     },
     {
       "en": "window",
-      "zh": ""
+      "zh": "窗户"
     },
     {
       "en": "magazine",
-      "zh": ""
+      "zh": "杂志"
     },
     {
       "en": "newspaper",
-      "zh": ""
+      "zh": "报纸"
     },
     {
       "en": "armchair",
@@ -712,43 +712,43 @@
     },
     {
       "en": "stereo",
-      "zh": ""
+      "zh": "立体声音响"
     },
     {
       "en": "door",
-      "zh": ""
+      "zh": "门"
     },
     {
       "en": "picture",
-      "zh": ""
+      "zh": "图片；照片"
     },
     {
       "en": "wall",
-      "zh": ""
+      "zh": "墙"
     },
     {
       "en": "come in",
-      "zh": ""
+      "zh": "进来"
     },
     {
       "en": "shut",
-      "zh": ""
+      "zh": "关上"
     },
     {
       "en": "bedroom",
-      "zh": ""
+      "zh": "卧室"
     },
     {
       "en": "untidy",
-      "zh": ""
+      "zh": "不整洁的"
     },
     {
       "en": "must",
-      "zh": ""
+      "zh": "必须"
     },
     {
       "en": "open",
-      "zh": ""
+      "zh": "打开"
     },
     {
       "en": "air",
@@ -756,79 +756,79 @@
     },
     {
       "en": "put",
-      "zh": ""
+      "zh": "放"
     },
     {
       "en": "clothes",
-      "zh": ""
+      "zh": "衣服"
     },
     {
       "en": "wardrobe",
-      "zh": ""
+      "zh": "衣柜"
     },
     {
       "en": "make",
-      "zh": ""
+      "zh": "做；整理"
     },
     {
       "en": "bed",
-      "zh": ""
+      "zh": "床"
     },
     {
       "en": "dust",
-      "zh": ""
+      "zh": "灰尘；掸灰"
     },
     {
       "en": "dressing",
-      "zh": ""
+      "zh": "穿衣；敷料"
     },
     {
       "en": "dressing table",
-      "zh": ""
+      "zh": "梳妆台"
     },
     {
       "en": "sweep",
-      "zh": ""
+      "zh": "扫"
     },
     {
       "en": "floor",
-      "zh": ""
+      "zh": "地板"
     },
     {
       "en": "where",
-      "zh": ""
+      "zh": "哪里"
     },
     {
       "en": "garden",
-      "zh": ""
+      "zh": "花园"
     },
     {
       "en": "under",
-      "zh": ""
+      "zh": "在……下"
     },
     {
       "en": "tree",
-      "zh": ""
+      "zh": "树"
     },
     {
       "en": "climb",
-      "zh": ""
+      "zh": "爬"
     },
     {
       "en": "beg",
-      "zh": ""
+      "zh": "乞求"
     },
     {
       "en": "what about",
-      "zh": ""
+      "zh": "……怎么样"
     },
     {
       "en": "dog",
-      "zh": ""
+      "zh": "狗"
     },
     {
       "en": "run",
-      "zh": ""
+      "zh": "跑"
     },
     {
       "en": "across",
@@ -836,7 +836,7 @@
     },
     {
       "en": "grass",
-      "zh": ""
+      "zh": "草"
     },
     {
       "en": "after",
@@ -844,39 +844,39 @@
     },
     {
       "en": "cat",
-      "zh": ""
+      "zh": "猫"
     },
     {
       "en": "day",
-      "zh": ""
+      "zh": "天"
     },
     {
       "en": "cloud",
-      "zh": ""
+      "zh": "云"
     },
     {
       "en": "sky",
-      "zh": ""
+      "zh": "天空"
     },
     {
       "en": "but",
-      "zh": ""
+      "zh": "但是"
     },
     {
       "en": "sun",
-      "zh": ""
+      "zh": "太阳"
     },
     {
       "en": "shine",
-      "zh": ""
+      "zh": "照耀"
     },
     {
       "en": "with",
-      "zh": ""
+      "zh": "和……一起"
     },
     {
       "en": "his",
-      "zh": ""
+      "zh": "他的"
     },
     {
       "en": "family",
@@ -2352,7 +2352,7 @@
     },
     {
       "en": "upstairs",
-      "zh": ""
+      "zh": "楼上"
     },
     {
       "en": "bath",
@@ -2504,7 +2504,7 @@
     },
     {
       "en": "sale",
-      "zh": ""
+      "zh": "销售；出售"
     },
     {
       "en": "for sale",
@@ -5412,7 +5412,7 @@
     },
     {
       "en": "on",
-      "zh": ""
+      "zh": "在……上"
     },
     {
       "en": "struggle",
