@@ -2,36 +2,43 @@
 
 直接写，直接学。一张由学习者自己主导的英语学习白纸。
 
-白纸英语把词汇、写作和语法学习组织在同一工作台，提供可选辅助，并让用户留下可编辑、可导出的学习成果。第一阶段已经落地为游客可用的本地词汇白纸；写作、语法和账户同步仍在后续阶段。
+白纸英语把词汇、写作和语法学习组织在同一工作台。第一阶段已经落地为可用的词汇白纸：3,867 个词、每日 36 词九宫格、会/不会判定、1:8 关联辅助、整句朗读、学习记录和重置今天。写作与语法目前只保留页面外壳。
 
 ## 当前仓库
 
-本仓库继承 [Ignite](https://github.com/morewhyhan/Ignite) 模板的工程底座。当前首页和 `/vocabulary` 已进入词汇白纸；旧 Dashboard、Tasks、认证和设置仍作为迁移边界保留。写作检查、语法助教、云同步及付费尚未实现。
-
-词汇第一版是本地优先实现：打开就能学，刷新可恢复，账户同步另立 Plan。目标方案、当前词汇实现和模板遗留事实在 Design 中明确分开。
+本仓库已迁移到 [Ignite v1.1](https://github.com/morewhyhan/Ignite) 的目标树底座：需求从 [docs/GOAL.md](./docs/GOAL.md) 进入，设计、标准、决策和证据分五层维护。旧 Plan/Release/强制引擎已退出活动门禁，历史保留在 pre-ignite-1.1 分支。
 
 ## 从这里阅读
 
-| 需要了解什么                 | 入口                                                   |
-| ---------------------------- | ------------------------------------------------------ |
-| 为什么做、为谁服务及经营假设 | [商业模式](./BUSINESS_MODEL.md)                        |
-| 产品范围与未决问题           | [产品规格](./docs/features/product.md)                 |
-| 各类文档的职责和阅读顺序     | [文档系统](./docs/README.md)                           |
-| 词汇、写作、语法如何协同     | [工作台规格](./docs/features/workspace.md)             |
-| 当前代码实际有什么           | [当前设计](./docs/designs/README.md)                   |
-| 本轮整理到哪里、后续缺什么   | [词汇 Plan](./docs/plans/20261104-vocabulary-paper.md) |
-| AI应遵循的规则               | [AGENTS.md](./AGENTS.md)                               |
-
-BUSINESS_MODEL.md 是用户提供的原始经营文件，保留原文。它不是功能已完成的证据。Feature 描述目标，Plan 记录本轮，Design 描述实际实现。
+| 需要了解什么 | 入口 |
+| --- | --- |
+| 目标、REQ、AC 与当前状态 | [目标树](./docs/GOAL.md) |
+| 产品范围与边界 | [产品规格](./docs/features/product.md) |
+| 词汇白纸的交互细节 | [词汇规格](./docs/features/vocabulary.md) |
+| 工作台、设置与多纸 | [工作台规格](./docs/features/workspace.md) |
+| 当前代码实际有什么 | [设计事实](./docs/designs/README.md) |
+| 文档体系怎么读 | [文档系统](./docs/README.md) |
+| AI 每轮怎么开工 | [开工提示词](./PROMPT.md) |
+| AI 规则 | [AGENTS.md](./AGENTS.md) |
 
 ## 开发环境
 
-采用 WSL Ubuntu，Node 版本以 .node-version 为准，pnpm 版本以 package.json 为准。不要用 Windows 与 WSL 共享 node_modules。完整环境准备、迁移与验证步骤见 [采用规范](./docs/standards/adoption.md#第一步准备环境并验证基线)。
+采用 WSL Ubuntu，Node 版本以 .node-version 为准，pnpm 版本以 package.json 为准。不要用 Windows 与 WSL 共享 node_modules。环境准备与基线验证见 [采用规范](./docs/standards/adoption.md)。
 
-现有模块按 Next.js 页面、module screen、Hook、Hono Typed RPC 和 Prisma 组织。Better Auth 管理账户。产品目标采用本地优先、账户同步可选；具体存储和冲突处理仍须在实现 Plan 中验证，不因目标文档假装已经具备同步。
+```bash
+pnpm install
+pnpm dev
+pnpm docs:check
+pnpm goal:audit
+pnpm goal:trace
+pnpm test
+pnpm build
+```
 
-## 工作方式
+## 当前事实
 
-使用项目自带 poteto-mode，按各文档目录的固定方法工作。只读取和执行本阶段需要的方法。实现前先更新 Feature 与 Plan，完成后把当前事实回写 Design；未实现的写作、语法和同步继续保留为后续边界。
-
-子代理按任务必要性使用；用户已要求优先最低档可用模型。没有适用模型时由主代理处理，不静默升级。审查需明确对象与范围，不把多轮代理意见当作业务验收。
+- 词库：3,867 个唯一词卡，全部有 1–3 个中文核心义。
+- 关联：3,867 个目标词 × 8 条，共 30,936 条，前端按 36 词批量预取。
+- 发音：优先本地神经语音 Kokoro，首次加载约 92MB；未就绪时用系统英文语音兜底。
+- 账户：游客进度保存在本机；登录后判定、轮次和学习记录写入账号。
+- 未实现：写作输入/保存、语法课程、跨设备冲突处理。

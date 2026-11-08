@@ -4,7 +4,7 @@ Own a standing program through clear briefs, bounded delegation, continuous inte
 
 #### Native state and roles
 
-Use Feature for requirements, Plan tasks for work, dependency_contracts/shared_files/handoff for collaboration, Plan judgments and blocker/open_questions for decisions, native evidence for checks, and Release scope for combined delivery. Generate status using pnpm ignite status --write. Do not initialize preferences.md, units.tsv, ledger.tsv, gates.md or another status register.
+Use Feature for requirements, Plan tasks for work, dependency_contracts/shared_files/handoff for collaboration, Plan judgments and blocker/open_questions for decisions, native evidence for checks, and Release scope for combined delivery. Generate status using pnpm goal:status. Do not initialize preferences.md, units.tsv, ledger.tsv, gates.md or another status register.
 
 The coordinator frames and reviews results; workers own disjoint writes; a verifier adds an independent view when risk warrants it. Do not force a cloud VM, Graphite, a different model family or a durable sub-coordinator. Role selection reads .ai/pstack/config.json and actual host capabilities. Source orch tools remain optional standalone resources, not the native execution entry or the authority for Ignite completion.
 
@@ -15,7 +15,7 @@ Every assignment carries GOAL, SCOPE including forbidden paths, CONTEXT with ups
 #### Execution
 
 1. Define the real completion predicate and authorized boundary in the existing Plan/Release. Do not silently add pushes, PR merges or deployment to a local outcome.
-2. Find ready tasks from native dependencies. Mark work through pnpm ignite task set-status <ID> <task> <todo|doing|done>; refresh derived progress with pnpm ignite plan refresh <ID>.
+2. Find ready tasks from native dependencies. Mark work through update ../../../../../docs/GOAL.md status; refresh derived progress with pnpm goal:status.
 3. Pilot a novel unit through its actual checks. A cheap repeated edit uses the first normal unit as the pilot; do not add a special verification pipeline.
 4. Spawn useful independent scopes with exclusive files/worktrees. Refill on completion; record consequential handoff facts in the existing Plan. A completion notification is a review event, not proof of acceptance.
 5. At a drain point review the actual diff and receipts, update task states and dependencies, and assign newly ready work. Preserve completed evidence rather than rerunning unchanged inputs.

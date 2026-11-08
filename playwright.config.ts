@@ -20,28 +20,20 @@ export default defineConfig({
   workers: 1,
   globalSetup: './tests/e2e/global-setup.ts',
   reporter: tddReportPath
-    ? [
-        ['json', { outputFile: tddReportPath }],
-        ['./scripts/testing/playwright-acceptance-reporter.mjs'],
-      ]
+    ? [['json', { outputFile: tddReportPath }]]
     : isCI
-      ? [
-          ['line'],
-          ['html', { open: 'never' }],
-          ['./scripts/testing/playwright-acceptance-reporter.mjs'],
-        ]
-      : [
-          ['list'],
-          ['html', { open: 'never' }],
-          ['./scripts/testing/playwright-acceptance-reporter.mjs'],
-        ],
+      ? [['line'], ['html', { open: 'never' }]]
+      : [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL,
     launchOptions: executablePath ? { executablePath } : undefined,
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] } },
+  ],
   webServer: {
     command: productionServer
       ? `corepack pnpm exec next start --hostname 127.0.0.1 --port ${e2ePort}`

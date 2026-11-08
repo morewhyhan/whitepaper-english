@@ -1,5 +1,7 @@
 # 当前认证设计
 
+关联需求：REQ-ACCOUNT-001、REQ-ACCOUNT-004
+
 > 文档状态：定稿
 
 认证由 Better Auth 服务端配置和 auth module 的客户端 Hook 组成：

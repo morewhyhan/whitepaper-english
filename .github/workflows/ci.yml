@@ -38,15 +38,18 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm runtime:check
-      - run: pnpm template:doctor
-      - run: pnpm ignite validate --ci
       - run: node scripts/check-diff.mjs --base "$DIFF_BASE"
       - run: pnpm docs:check
+      - run: pnpm goal:audit
+      - run: pnpm goal:trace
+      - run: pnpm goal:status
+      - run: git diff --exit-code GOAL.md
       - run: pnpm typecheck
       - run: pnpm tools:check
       - run: pnpm lint
       - run: pnpm format:check
       - run: node scripts/check-clean.mjs
+      - run: pnpm check:commits
 
   migration:
     runs-on: ubuntu-latest

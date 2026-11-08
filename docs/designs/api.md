@@ -1,5 +1,7 @@
 # API 设计：当前事实与采用目标
 
+关联需求：REQ-ACCOUNT-001、REQ-ACCOUNT-013、REQ-ACCOUNT-015
+
 > 文档状态：定稿
 
 ## 当前实现事实

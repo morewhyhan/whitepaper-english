@@ -1,5 +1,7 @@
 # Designs
 
+> 本目录放系统当前事实：字段、接口、页面。每份设计开头写“关联需求：REQ-…”，指回 [目标树](../GOAL.md)。
+
 这里存放当前系统的设计事实（Source of Truth）。与 plans 不同，designs 描述的是
 现在系统是什么，而不是某一轮准备做什么；发生最终变更时更新对应设计文档。
 
@@ -40,7 +42,6 @@
 - [`api.yaml`](./api.yaml)：业务 API OpenAPI 快照
 - [`sequence.puml`](./sequence.puml)：任务查询请求时序图
 - [视觉设计系统](./design.md)
-- [AI 执行系统](./execution.md)：Plan 契约、验收分层、证据与并行交接
 
 ## 段落来源标记
 

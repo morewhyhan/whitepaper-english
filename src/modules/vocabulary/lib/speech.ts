@@ -94,7 +94,15 @@ export function warmSpeech() {
   if (typeof window === 'undefined' || kokoro || loading) return
   if (navigator.onLine === false) return
 
-  const load = import('kokoro-js').then(({ KokoroTTS, env }) => {
+  // Loaded at runtime so the 50MB browser TTS graph never enters the app bundle.
+  const loadKokoro = new Function(
+    'return import("https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm")',
+  ) as () => Promise<{
+    KokoroTTS: typeof import('kokoro-js').KokoroTTS
+    env: { wasmPaths: string }
+  }>
+
+  const load = loadKokoro().then(({ KokoroTTS, env }) => {
     env.wasmPaths = '/ort/'
     return KokoroTTS.from_pretrained(MODEL_ID, {
       dtype: 'q8',

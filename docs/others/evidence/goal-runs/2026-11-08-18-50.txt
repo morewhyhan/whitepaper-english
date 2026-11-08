@@ -1,0 +1,7 @@
+commit: b1ea721
+command: pnpm exec vitest run ../tests/README.md ../tests/api/vocabulary-state.test.ts ../tests/e2e/future-modules.spec.ts ../tests/api/vocabulary-state-data.test.ts ../tests/e2e/auth-entry.spec.ts ../tests/api/vocabulary-judgements.test.ts ../tests/e2e/judgement-submit.spec.ts ../tests/e2e/judgement-undo.spec.ts ../tests/e2e/daily-session.spec.ts ../tests/api/vocabulary-daily-state.test.ts ../tests/e2e/reset-today.spec.ts ../tests/api/vocabulary-history.test.ts ../tests/e2e/pronunciation.spec.ts ../tests/e2e/associations.spec.ts ../tests/e2e/vocabulary-polish.spec.ts
+result: failed
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/mnt/c/Users/why/Documents/ChatGPT/whitepaper-english[39m
+

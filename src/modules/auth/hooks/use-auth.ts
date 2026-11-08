@@ -22,7 +22,7 @@ export function useSignIn() {
     onSuccess: () => {
       queryClient.clear()
       toast.success('登录成功')
-      router.push('/vocabulary')
+      router.push('/dashboard')
       router.refresh()
     },
     onError: (error: Error) => {
@@ -49,6 +49,7 @@ export function useSignUp() {
         email,
         password,
         name: name || email.split('@')[0],
+        callbackURL: '/dashboard',
       })
       if (response.error) {
         throw new Error(response.error.message || '注册失败')
@@ -58,7 +59,7 @@ export function useSignUp() {
     onSuccess: () => {
       queryClient.clear()
       toast.success('注册成功')
-      router.push('/vocabulary')
+      router.push('/dashboard')
       router.refresh()
     },
     onError: (error: Error) => {

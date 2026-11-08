@@ -1,7 +1,4 @@
 # Vendored pstack methods and optional automation assets retain source formatting.
 .ai/pstack/**
-
-# The adopted business model is retained verbatim as a source document.
-BUSINESS_MODEL.md
 TEMP/**
 TMP/**
