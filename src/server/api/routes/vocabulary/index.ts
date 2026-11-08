@@ -5,6 +5,7 @@ import {
   clearWordStates,
   getDailySession,
   listWordStates,
+  resetBookDay,
   saveDailySession,
   setWordStates,
 } from '@/server/vocabulary/store'
@@ -40,6 +41,13 @@ const clearSchema = z
     bookId: z.string().trim().min(1).max(64).optional(),
     date: z.string().regex(datePattern).optional(),
     words: z.array(z.string().trim().min(1).max(120)).min(1).max(36),
+  })
+  .strict()
+
+const resetSchema = z
+  .object({
+    bookId: z.string().trim().min(1).max(64).optional(),
+    date: z.string().regex(datePattern).optional(),
   })
   .strict()
 
@@ -122,6 +130,15 @@ vocabulary.put('/session', zValidator('json', sessionSchema), async (c) => {
   const saved = await saveDailySession(prisma, userId, bookId, date, session)
 
   return c.json({ data: { session: saved } })
+})
+
+vocabulary.post('/reset', zValidator('json', resetSchema), async (c) => {
+  const userId = await requireUserId(c.req.raw.headers)
+  const { bookId = 'parallel-world', date = localDate() } = c.req.valid('json')
+
+  await resetBookDay(prisma, userId, bookId, date)
+
+  return c.json({ data: { reset: true } })
 })
 
 export default vocabulary

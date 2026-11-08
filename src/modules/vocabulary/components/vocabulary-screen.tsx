@@ -32,6 +32,7 @@ import {
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import { useClearJudgements } from '../hooks/use-clear-judgements'
 import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
+import { useResetToday } from '../hooks/use-reset-today'
 import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
 
@@ -91,6 +92,7 @@ export function VocabularyScreen() {
   const clearJudgements = useClearJudgements()
   const dailySession = useDailySession(activeBookId, today, Boolean(authSession?.user))
   const saveDailySession = useSaveDailySession()
+  const resetTodayMutation = useResetToday()
   const restoredSession = useRef<string | null>(null)
   const [clipOpen, setClipOpen] = useState(false)
   const [clipTarget, setClipTarget] = useState<WorkspaceMode | null>(null)
@@ -435,8 +437,18 @@ export function VocabularyScreen() {
     }
   }
 
-  function resetToday() {
+  async function resetToday() {
     if (!window.confirm('确定清空今天的轮次记录，从完整词库重新开始吗？')) return
+
+    if (authSession?.user) {
+      try {
+        await resetTodayMutation.mutateAsync({ bookId: activeBookId, date: today })
+      } catch {
+        setNotice('重置失败，请重试')
+        return
+      }
+    }
+
     updateSession(() => createSession(state.words, state.settings))
     setUndoSession(null)
     setModal(null)

@@ -136,3 +136,15 @@ export async function saveDailySession(
     complete: row.complete,
   }
 }
+
+export async function resetBookDay(
+  prisma: PrismaClient,
+  userId: string,
+  bookId: string,
+  localDate: string,
+): Promise<void> {
+  await prisma.$transaction([
+    prisma.word_state.deleteMany({ where: { userId, bookId, localDate } }),
+    prisma.daily_session.deleteMany({ where: { userId, bookId, localDate } }),
+  ])
+}
