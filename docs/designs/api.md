@@ -8,21 +8,23 @@
 
 统一成功响应为 `{ "data": ... }`；错误响应为 `{ "code": number, "message": string }`。当前模块请求路径是 `Hook → createApiClient(AppType) → Hono route`。
 
-### 词汇状态与判定接口
+### 词汇接口
 
-`GET /api/vocabulary/state` 需要 session。未登录返回 401；登录返回 `{ "data": { "activeBook": null, "wordStates": [{ "word": "apple", "known": true }] } }`。`wordStates` 只包含当前账号保存的词状态，新账号为空数组。
+所有词汇接口位于 `src/server/api/routes/vocabulary/index.ts`，由 `src/server/api/index.ts` 挂载，使用统一 `zValidator` 和 `{ "data": ... }` / `{ "code": number, "message": string }` 响应格式。除关联读取外都需要 Better Auth session；未登录返回 401。
 
-`POST /api/vocabulary/judgements` 需要 session，请求体为 `{ "judgements": [{ "word": "apple", "known": true }] }`，最多 36 条。接口按 session 用户批量 upsert，返回保存后的 `wordStates`；重复提交同一词覆盖旧值，非法请求返回 422。
+- `GET /api/vocabulary/state?bookId=parallel-world&date=YYYY-MM-DD`：读取当前账号的词状态，返回 `{ data: { activeBook: null, wordStates: [{ word, known }] } }`。`wordState` 按 `userId + bookId + localDate + word` 唯一。
+- `POST /api/vocabulary/judgements`：请求体 `{ bookId?, date?, judgements: [{ word, known }] }`，最多 36 条；按 session 用户批量 upsert，重复提交覆盖旧值，返回保存后的 `wordStates`。
+- `DELETE /api/vocabulary/judgements`：请求体 `{ bookId?, date?, words: string[] }`，最多 36 条；删除当前账号这些词的判定，用于“撤销上一页”。
+- `GET /api/vocabulary/session?bookId=...&date=...`：读取当前账号当天的轮次、游标、词序、困难词、历史和完成状态。
+- `PUT /api/vocabulary/session`：保存上述每日会话；同一 `userId + bookId + date` 覆盖更新。
+- `POST /api/vocabulary/reset`：请求体 `{ bookId?, date? }`，删除当前账号该词书当天的判定和每日会话；只影响当天，历史保留。
+- `GET /api/vocabulary/history?bookId=...&days=30`：按日期从新到旧返回当前词书的词数、会、不会、轮次和完成状态；`days` 默认 30，最大 365。
+- `GET /api/vocabulary/association?word=lesson`：公开接口，返回单个目标词的 `{ target, links: [{ word, sentence }] }` 或 `null`。
+- `GET /api/vocabulary/associations?words=lesson,apple,...`：公开接口，一次最多 36 个词，返回 `{ data: { networks: { [word]: { target, links } | null } } }`。客户端按 36 词批次预取，避免每次换词单独请求。
 
-`DELETE /api/vocabulary/judgements` 需要 session，请求体为 `{ "words": ["apple"] }`，最多 36 条，删除当前账号这些词的判定并返回剩余 `wordStates`；用于“撤销上一页”。
+关联数据来自 `src/modules/vocabulary/data/associations.json`。服务端首次读取后缓存在进程内，不在请求时生成模型；文件缺失或解析失败返回 500。单接口与批量接口共用同一份缓存。
 
-`POST /api/vocabulary/reset` 需要 session，请求体为 `{ "bookId": "parallel-world", "date": "2026-11-08" }`，删除当前账号该词书当天的判定和每日会话；用于“重新开始今天”。
-
-`GET /api/vocabulary/history?bookId=parallel-world&days=30` 需要 session，按日期从新到旧返回当前词书每天的词数、会、不会、轮次和完成状态；`days` 默认 30，最大 365。
-
-两个接口都位于 `src/server/api/routes/vocabulary/index.ts`，由 `src/server/api/index.ts` 挂载，使用统一 session guard 和 zValidator，读写 `word_state`。三个判定/状态接口都接受可选 `bookId` 和 `date`（`YYYY-MM-DD`）；缺省为 `parallel-world` 和服务器当日。`word_state` 按 `userId + bookId + localDate + word` 唯一。
-
-来源：REQ-ACCOUNT-001、AC-ACCOUNT-001；REQ-ACCOUNT-003、AC-ACCOUNT-003；REQ-ACCOUNT-005、AC-ACCOUNT-005。
+来源：REQ-ACCOUNT-001、REQ-ACCOUNT-003、REQ-ACCOUNT-005、REQ-ACCOUNT-008、REQ-ACCOUNT-009、REQ-ACCOUNT-011、REQ-ACCOUNT-012、REQ-ACCOUNT-013、REQ-ACCOUNT-014、REQ-ACCOUNT-015。
 
 ## 白纸英语目标 API
 

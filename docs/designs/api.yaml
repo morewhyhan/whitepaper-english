@@ -199,6 +199,7 @@ paths:
     get:
       operationId: getVocabularyAssociation
       summary: Read the cached 1:8 association for a target word
+      description: Public endpoint; reads the server-side association cache.
       parameters:
         - name: word
           in: query
@@ -208,6 +209,20 @@ paths:
       responses:
         '200':
           description: Association network or null
+  /api/vocabulary/associations:
+    get:
+      operationId: getVocabularyAssociations
+      summary: Read cached 1:8 associations for up to 36 words
+      parameters:
+        - name: words
+          in: query
+          required: true
+          description: Comma-separated target words, maximum 36.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Map of target word to association network or null
   /api/tasks:
     get:
       operationId: listTasks

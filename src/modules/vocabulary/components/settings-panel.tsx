@@ -159,7 +159,7 @@ export function SettingsPanel({
                   <span>每次点击词条或关联句时朗读</span>
                 </label>
                 <p className={styles.hint}>
-                  优先使用本地神经语音，首次加载需要一点时间；不可用时自动退回系统英文语音。
+                  优先使用本地神经语音，首次加载需要一点时间；不可用时自动退回系统英文语音。不提供手动音色选择。
                 </p>
               </section>
             )}
