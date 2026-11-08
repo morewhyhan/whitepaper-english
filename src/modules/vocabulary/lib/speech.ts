@@ -10,6 +10,26 @@ let kokoro: KokoroTTS | null = null
 let loading: Promise<KokoroTTS | null> | null = null
 let currentAudio: HTMLAudioElement | null = null
 const audioCache = new Map<string, string>()
+const pending = new Map<string, Promise<string | null>>()
+const HF_PREFIX =
+  'https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/'
+let localFetchInstalled = false
+
+function installLocalModelFetch() {
+  if (localFetchInstalled) return
+  localFetchInstalled = true
+  const original = window.fetch.bind(window)
+  window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+    const url =
+      typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+    if (url.startsWith(HF_PREFIX)) {
+      const local = '/kokoro/' + url.slice(HF_PREFIX.length).split('?')[0]
+      if (process.env.NODE_ENV !== 'production') console.info('[speech] local model', local)
+      return original(local, init)
+    }
+    return original(input, init)
+  }
+}
 
 function remember(text: string, url: string) {
   if (audioCache.size >= CACHE_LIMIT) {
@@ -92,7 +112,7 @@ function speakSystem(text: string) {
 
 export function warmSpeech() {
   if (typeof window === 'undefined' || kokoro || loading) return
-  if (navigator.onLine === false) return
+  installLocalModelFetch()
 
   // Loaded at runtime so the 50MB browser TTS graph never enters the app bundle.
   const loadKokoro = new Function(
@@ -103,7 +123,8 @@ export function warmSpeech() {
   }>
 
   const load = loadKokoro().then(({ KokoroTTS, env }) => {
-    env.wasmPaths = '/ort/'
+    if (process.env.NODE_ENV !== 'production') console.info('[speech] module loaded')
+    env.wasmPaths = window.location.origin + '/ort/'
     return KokoroTTS.from_pretrained(MODEL_ID, {
       dtype: 'q8',
       device: 'wasm',
@@ -117,7 +138,7 @@ export function warmSpeech() {
 
   loading = Promise.race([
     load,
-    new Promise<null>((resolve) => window.setTimeout(() => resolve(null), 60_000)),
+    new Promise<null>((resolve) => window.setTimeout(() => resolve(null), 120_000)),
   ])
     .then((instance) => {
       if (instance) kokoro = instance
@@ -128,23 +149,38 @@ export function warmSpeech() {
       return null
     })
     .finally(() => {
-      if (!kokoro) loading = null
+      loading = null
     })
 }
 
-async function speakKokoro(text: string) {
-  if (!kokoro) return false
-  try {
-    const audio = await kokoro.generate(text, { voice: VOICE, speed: 0.94 })
-    const blob = audio.toBlob()
-    const url = URL.createObjectURL(blob)
-    remember(text, url)
-    playUrl(url)
-    return true
-  } catch (error) {
-    if (process.env.NODE_ENV !== 'production')
-      console.warn('[speech] Kokoro generate failed', error)
-    return false
+async function renderKokoro(text: string): Promise<string | null> {
+  if (!kokoro) return null
+  const cached = audioCache.get(text)
+  if (cached) return cached
+  const existing = pending.get(text)
+  if (existing) return existing
+  const job = kokoro
+    .generate(text, { voice: VOICE, speed: 0.94 })
+    .then((audio) => {
+      const url = URL.createObjectURL(audio.toBlob())
+      remember(text, url)
+      return url
+    })
+    .catch((error) => {
+      if (process.env.NODE_ENV !== 'production')
+        console.warn('[speech] Kokoro generate failed', error)
+      return null
+    })
+    .finally(() => pending.delete(text))
+  pending.set(text, job)
+  return job
+}
+
+export function prefetchSpeech(texts: string[]) {
+  if (!kokoro) return
+  for (const raw of new Set(texts.map((text) => text.trim()).filter(Boolean))) {
+    if (audioCache.has(raw) || pending.has(raw)) continue
+    void renderKokoro(raw)
   }
 }
 
@@ -162,8 +198,11 @@ export async function speakText(text: string) {
   }
 
   if (kokoro) {
-    const ok = await speakKokoro(clean)
-    if (ok) return
+    const url = await renderKokoro(clean)
+    if (url) {
+      playUrl(url)
+      return
+    }
   }
 
   speakSystem(clean)
@@ -173,5 +212,9 @@ export async function speakText(text: string) {
 if (typeof window !== 'undefined') {
   ;(
     window as unknown as { __whiteSpeech: () => { ready: boolean; loading: boolean } }
-  ).__whiteSpeech = () => ({ ready: Boolean(kokoro), loading: Boolean(loading) })
+  ).__whiteSpeech = () => ({
+    ready: Boolean(kokoro),
+    loading: Boolean(loading),
+    cached: audioCache.size,
+  })
 }

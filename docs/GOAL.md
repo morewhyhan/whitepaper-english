@@ -44,7 +44,7 @@ flowchart LR
 ## 三、金字塔（文字）
 
 <!-- goal-summary -->
-合计 28 条：已验证 28
+合计 31 条：已验证 31
 <!-- /goal-summary -->
 
 - **目标**：让一个人每天在一张纸上完成词汇自评、理解与清零。
@@ -171,6 +171,27 @@ flowchart LR
       - 规则：学习记录按天返回当前词书的词数、会、不会、轮次和是否完成；日期从新到旧。
       - AC-ACCOUNT-011（REQ-ACCOUNT-011）：Given 账号有 2026-11-07 和 2026-11-08 两天的会话与判定，When 请求学习记录，Then 按日期从新到旧返回词数、会、不会、轮次和完成状态。
         - **测试用例**：账号有 2026-11-07 和 2026-11-08 两天的会话与判定，When 请求学习记录 ｜ **状态**：已验证 ｜ [用例](others/test-cases/product.md) · [tests](../tests/api/vocabulary-history.test.ts) · [查看](others/evidence/goal-runs/2026-11-08-21-49.txt)
+  - **体验领域**（支撑子域）
+    - 事件链：点击 → 发声/反馈 → 切换
+    - 聚合：声音、视觉、动效
+    - 边界：管体感；不管词汇判定、账户归属或数据生成
+    - 为什么这样切：声音、视觉和动效共享“用户是否愿意停留”的同一目标；混进词汇领域会让内容质量与体感质量互相掩盖
+    - 术语：神经语音 = 本地 Kokoro 生成的自然英文声音；纸面同底 = 句子与纸张使用同一底色
+    - **REQ-EXPERIENCE-001 发音优先本地神经语音**
+      - 来源事件：点击词条、点击关联句
+      - 规则：模型就绪时播放神经语音；未就绪或失败才用系统英文语音；不提供手动音色选择
+      - AC-EXPERIENCE-001（REQ-EXPERIENCE-001）：Given 本地神经语音已加载，When 点击词条或关联句，Then 播放神经语音；只有未就绪或失败时才用系统语音，界面没有手动音色选择。
+        - **测试用例**：点击词条或句子 → 听到自然神经语音 ｜ **状态**：已验证 ｜ [用例](others/test-cases/vocabulary.md) · [tests](../tests/contracts/experience.test.ts) · [查看](others/evidence/goal-runs/2026-11-08-22-24.txt)
+    - **REQ-EXPERIENCE-002 关联句与纸面同底**
+      - 来源事件：打开关联辅助、悬停节点
+      - 规则：句子、词和节点使用纸面底色，不出现孤立白块；悬停整块一致
+      - AC-EXPERIENCE-002（REQ-EXPERIENCE-002）：Given 打开关联辅助，When 查看或悬停 8 个句子节点，Then 句子与纸面同底，没有白色色块，节点整体反馈一致。
+        - **测试用例**：查看关联辅助 → 句子与纸面融合 ｜ **状态**：已验证 ｜ [用例](others/test-cases/vocabulary.md) · [tests](../tests/contracts/experience.test.ts) · [查看](others/evidence/goal-runs/2026-11-08-22-24.txt)
+    - **REQ-EXPERIENCE-003 动效短且可关闭**
+      - 来源事件：换词、切换模块、系统减少动态
+      - 规则：节点 150ms 渐入；减少动态时关闭；tab 位置稳定
+      - AC-EXPERIENCE-003（REQ-EXPERIENCE-003）：Given 切换下一词、切换模块或系统开启减少动态，When 页面更新，Then 节点 150ms 渐入或关闭动画，顶部 tab 位置保持稳定。
+        - **测试用例**：换词/切模块 → 动效短且 tab 不跳 ｜ **状态**：已验证 ｜ [用例](others/test-cases/vocabulary.md) · [tests](../tests/contracts/experience.test.ts) · [查看](others/evidence/goal-runs/2026-11-08-22-24.txt)
   - **外壳（非领域）**
     - 事件链：打开产品 → 切换模块 → 打开设置
     - 聚合：导航、设置面板、页面外壳

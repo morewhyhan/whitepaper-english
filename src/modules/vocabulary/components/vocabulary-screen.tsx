@@ -32,7 +32,7 @@ import {
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import { useClearJudgements } from '../hooks/use-clear-judgements'
 import { useAssociations, usePrefetchAssociations } from '../hooks/use-association'
-import { speakText } from '../lib/speech'
+import { prefetchSpeech, speakText, warmSpeech } from '../lib/speech'
 import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
 import { useResetToday } from '../hooks/use-reset-today'
 import { useStudyHistory, type StudyHistoryDay } from '../hooks/use-study-history'
@@ -134,6 +134,10 @@ export function VocabularyScreen() {
     if (savedBook === 'starter') setActiveBookId('starter')
     setSoundOn(window.localStorage.getItem('whitepaper-sound') !== 'off')
   }, [today])
+
+  useEffect(() => {
+    warmSpeech()
+  }, [])
 
   useEffect(() => {
     const remote = dailySession.data?.session
@@ -1214,9 +1218,14 @@ function AssociationView({
     nextWords,
     `${session.round}:${chunkStart + 36}:${session.ids[chunkStart + 36] ?? ''}`,
   )
+  const network = word
+    ? (batch.data?.[word.en.toLowerCase()] ?? getAssociation(networks, word))
+    : undefined
+  const loading = Boolean(word) && batch.isLoading && !network
+  useEffect(() => {
+    if (network) prefetchSpeech(network.links.map((link) => link.sentence))
+  }, [network])
   if (!word) return <div className={styles.paperInner} />
-  const network = batch.data?.[word.en.toLowerCase()] ?? getAssociation(networks, word)
-  const loading = batch.isLoading && !network
   const mark = session.marks[word.id]
 
   return (

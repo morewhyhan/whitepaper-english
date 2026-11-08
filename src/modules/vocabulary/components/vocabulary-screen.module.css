@@ -897,11 +897,21 @@
 .assocSentence {
   display: block;
   max-width: 220px;
-  padding: 0 3px;
-  background: white;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: transparent;
   color: #616c63;
   font-size: 12.5px;
-  line-height: 1.4;
+  line-height: 1.45;
+  transition: background-color 160ms ease;
+}
+
+.assocNode:hover .assocSentence {
+  background: #f7f4ea;
+}
+
+.assocNode:hover .assocWord {
+  color: #2f4a35;
 }
 
 .assocSentence strong {
@@ -2210,6 +2220,9 @@
     transition: none;
   }
   .dialog {
+    animation: none;
+  }
+  .assocNode {
     animation: none;
   }
 }
