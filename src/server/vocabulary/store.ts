@@ -5,9 +5,17 @@ export type WordState = {
   known: boolean
 }
 
-export async function listWordStates(prisma: PrismaClient, userId: string): Promise<WordState[]> {
+const DEFAULT_BOOK = 'parallel-world'
+const DEFAULT_DATE = '1970-01-01'
+
+export async function listWordStates(
+  prisma: PrismaClient,
+  userId: string,
+  bookId = DEFAULT_BOOK,
+  localDate = DEFAULT_DATE,
+): Promise<WordState[]> {
   return prisma.word_state.findMany({
-    where: { userId },
+    where: { userId, bookId, localDate },
     orderBy: { word: 'asc' },
     select: { word: true, known: true },
   })
@@ -17,22 +25,26 @@ export async function clearWordStates(
   prisma: PrismaClient,
   userId: string,
   words: string[],
+  bookId = DEFAULT_BOOK,
+  localDate = DEFAULT_DATE,
 ): Promise<void> {
   await prisma.word_state.deleteMany({
-    where: { userId, word: { in: words } },
+    where: { userId, bookId, localDate, word: { in: words } },
   })
 }
 
 export async function setWordStates(
   prisma: PrismaClient,
   userId: string,
+  bookId: string,
+  localDate: string,
   judgements: WordState[],
 ): Promise<void> {
   await prisma.$transaction(
     judgements.map(({ word, known }) =>
       prisma.word_state.upsert({
-        where: { userId_word: { userId, word } },
-        create: { userId, word, known },
+        where: { userId_bookId_localDate_word: { userId, bookId, localDate, word } },
+        create: { userId, bookId, localDate, word, known },
         update: { known },
       }),
     ),
@@ -44,10 +56,12 @@ export async function setWordState(
   userId: string,
   word: string,
   known: boolean,
+  bookId = DEFAULT_BOOK,
+  localDate = DEFAULT_DATE,
 ): Promise<void> {
   await prisma.word_state.upsert({
-    where: { userId_word: { userId, word } },
-    create: { userId, word, known },
+    where: { userId_bookId_localDate_word: { userId, bookId, localDate, word } },
+    create: { userId, bookId, localDate, word, known },
     update: { known },
   })
 }

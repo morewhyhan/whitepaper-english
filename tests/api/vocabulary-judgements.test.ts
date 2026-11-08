@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { PrismaClient } from '@prisma/client'
 import { afterAll, beforeAll, expect, it } from 'vitest'
 import { databaseTestAdapter } from '../../scripts/testing/database-adapter.mjs'
+import { openMigratedDatabase } from '../support/apply-migrations'
 
 const workspace = mkdtempSync(join(tmpdir(), 'whitepaper-judge-'))
 const databasePath = join(workspace, 'judge.db')
@@ -35,19 +36,7 @@ async function signUp(email: string, name: string) {
 }
 
 beforeAll(async () => {
-  const database = databaseTestAdapter.openFile(databasePath)
-  database.exec(
-    readFileSync(
-      join(process.cwd(), 'prisma/migrations/20260726000000_init/migration.sql'),
-      'utf8',
-    ),
-  )
-  database.exec(
-    readFileSync(
-      join(process.cwd(), 'prisma/migrations/20261108000000_add_word_state/migration.sql'),
-      'utf8',
-    ),
-  )
+  const database = openMigratedDatabase(databasePath)
   database.close()
 
   ;({ default: api } = await import('@/server/api'))

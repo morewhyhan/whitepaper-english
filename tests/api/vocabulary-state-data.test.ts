@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { PrismaClient } from '@prisma/client'
 import { afterAll, beforeAll, expect, it } from 'vitest'
 import { databaseTestAdapter } from '../../scripts/testing/database-adapter.mjs'
+import { openMigratedDatabase } from '../support/apply-migrations'
 
 const workspace = mkdtempSync(join(tmpdir(), 'whitepaper-state-'))
 const databasePath = join(workspace, 'state.db')
@@ -18,19 +19,7 @@ let api: Api
 let cookie = ''
 
 beforeAll(async () => {
-  const database = databaseTestAdapter.openFile(databasePath)
-  database.exec(
-    readFileSync(
-      join(process.cwd(), 'prisma/migrations/20260726000000_init/migration.sql'),
-      'utf8',
-    ),
-  )
-  database.exec(
-    readFileSync(
-      join(process.cwd(), 'prisma/migrations/20261108000000_add_word_state/migration.sql'),
-      'utf8',
-    ),
-  )
+  const database = openMigratedDatabase(databasePath)
   database.close()
 
   const { auth } = await import('@/server/auth')
@@ -53,7 +42,13 @@ beforeAll(async () => {
 
   const seed = new PrismaClient()
   await seed.word_state.create({
-    data: { userId: payload.user?.id ?? '', word: 'apple', known: true },
+    data: {
+      userId: payload.user?.id ?? '',
+      bookId: 'parallel-world',
+      localDate: new Date().toISOString().slice(0, 10),
+      word: 'apple',
+      known: true,
+    },
   })
   await seed.$disconnect()
 })

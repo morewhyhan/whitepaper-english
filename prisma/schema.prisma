@@ -91,6 +91,8 @@ model verification {
 model word_state {
   id        String   @id @default(uuid())
   userId    String
+  bookId    String   @default("parallel-world")
+  localDate String   @default("1970-01-01")
   word      String
   known     Boolean
   createdAt DateTime @default(now())
@@ -98,8 +100,8 @@ model word_state {
 
   user user @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, word])
-  @@index([userId])
+  @@unique([userId, bookId, localDate, word])
+  @@index([userId, bookId, localDate])
 }
 
 model daily_session {

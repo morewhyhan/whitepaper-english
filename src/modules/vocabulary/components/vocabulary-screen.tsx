@@ -267,7 +267,7 @@ export function VocabularyScreen() {
     if (!judgements.length) return true
 
     try {
-      await saveJudgements.mutateAsync({ judgements })
+      await saveJudgements.mutateAsync({ bookId: activeBookId, date: today, judgements })
       return true
     } catch {
       setNotice('判定提交失败，请重试')
@@ -321,7 +321,11 @@ export function VocabularyScreen() {
     if (authSession?.user) {
       const page = pageWords(state.words, undoSession)
       try {
-        await clearJudgements.mutateAsync({ words: page.map((word) => word.en) })
+        await clearJudgements.mutateAsync({
+          bookId: activeBookId,
+          date: today,
+          words: page.map((word) => word.en),
+        })
       } catch {
         setNotice('撤销失败，请重试')
         return

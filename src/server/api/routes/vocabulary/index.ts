@@ -11,8 +11,16 @@ import {
 import { requireUserId } from '../../session'
 import { zValidator } from '../../validator'
 
+const datePattern = /^\d{4}-\d{2}-\d{2}$/
+
+function localDate() {
+  return new Date().toISOString().slice(0, 10)
+}
+
 const judgementSchema = z
   .object({
+    bookId: z.string().trim().min(1).max(64).optional(),
+    date: z.string().regex(datePattern).optional(),
     judgements: z
       .array(
         z
@@ -29,9 +37,16 @@ const judgementSchema = z
 
 const clearSchema = z
   .object({
+    bookId: z.string().trim().min(1).max(64).optional(),
+    date: z.string().regex(datePattern).optional(),
     words: z.array(z.string().trim().min(1).max(120)).min(1).max(36),
   })
   .strict()
+
+const stateQuerySchema = z.object({
+  bookId: z.string().trim().min(1).max(64).optional(),
+  date: z.string().regex(datePattern).optional(),
+})
 
 const sessionQuerySchema = z
   .object({
@@ -65,29 +80,30 @@ const sessionSchema = z
 
 const vocabulary = new Hono().basePath('/vocabulary')
 
-vocabulary.get('/state', async (c) => {
+vocabulary.get('/state', zValidator('query', stateQuerySchema), async (c) => {
   const userId = await requireUserId(c.req.raw.headers)
-  const wordStates = await listWordStates(prisma, userId)
+  const { bookId = 'parallel-world', date = localDate() } = c.req.valid('query')
+  const wordStates = await listWordStates(prisma, userId, bookId, date)
 
   return c.json({ data: { activeBook: null, wordStates } })
 })
 
 vocabulary.post('/judgements', zValidator('json', judgementSchema), async (c) => {
   const userId = await requireUserId(c.req.raw.headers)
-  const { judgements } = c.req.valid('json')
+  const { bookId = 'parallel-world', date = localDate(), judgements } = c.req.valid('json')
 
-  await setWordStates(prisma, userId, judgements)
-  const wordStates = await listWordStates(prisma, userId)
+  await setWordStates(prisma, userId, bookId, date, judgements)
+  const wordStates = await listWordStates(prisma, userId, bookId, date)
 
   return c.json({ data: { activeBook: null, wordStates } })
 })
 
 vocabulary.delete('/judgements', zValidator('json', clearSchema), async (c) => {
   const userId = await requireUserId(c.req.raw.headers)
-  const { words } = c.req.valid('json')
+  const { bookId = 'parallel-world', date = localDate(), words } = c.req.valid('json')
 
-  await clearWordStates(prisma, userId, words)
-  const wordStates = await listWordStates(prisma, userId)
+  await clearWordStates(prisma, userId, words, bookId, date)
+  const wordStates = await listWordStates(prisma, userId, bookId, date)
 
   return c.json({ data: { activeBook: null, wordStates } })
 })

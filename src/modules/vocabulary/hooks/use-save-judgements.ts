@@ -2,6 +2,8 @@ import { readApiJson } from '@/lib/api-client'
 import { useMutation } from '@tanstack/react-query'
 
 export type JudgementInput = {
+  bookId: string
+  date: string
   judgements: { word: string; known: boolean }[]
 }
 

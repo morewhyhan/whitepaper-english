@@ -68,6 +68,8 @@ CREATE TABLE "word_state" (
   "known" BOOLEAN NOT NULL,
   "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" DATETIME NOT NULL,
+  "bookId" TEXT NOT NULL DEFAULT 'parallel-world',
+  "localDate" TEXT NOT NULL DEFAULT '1970-01-01',
   FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -90,7 +92,7 @@ CREATE TABLE "daily_session" (
 CREATE INDEX "session_userId_idx" ON "session" ("userId");
 CREATE INDEX "account_userId_idx" ON "account" ("userId");
 CREATE INDEX "task_userId_createdAt_idx" ON "task" ("userId", "createdAt");
-CREATE UNIQUE INDEX "word_state_userId_word_key" ON "word_state" ("userId", "word");
-CREATE INDEX "word_state_userId_idx" ON "word_state" ("userId");
+CREATE UNIQUE INDEX "word_state_userId_bookId_localDate_word_key" ON "word_state" ("userId", "bookId", "localDate", "word");
+CREATE INDEX "word_state_userId_bookId_localDate_idx" ON "word_state" ("userId", "bookId", "localDate");
 CREATE UNIQUE INDEX "daily_session_userId_bookId_localDate_key" ON "daily_session" ("userId", "bookId", "localDate");
 CREATE INDEX "daily_session_userId_localDate_idx" ON "daily_session" ("userId", "localDate");
