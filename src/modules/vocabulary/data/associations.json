@@ -1,0 +1,3702 @@
+{
+  "lesson": {
+    "target": "lesson",
+    "links": [
+      {
+        "word": "easy",
+        "sentence": "This lesson is easy for me."
+      },
+      {
+        "word": "teacher",
+        "sentence": "Our teacher gave us a short lesson."
+      },
+      {
+        "word": "long",
+        "sentence": "The lesson was long and quite boring."
+      },
+      {
+        "word": "today",
+        "sentence": "We have no lesson today."
+      },
+      {
+        "word": "hard",
+        "sentence": "That lesson was hard for the class."
+      },
+      {
+        "word": "useful",
+        "sentence": "This lesson is really useful for travel."
+      },
+      {
+        "word": "students",
+        "sentence": "The lesson bored most of the students."
+      },
+      {
+        "word": "remember",
+        "sentence": "I always remember every new lesson."
+      }
+    ]
+  },
+  "excuse": {
+    "target": "excuse",
+    "links": [
+      {
+        "word": "late",
+        "sentence": "Please excuse me for being late."
+      },
+      {
+        "word": "weak",
+        "sentence": "He made a weak excuse about traffic."
+      },
+      {
+        "word": "seat",
+        "sentence": "Excuse me, is this seat free?"
+      },
+      {
+        "word": "good",
+        "sentence": "He gave a good excuse for missing class."
+      },
+      {
+        "word": "leave",
+        "sentence": "I must excuse myself and leave now."
+      },
+      {
+        "word": "honest",
+        "sentence": "Her excuse sounded honest enough to me."
+      },
+      {
+        "word": "tired",
+        "sentence": "Please excuse my tired voice today."
+      },
+      {
+        "word": "small",
+        "sentence": "We can excuse one small mistake."
+      }
+    ]
+  },
+  "listen": {
+    "target": "listen",
+    "links": [
+      {
+        "word": "teacher",
+        "sentence": "Please listen to the teacher carefully."
+      },
+      {
+        "word": "music",
+        "sentence": "I listen to music every night."
+      },
+      {
+        "word": "answer",
+        "sentence": "Listen carefully before you answer me."
+      },
+      {
+        "word": "radio",
+        "sentence": "We listen to the radio in bed."
+      },
+      {
+        "word": "advice",
+        "sentence": "He never listens to my advice."
+      },
+      {
+        "word": "birds",
+        "sentence": "Listen to the birds outside the window."
+      },
+      {
+        "word": "mother",
+        "sentence": "She always listens to her mother."
+      },
+      {
+        "word": "song",
+        "sentence": "Listen to this song with me."
+      }
+    ]
+  },
+  "tape": {
+    "target": "tape",
+    "links": [
+      {
+        "word": "box",
+        "sentence": "The tape is stuck to the box."
+      },
+      {
+        "word": "gift",
+        "sentence": "I use tape to wrap the gift."
+      },
+      {
+        "word": "old",
+        "sentence": "He played the old tape again."
+      },
+      {
+        "word": "scissors",
+        "sentence": "She cut the tape with scissors."
+      },
+      {
+        "word": "broke",
+        "sentence": "The tape broke near the end."
+      },
+      {
+        "word": "red",
+        "sentence": "Please pass me the red tape."
+      },
+      {
+        "word": "wall",
+        "sentence": "We taped the poster to the wall."
+      },
+      {
+        "word": "paper",
+        "sentence": "This tape holds the paper together."
+      }
+    ]
+  },
+  "then": {
+    "target": "then",
+    "links": [
+      {
+        "word": "park",
+        "sentence": "We ate, then walked to the park."
+      },
+      {
+        "word": "younger",
+        "sentence": "I was younger then, and careless."
+      },
+      {
+        "word": "rain",
+        "sentence": "Then the rain stopped at last."
+      },
+      {
+        "word": "finish",
+        "sentence": "Finish your work, then go home."
+      },
+      {
+        "word": "called",
+        "sentence": "She called me then and there."
+      },
+      {
+        "word": "smiled",
+        "sentence": "Then he smiled at the child."
+      },
+      {
+        "word": "simpler",
+        "sentence": "Back then, life felt much simpler."
+      },
+      {
+        "word": "noise",
+        "sentence": "Then we heard a loud noise."
+      }
+    ]
+  },
+  "answer": {
+    "target": "answer",
+    "links": [
+      {
+        "word": "question",
+        "sentence": "Please answer my question quickly."
+      },
+      {
+        "word": "right",
+        "sentence": "Her answer was right and clear."
+      },
+      {
+        "word": "puzzle",
+        "sentence": "I cannot answer this puzzle yet."
+      },
+      {
+        "word": "phone",
+        "sentence": "He answered the phone at once."
+      },
+      {
+        "word": "surprised",
+        "sentence": "The answer surprised everyone in class."
+      },
+      {
+        "word": "think",
+        "sentence": "Think before you answer the teacher."
+      },
+      {
+        "word": "nobody",
+        "sentence": "Nobody knew the answer yesterday."
+      },
+      {
+        "word": "honest",
+        "sentence": "Your answer sounds honest to me."
+      }
+    ]
+  },
+  "question": {
+    "target": "question",
+    "links": [
+      {
+        "word": "ask",
+        "sentence": "May I ask you a question?"
+      },
+      {
+        "word": "easy",
+        "sentence": "That question has no easy answer."
+      },
+      {
+        "word": "teacher",
+        "sentence": "The teacher asked a difficult question."
+      },
+      {
+        "word": "think",
+        "sentence": "Your question makes me think hard."
+      },
+      {
+        "word": "nobody",
+        "sentence": "Nobody answered my simple question."
+      },
+      {
+        "word": "plan",
+        "sentence": "He asked questions about the new plan."
+      },
+      {
+        "word": "remains",
+        "sentence": "One question remains in my mind."
+      },
+      {
+        "word": "surprised",
+        "sentence": "The question surprised the whole class."
+      }
+    ]
+  },
+  "whose": {
+    "target": "whose",
+    "links": [
+      {
+        "word": "bag",
+        "sentence": "Whose bag is on the table?"
+      },
+      {
+        "word": "book",
+        "sentence": "I know whose book this is."
+      },
+      {
+        "word": "turn",
+        "sentence": "Whose turn is it to wash?"
+      },
+      {
+        "word": "car",
+        "sentence": "Tell me whose car is parked outside."
+      },
+      {
+        "word": "idea",
+        "sentence": "Whose idea was this funny game?"
+      },
+      {
+        "word": "coat",
+        "sentence": "Do you know whose coat this is?"
+      },
+      {
+        "word": "name",
+        "sentence": "Whose name is written on the list?"
+      },
+      {
+        "word": "phone",
+        "sentence": "Whose phone keeps ringing so loudly?"
+      }
+    ]
+  },
+  "handbag": {
+    "target": "handbag",
+    "links": [
+      {
+        "word": "matches",
+        "sentence": "Her handbag matches her new shoes."
+      },
+      {
+        "word": "left",
+        "sentence": "I left my handbag on the bus."
+      },
+      {
+        "word": "heavy",
+        "sentence": "The handbag is too heavy for me."
+      },
+      {
+        "word": "opened",
+        "sentence": "She opened her handbag and found keys."
+      },
+      {
+        "word": "cost",
+        "sentence": "This handbag cost a lot of money."
+      },
+      {
+        "word": "held",
+        "sentence": "His handbag held a small notebook."
+      },
+      {
+        "word": "black",
+        "sentence": "The black handbag looks very nice."
+      },
+      {
+        "word": "stole",
+        "sentence": "Someone stole her handbag at the market."
+      }
+    ]
+  },
+  "pardon": {
+    "target": "pardon",
+    "links": [
+      {
+        "word": "hear",
+        "sentence": "Pardon me, I did not hear you."
+      },
+      {
+        "word": "beg",
+        "sentence": "I beg your pardon, sir."
+      },
+      {
+        "word": "late",
+        "sentence": "Pardon my late arrival this morning."
+      },
+      {
+        "word": "judge",
+        "sentence": "She asked for a pardon from the judge."
+      },
+      {
+        "word": "interrupting",
+        "sentence": "Pardon me for interrupting your talk."
+      },
+      {
+        "word": "king",
+        "sentence": "The king granted him a full pardon."
+      },
+      {
+        "word": "messy",
+        "sentence": "Pardon my messy desk and papers."
+      },
+      {
+        "word": "stepped",
+        "sentence": "He said pardon and stepped aside."
+      }
+    ]
+  },
+  "thank": {
+    "target": "thank",
+    "links": [
+      {
+        "word": "help",
+        "sentence": "I thank you for your help."
+      },
+      {
+        "word": "teacher",
+        "sentence": "We thank our teacher every day."
+      },
+      {
+        "word": "warm",
+        "sentence": "She thanked me with a warm smile."
+      },
+      {
+        "word": "lovely",
+        "sentence": "Thank you for the lovely gift."
+      },
+      {
+        "word": "everyone",
+        "sentence": "Let me thank everyone for coming."
+      },
+      {
+        "word": "driver",
+        "sentence": "He thanked the driver and left."
+      },
+      {
+        "word": "waiting",
+        "sentence": "Thank you very much for waiting."
+      },
+      {
+        "word": "wonderful",
+        "sentence": "They thanked us for the wonderful dinner."
+      }
+    ]
+  },
+  "very": {
+    "target": "very",
+    "links": [
+      {
+        "word": "soup",
+        "sentence": "The soup is very hot today."
+      },
+      {
+        "word": "fast",
+        "sentence": "She runs very fast in the morning."
+      },
+      {
+        "word": "tired",
+        "sentence": "I am very tired after work."
+      },
+      {
+        "word": "comfortable",
+        "sentence": "This chair is very comfortable."
+      },
+      {
+        "word": "quietly",
+        "sentence": "He speaks very quietly in class."
+      },
+      {
+        "word": "cold",
+        "sentence": "It was very cold last night."
+      },
+      {
+        "word": "happy",
+        "sentence": "You look very happy this morning."
+      },
+      {
+        "word": "late",
+        "sentence": "The train arrived very late again."
+      }
+    ]
+  },
+  "much": {
+    "target": "much",
+    "links": [
+      {
+        "word": "money",
+        "sentence": "I don't have much money left."
+      },
+      {
+        "word": "cost",
+        "sentence": "How much does this cost?"
+      },
+      {
+        "word": "talks",
+        "sentence": "She talks too much during films."
+      },
+      {
+        "word": "enjoyed",
+        "sentence": "We enjoyed the trip very much."
+      },
+      {
+        "word": "cake",
+        "sentence": "Much of the cake was eaten."
+      },
+      {
+        "word": "read",
+        "sentence": "He doesn't read much these days."
+      },
+      {
+        "word": "coming",
+        "sentence": "Thank you so much for coming."
+      },
+      {
+        "word": "time",
+        "sentence": "There isn't much time before noon."
+      }
+    ]
+  },
+  "sorry": {
+    "target": "sorry",
+    "links": [
+      {
+        "word": "mistake",
+        "sentence": "I am sorry for the mistake."
+      },
+      {
+        "word": "lost",
+        "sentence": "She felt sorry for the lost dog."
+      },
+      {
+        "word": "forgot",
+        "sentence": "Sorry, I forgot your name again."
+      },
+      {
+        "word": "loud",
+        "sentence": "We are sorry about the loud noise."
+      },
+      {
+        "word": "walked",
+        "sentence": "He said sorry and walked away."
+      },
+      {
+        "word": "sad",
+        "sentence": "I feel sorry for his sad family."
+      },
+      {
+        "word": "bother",
+        "sentence": "Sorry to bother you so early."
+      },
+      {
+        "word": "leave",
+        "sentence": "They were sorry to leave the party."
+      }
+    ]
+  },
+  "coat": {
+    "target": "coat",
+    "links": [
+      {
+        "word": "outside",
+        "sentence": "Wear your coat when you go outside."
+      },
+      {
+        "word": "hanging",
+        "sentence": "My coat is hanging by the door."
+      },
+      {
+        "word": "warm",
+        "sentence": "This coat keeps me warm in winter."
+      },
+      {
+        "word": "black",
+        "sentence": "He wore a black coat to work."
+      },
+      {
+        "word": "broken",
+        "sentence": "The coat has a broken zipper."
+      },
+      {
+        "word": "bought",
+        "sentence": "She bought a new coat yesterday."
+      },
+      {
+        "word": "wet",
+        "sentence": "Your coat looks wet from the rain."
+      },
+      {
+        "word": "hang",
+        "sentence": "Hang your coat behind the chair."
+      }
+    ]
+  },
+  "umbrella": {
+    "target": "umbrella",
+    "links": [
+      {
+        "word": "rain",
+        "sentence": "Take an umbrella, it might rain."
+      },
+      {
+        "word": "broke",
+        "sentence": "My umbrella broke in the strong wind."
+      },
+      {
+        "word": "left",
+        "sentence": "She left her umbrella on the train."
+      },
+      {
+        "word": "wooden",
+        "sentence": "This umbrella has a wooden handle."
+      },
+      {
+        "word": "open",
+        "sentence": "Open your umbrella before you get wet."
+      },
+      {
+        "word": "red",
+        "sentence": "The red umbrella stands by the door."
+      },
+      {
+        "word": "borrowed",
+        "sentence": "I borrowed an umbrella from a friend."
+      },
+      {
+        "word": "big",
+        "sentence": "Our umbrella is too big for the bag."
+      }
+    ]
+  },
+  "please": {
+    "target": "please",
+    "links": [
+      {
+        "word": "close",
+        "sentence": "Please close the window, it's cold."
+      },
+      {
+        "word": "speak",
+        "sentence": "Could you please speak more slowly?"
+      },
+      {
+        "word": "salt",
+        "sentence": "Please pass me the salt."
+      },
+      {
+        "word": "smiled",
+        "sentence": "She said please and smiled sweetly."
+      },
+      {
+        "word": "shout",
+        "sentence": "Please don't shout in the library."
+      },
+      {
+        "word": "carry",
+        "sentence": "Please help me carry these boxes."
+      },
+      {
+        "word": "wait",
+        "sentence": "Please wait here for a minute."
+      },
+      {
+        "word": "call",
+        "sentence": "Please call me when you arrive."
+      }
+    ]
+  },
+  "here": {
+    "target": "here",
+    "links": [
+      {
+        "word": "come",
+        "sentence": "Come here and sit beside me."
+      },
+      {
+        "word": "lived",
+        "sentence": "I have lived here for ten years."
+      },
+      {
+        "word": "coffee",
+        "sentence": "Here is your coffee and cake."
+      },
+      {
+        "word": "nobody",
+        "sentence": "Nobody was here when I arrived."
+      },
+      {
+        "word": "boxes",
+        "sentence": "Put the boxes here by the wall."
+      },
+      {
+        "word": "stay",
+        "sentence": "We will stay here until tomorrow."
+      },
+      {
+        "word": "bus",
+        "sentence": "Here comes the bus at last."
+      },
+      {
+        "word": "quiet",
+        "sentence": "It is quiet and peaceful here."
+      }
+    ]
+  },
+  "ticket": {
+    "target": "ticket",
+    "links": [
+      {
+        "word": "bought",
+        "sentence": "I bought a ticket for the show."
+      },
+      {
+        "word": "show",
+        "sentence": "Show me your ticket, please."
+      },
+      {
+        "word": "costs",
+        "sentence": "The train ticket costs twenty pounds."
+      },
+      {
+        "word": "lost",
+        "sentence": "He lost his ticket on the bus."
+      },
+      {
+        "word": "kept",
+        "sentence": "She kept the old ticket in her bag."
+      },
+      {
+        "word": "enough",
+        "sentence": "One ticket is enough for two people."
+      },
+      {
+        "word": "office",
+        "sentence": "The ticket office opens at nine."
+      },
+      {
+        "word": "check",
+        "sentence": "Please check your ticket before boarding."
+      }
+    ]
+  },
+  "number": {
+    "target": "number",
+    "links": [
+      {
+        "word": "phone",
+        "sentence": "What is your phone number?"
+      },
+      {
+        "word": "write",
+        "sentence": "Write the number on this paper."
+      },
+      {
+        "word": "seven",
+        "sentence": "The number seven is my lucky one."
+      },
+      {
+        "word": "large",
+        "sentence": "A large number of people came."
+      },
+      {
+        "word": "changed",
+        "sentence": "Her number changed last week."
+      },
+      {
+        "word": "count",
+        "sentence": "Count the number of empty seats."
+      },
+      {
+        "word": "forgot",
+        "sentence": "I forgot the room number again."
+      },
+      {
+        "word": "missing",
+        "sentence": "The number on the door is missing."
+      }
+    ]
+  },
+  "five": {
+    "target": "five",
+    "links": [
+      {
+        "word": "brothers",
+        "sentence": "I have five brothers and sisters."
+      },
+      {
+        "word": "meeting",
+        "sentence": "The meeting starts at five o'clock."
+      },
+      {
+        "word": "absent",
+        "sentence": "Five students were absent today."
+      },
+      {
+        "word": "minutes",
+        "sentence": "She waited five long minutes."
+      },
+      {
+        "word": "birds",
+        "sentence": "Five birds sat on the fence."
+      },
+      {
+        "word": "miles",
+        "sentence": "We walked five miles to town."
+      },
+      {
+        "word": "stayed",
+        "sentence": "Only five people stayed after lunch."
+      },
+      {
+        "word": "scored",
+        "sentence": "He scored five points in the game."
+      }
+    ]
+  },
+  "nice": {
+    "target": "nice",
+    "links": [
+      {
+        "word": "cup",
+        "sentence": "That was a nice cup of tea."
+      },
+      {
+        "word": "smile",
+        "sentence": "She has a nice smile."
+      },
+      {
+        "word": "weather",
+        "sentence": "The weather is nice today."
+      },
+      {
+        "word": "meet",
+        "sentence": "It was nice to meet you."
+      },
+      {
+        "word": "always",
+        "sentence": "He is always nice to strangers."
+      },
+      {
+        "word": "quiet",
+        "sentence": "This is a nice quiet room."
+      },
+      {
+        "word": "warm",
+        "sentence": "They gave us a nice warm welcome."
+      },
+      {
+        "word": "trip",
+        "sentence": "Have a nice trip home."
+      }
+    ]
+  },
+  "meet": {
+    "target": "meet",
+    "links": [
+      {
+        "word": "station",
+        "sentence": "Let's meet at the station tomorrow."
+      },
+      {
+        "word": "family",
+        "sentence": "I will meet your family soon."
+      },
+      {
+        "word": "cafe",
+        "sentence": "They met at a small cafe."
+      },
+      {
+        "word": "last",
+        "sentence": "Nice to meet you at last."
+      },
+      {
+        "word": "Friday",
+        "sentence": "We meet every Friday after work."
+      },
+      {
+        "word": "roads",
+        "sentence": "The two roads meet near the river."
+      },
+      {
+        "word": "friend",
+        "sentence": "She met her old friend downtown."
+      },
+      {
+        "word": "boss",
+        "sentence": "Come and meet my new boss."
+      }
+    ]
+  },
+  "good": {
+    "target": "good",
+    "links": [
+      {
+        "word": "book",
+        "sentence": "This is a good book for beginners."
+      },
+      {
+        "word": "chess",
+        "sentence": "He is good at playing chess."
+      },
+      {
+        "word": "dinner",
+        "sentence": "We had a good time at dinner."
+      },
+      {
+        "word": "health",
+        "sentence": "Good health matters more than money."
+      },
+      {
+        "word": "father",
+        "sentence": "My father gave me good advice."
+      },
+      {
+        "word": "tastes",
+        "sentence": "The food here tastes really good."
+      },
+      {
+        "word": "sounds",
+        "sentence": "That sounds like a good plan."
+      },
+      {
+        "word": "job",
+        "sentence": "You did a good job today."
+      }
+    ]
+  },
+  "morning": {
+    "target": "morning",
+    "links": [
+      {
+        "word": "wake",
+        "sentence": "I wake up early every morning."
+      },
+      {
+        "word": "cool",
+        "sentence": "The morning air feels cool and fresh."
+      },
+      {
+        "word": "breakfast",
+        "sentence": "We had breakfast together this morning."
+      },
+      {
+        "word": "sleep",
+        "sentence": "Good morning, did you sleep well?"
+      },
+      {
+        "word": "train",
+        "sentence": "The morning train was full again."
+      },
+      {
+        "word": "news",
+        "sentence": "She reads the news each morning."
+      },
+      {
+        "word": "light",
+        "sentence": "Morning light filled the small kitchen."
+      },
+      {
+        "word": "left",
+        "sentence": "He left before morning came."
+      }
+    ]
+  },
+  "miss": {
+    "target": "miss",
+    "links": [
+      {
+        "word": "bus",
+        "sentence": "I miss the last bus."
+      },
+      {
+        "word": "flight",
+        "sentence": "She will miss her flight."
+      },
+      {
+        "word": "home",
+        "sentence": "We miss our old home."
+      },
+      {
+        "word": "game",
+        "sentence": "Do not miss the game."
+      },
+      {
+        "word": "train",
+        "sentence": "He missed the morning train."
+      },
+      {
+        "word": "classroom",
+        "sentence": "They miss their old classroom."
+      },
+      {
+        "word": "chance",
+        "sentence": "You miss a good chance."
+      },
+      {
+        "word": "party",
+        "sentence": "I missed the party last night."
+      }
+    ]
+  },
+  "student": {
+    "target": "student",
+    "links": [
+      {
+        "word": "book",
+        "sentence": "The student reads a short book."
+      },
+      {
+        "word": "desk",
+        "sentence": "Every student needs a quiet desk."
+      },
+      {
+        "word": "question",
+        "sentence": "A student asked a simple question."
+      },
+      {
+        "word": "notebook",
+        "sentence": "The student writes in her notebook."
+      },
+      {
+        "word": "late",
+        "sentence": "One student arrived quite late."
+      },
+      {
+        "word": "exam",
+        "sentence": "The student passed the easy exam."
+      },
+      {
+        "word": "class",
+        "sentence": "A new student joined our class."
+      },
+      {
+        "word": "pencil",
+        "sentence": "The student borrowed my pencil."
+      }
+    ]
+  },
+  "french": {
+    "target": "French",
+    "links": [
+      {
+        "word": "bread",
+        "sentence": "We buy French bread every morning."
+      },
+      {
+        "word": "song",
+        "sentence": "She sang a French song."
+      },
+      {
+        "word": "movie",
+        "sentence": "He watched a French movie."
+      },
+      {
+        "word": "city",
+        "sentence": "Paris is a French city."
+      },
+      {
+        "word": "wine",
+        "sentence": "They served French wine."
+      },
+      {
+        "word": "lesson",
+        "sentence": "Our French lesson starts soon."
+      },
+      {
+        "word": "grammar",
+        "sentence": "French grammar can be hard."
+      },
+      {
+        "word": "cheese",
+        "sentence": "This French cheese tastes great."
+      }
+    ]
+  },
+  "german": {
+    "target": "German",
+    "links": [
+      {
+        "word": "car",
+        "sentence": "He drives a German car."
+      },
+      {
+        "word": "beer",
+        "sentence": "They ordered cold German beer."
+      },
+      {
+        "word": "language",
+        "sentence": "German is a hard language."
+      },
+      {
+        "word": "history",
+        "sentence": "She studies German history."
+      },
+      {
+        "word": "market",
+        "sentence": "We visited a German market."
+      },
+      {
+        "word": "village",
+        "sentence": "This German village looks small."
+      },
+      {
+        "word": "museum",
+        "sentence": "The German museum opens early."
+      },
+      {
+        "word": "poem",
+        "sentence": "He read a German poem."
+      }
+    ]
+  },
+  "japanese": {
+    "target": "Japanese",
+    "links": [
+      {
+        "word": "tea",
+        "sentence": "We drank Japanese tea."
+      },
+      {
+        "word": "garden",
+        "sentence": "Their Japanese garden looks lovely."
+      },
+      {
+        "word": "food",
+        "sentence": "Japanese food is very fresh."
+      },
+      {
+        "word": "film",
+        "sentence": "She watched a Japanese film."
+      },
+      {
+        "word": "custom",
+        "sentence": "This Japanese custom feels new."
+      },
+      {
+        "word": "knife",
+        "sentence": "He bought a Japanese knife."
+      },
+      {
+        "word": "comic",
+        "sentence": "My brother reads Japanese comics."
+      },
+      {
+        "word": "paper",
+        "sentence": "The Japanese paper feels soft."
+      }
+    ]
+  },
+  "korean": {
+    "target": "Korean",
+    "links": [
+      {
+        "word": "drama",
+        "sentence": "She loves Korean drama."
+      },
+      {
+        "word": "music",
+        "sentence": "We enjoy Korean music."
+      },
+      {
+        "word": "friend",
+        "sentence": "My Korean friend plays guitar."
+      },
+      {
+        "word": "shop",
+        "sentence": "The Korean shop sells snacks."
+      },
+      {
+        "word": "dance",
+        "sentence": "They learned a Korean dance."
+      },
+      {
+        "word": "novel",
+        "sentence": "He reads Korean novels often."
+      },
+      {
+        "word": "summer",
+        "sentence": "Korean summer is very hot."
+      },
+      {
+        "word": "restaurant",
+        "sentence": "A Korean restaurant opened last month."
+      }
+    ]
+  },
+  "chinese": {
+    "target": "Chinese",
+    "links": [
+      {
+        "word": "opera",
+        "sentence": "My grandmother enjoys Chinese opera."
+      },
+      {
+        "word": "painting",
+        "sentence": "This Chinese painting looks old."
+      },
+      {
+        "word": "festival",
+        "sentence": "The Chinese festival lasts days."
+      },
+      {
+        "word": "silk",
+        "sentence": "She bought Chinese silk."
+      },
+      {
+        "word": "dumpling",
+        "sentence": "We ate Chinese dumplings."
+      },
+      {
+        "word": "calendar",
+        "sentence": "The Chinese calendar differs."
+      },
+      {
+        "word": "brush",
+        "sentence": "He painted with Chinese brushes."
+      },
+      {
+        "word": "letter",
+        "sentence": "She wrote a Chinese letter."
+      }
+    ]
+  },
+  "teacher": {
+    "target": "teacher",
+    "links": [
+      {
+        "word": "chalk",
+        "sentence": "The teacher held some chalk."
+      },
+      {
+        "word": "homework",
+        "sentence": "Our teacher gave extra homework."
+      },
+      {
+        "word": "smile",
+        "sentence": "The teacher has a warm smile."
+      },
+      {
+        "word": "board",
+        "sentence": "The teacher wrote on the board."
+      },
+      {
+        "word": "answer",
+        "sentence": "The teacher knows every answer."
+      },
+      {
+        "word": "quiet",
+        "sentence": "The teacher asked us to be quiet."
+      },
+      {
+        "word": "math",
+        "sentence": "My math teacher is very patient."
+      },
+      {
+        "word": "story",
+        "sentence": "The teacher told a funny story."
+      }
+    ]
+  },
+  "name": {
+    "target": "name",
+    "links": [
+      {
+        "word": "remember",
+        "sentence": "Please remember my name."
+      },
+      {
+        "word": "spell",
+        "sentence": "Can you spell your name?"
+      },
+      {
+        "word": "write",
+        "sentence": "Write your name here."
+      },
+      {
+        "word": "loudly",
+        "sentence": "She called my name loudly."
+      },
+      {
+        "word": "sign",
+        "sentence": "Please sign your name below."
+      },
+      {
+        "word": "forget",
+        "sentence": "I always forget his name."
+      },
+      {
+        "word": "wrong",
+        "sentence": "You wrote the wrong name."
+      },
+      {
+        "word": "full",
+        "sentence": "Tell me your full name."
+      }
+    ]
+  },
+  "nationality": {
+    "target": "nationality",
+    "links": [
+      {
+        "word": "passport",
+        "sentence": "My passport shows my nationality."
+      },
+      {
+        "word": "form",
+        "sentence": "The form asks my nationality."
+      },
+      {
+        "word": "several",
+        "sentence": "Several people share my nationality."
+      },
+      {
+        "word": "state",
+        "sentence": "Please state your nationality clearly."
+      },
+      {
+        "word": "different",
+        "sentence": "Each person has a different nationality."
+      },
+      {
+        "word": "check",
+        "sentence": "They checked my nationality twice."
+      },
+      {
+        "word": "unknown",
+        "sentence": "His nationality remains unknown."
+      },
+      {
+        "word": "guess",
+        "sentence": "Can you guess her nationality?"
+      }
+    ]
+  },
+  "italian": {
+    "target": "Italian",
+    "links": [
+      {
+        "word": "coffee",
+        "sentence": "We drank strong Italian coffee."
+      },
+      {
+        "word": "pizza",
+        "sentence": "This Italian pizza tastes good."
+      },
+      {
+        "word": "shoe",
+        "sentence": "She bought Italian shoes."
+      },
+      {
+        "word": "family",
+        "sentence": "His Italian family lives upstairs."
+      },
+      {
+        "word": "design",
+        "sentence": "Italian design looks elegant."
+      },
+      {
+        "word": "chef",
+        "sentence": "The Italian chef smiled."
+      },
+      {
+        "word": "coast",
+        "sentence": "The Italian coast is beautiful."
+      },
+      {
+        "word": "scooter",
+        "sentence": "He rides an Italian scooter."
+      }
+    ]
+  },
+  "keyboard": {
+    "target": "keyboard",
+    "links": [
+      {
+        "word": "type",
+        "sentence": "I type on the keyboard."
+      },
+      {
+        "word": "clean",
+        "sentence": "Please clean the dusty keyboard."
+      },
+      {
+        "word": "broken",
+        "sentence": "The keyboard is broken again."
+      },
+      {
+        "word": "mouse",
+        "sentence": "The mouse sits near the keyboard."
+      },
+      {
+        "word": "keys",
+        "sentence": "The keyboard has many keys."
+      },
+      {
+        "word": "laptop",
+        "sentence": "My laptop keyboard feels sticky."
+      },
+      {
+        "word": "practice",
+        "sentence": "She practices on the keyboard daily."
+      },
+      {
+        "word": "replace",
+        "sentence": "We must replace this keyboard."
+      }
+    ]
+  },
+  "operator": {
+    "target": "operator",
+    "links": [
+      {
+        "word": "phone",
+        "sentence": "The phone operator was kind."
+      },
+      {
+        "word": "machine",
+        "sentence": "One machine operator helped us."
+      },
+      {
+        "word": "call",
+        "sentence": "The operator answered my call."
+      },
+      {
+        "word": "radio",
+        "sentence": "The radio operator sent a message."
+      },
+      {
+        "word": "friendly",
+        "sentence": "The operator sounded quite friendly."
+      },
+      {
+        "word": "connect",
+        "sentence": "The operator will connect you."
+      },
+      {
+        "word": "shift",
+        "sentence": "The operator works a night shift."
+      },
+      {
+        "word": "customer",
+        "sentence": "The operator greeted every customer."
+      }
+    ]
+  },
+  "engineer": {
+    "target": "engineer",
+    "links": [
+      {
+        "word": "bridges",
+        "sentence": "Engineers build strong bridges."
+      },
+      {
+        "word": "plan",
+        "sentence": "The engineer made a careful plan."
+      },
+      {
+        "word": "fix",
+        "sentence": "An engineer fixed our heating."
+      },
+      {
+        "word": "software",
+        "sentence": "She is a software engineer."
+      },
+      {
+        "word": "factory",
+        "sentence": "The engineer visited the factory."
+      },
+      {
+        "word": "problem",
+        "sentence": "The engineer solved a hard problem."
+      },
+      {
+        "word": "diagram",
+        "sentence": "The engineer drew a simple diagram."
+      },
+      {
+        "word": "repair",
+        "sentence": "Engineers repair old roads."
+      }
+    ]
+  },
+  "today": {
+    "target": "today",
+    "links": [
+      {
+        "word": "sunny",
+        "sentence": "It is sunny today."
+      },
+      {
+        "word": "busy",
+        "sentence": "Today is a busy day."
+      },
+      {
+        "word": "rain",
+        "sentence": "It may rain today."
+      },
+      {
+        "word": "later",
+        "sentence": "I will see you later today."
+      },
+      {
+        "word": "news",
+        "sentence": "Today brings good news."
+      },
+      {
+        "word": "tired",
+        "sentence": "She feels tired today."
+      },
+      {
+        "word": "work",
+        "sentence": "Today I start new work."
+      },
+      {
+        "word": "weather",
+        "sentence": "The weather is nice today."
+      }
+    ]
+  },
+  "hello": {
+    "target": "hello",
+    "links": [
+      {
+        "word": "say",
+        "sentence": "Please say hello to her."
+      },
+      {
+        "word": "gentle",
+        "sentence": "Give her a gentle wave hello."
+      },
+      {
+        "word": "everyone",
+        "sentence": "She said hello to everyone."
+      },
+      {
+        "word": "shy",
+        "sentence": "He gave a shy hello."
+      },
+      {
+        "word": "morning",
+        "sentence": "I said hello this morning."
+      },
+      {
+        "word": "door",
+        "sentence": "Say hello at the door."
+      },
+      {
+        "word": "neighbor",
+        "sentence": "I said hello to my neighbor."
+      },
+      {
+        "word": "loud",
+        "sentence": "His hello sounded very loud."
+      }
+    ]
+  },
+  "well": {
+    "target": "well",
+    "links": [
+      {
+        "word": "sleep",
+        "sentence": "She sleeps well every night."
+      },
+      {
+        "word": "sing",
+        "sentence": "He sings very well."
+      },
+      {
+        "word": "know",
+        "sentence": "I know her quite well."
+      },
+      {
+        "word": "cook",
+        "sentence": "My father cooks well."
+      },
+      {
+        "word": "play",
+        "sentence": "The team played well yesterday."
+      },
+      {
+        "word": "explain",
+        "sentence": "She explains things well."
+      },
+      {
+        "word": "feel",
+        "sentence": "I feel well again."
+      },
+      {
+        "word": "speak",
+        "sentence": "You speak English well."
+      }
+    ]
+  },
+  "fine": {
+    "target": "fine",
+    "links": [
+      {
+        "word": "everything",
+        "sentence": "Everything will be fine, I promise."
+      },
+      {
+        "word": "soup",
+        "sentence": "The soup tastes fine."
+      },
+      {
+        "word": "parking",
+        "sentence": "He paid a fine for parking."
+      },
+      {
+        "word": "day",
+        "sentence": "The day turned out fine."
+      },
+      {
+        "word": "handwriting",
+        "sentence": "Her handwriting is fine."
+      },
+      {
+        "word": "coat",
+        "sentence": "This coat is fine for spring."
+      },
+      {
+        "word": "dinner",
+        "sentence": "We had a fine dinner."
+      },
+      {
+        "word": "engine",
+        "sentence": "The engine works fine now."
+      }
+    ]
+  },
+  "thanks": {
+    "target": "thanks",
+    "links": [
+      {
+        "word": "help",
+        "sentence": "Thanks for your help."
+      },
+      {
+        "word": "gift",
+        "sentence": "Thanks for the lovely gift."
+      },
+      {
+        "word": "coming",
+        "sentence": "Thanks for coming tonight."
+      },
+      {
+        "word": "visit",
+        "sentence": "Thanks for your visit."
+      },
+      {
+        "word": "lunch",
+        "sentence": "Thanks for the free lunch."
+      },
+      {
+        "word": "time",
+        "sentence": "Thanks for your time."
+      },
+      {
+        "word": "inviting",
+        "sentence": "Thanks for inviting us."
+      },
+      {
+        "word": "generous",
+        "sentence": "Thanks, you are very generous."
+      }
+    ]
+  },
+  "goodbye": {
+    "target": "goodbye",
+    "links": [
+      {
+        "word": "leave",
+        "sentence": "Say goodbye before you leave."
+      },
+      {
+        "word": "gate",
+        "sentence": "He waved goodbye at the gate."
+      },
+      {
+        "word": "tomorrow",
+        "sentence": "Goodbye, see you tomorrow."
+      },
+      {
+        "word": "sad",
+        "sentence": "Their goodbye was very sad."
+      },
+      {
+        "word": "cried",
+        "sentence": "She cried at our goodbye."
+      },
+      {
+        "word": "strange",
+        "sentence": "A quick goodbye felt strange."
+      },
+      {
+        "word": "noon",
+        "sentence": "We said goodbye at noon."
+      },
+      {
+        "word": "hard",
+        "sentence": "Goodbye is always hard."
+      }
+    ]
+  },
+  "shirt": {
+    "target": "shirt",
+    "links": [
+      {
+        "word": "cotton",
+        "sentence": "She wears a cotton shirt."
+      },
+      {
+        "word": "iron",
+        "sentence": "I must iron this shirt."
+      },
+      {
+        "word": "button",
+        "sentence": "A button fell off my shirt."
+      },
+      {
+        "word": "collar",
+        "sentence": "His shirt collar looks tight."
+      },
+      {
+        "word": "pocket",
+        "sentence": "The shirt has one pocket."
+      },
+      {
+        "word": "sleeve",
+        "sentence": "The sleeve of my shirt tore."
+      },
+      {
+        "word": "wash",
+        "sentence": "Please wash my dirty shirt."
+      },
+      {
+        "word": "striped",
+        "sentence": "She bought a striped shirt."
+      }
+    ]
+  },
+  "blue": {
+    "target": "blue",
+    "links": [
+      {
+        "word": "sky",
+        "sentence": "The sky is deep blue."
+      },
+      {
+        "word": "calm",
+        "sentence": "The sea looks calm and blue."
+      },
+      {
+        "word": "fence",
+        "sentence": "We paint the fence blue."
+      },
+      {
+        "word": "eyes",
+        "sentence": "Her eyes are bright blue."
+      },
+      {
+        "word": "dress",
+        "sentence": "She wore a blue dress."
+      },
+      {
+        "word": "cold",
+        "sentence": "His hands turned blue with cold."
+      },
+      {
+        "word": "bird",
+        "sentence": "A blue bird sat nearby."
+      },
+      {
+        "word": "jeans",
+        "sentence": "He bought blue jeans."
+      }
+    ]
+  },
+  "perhaps": {
+    "target": "perhaps",
+    "links": [
+      {
+        "word": "soon",
+        "sentence": "Perhaps she will arrive soon."
+      },
+      {
+        "word": "snow",
+        "sentence": "Perhaps the snow will stop."
+      },
+      {
+        "word": "wait",
+        "sentence": "Perhaps we should wait here."
+      },
+      {
+        "word": "map",
+        "sentence": "Perhaps he forgot the map."
+      },
+      {
+        "word": "far",
+        "sentence": "Perhaps it is too far."
+      },
+      {
+        "word": "truth",
+        "sentence": "Perhaps they know the truth."
+      },
+      {
+        "word": "join",
+        "sentence": "Perhaps I can join you."
+      },
+      {
+        "word": "office",
+        "sentence": "Perhaps the office is closed."
+      }
+    ]
+  },
+  "white": {
+    "target": "white",
+    "links": [
+      {
+        "word": "cloud",
+        "sentence": "A white cloud passed by."
+      },
+      {
+        "word": "wall",
+        "sentence": "The wall is painted white."
+      },
+      {
+        "word": "rice",
+        "sentence": "We ate white rice."
+      },
+      {
+        "word": "teeth",
+        "sentence": "Her teeth are very white."
+      },
+      {
+        "word": "sugar",
+        "sentence": "Add some white sugar."
+      },
+      {
+        "word": "cat",
+        "sentence": "The white cat sleeps."
+      },
+      {
+        "word": "cloth",
+        "sentence": "This cloth is pure white."
+      },
+      {
+        "word": "flag",
+        "sentence": "They raised a white flag."
+      }
+    ]
+  },
+  "catch": {
+    "target": "catch",
+    "links": [
+      {
+        "word": "ball",
+        "sentence": "Catch the ball with both hands."
+      },
+      {
+        "word": "bad",
+        "sentence": "I catch a bad cold every winter."
+      },
+      {
+        "word": "fish",
+        "sentence": "We catch fish in the river."
+      },
+      {
+        "word": "words",
+        "sentence": "Her words catch my attention."
+      },
+      {
+        "word": "thief",
+        "sentence": "The police catch the thief."
+      },
+      {
+        "word": "cup",
+        "sentence": "Try to catch the falling cup."
+      },
+      {
+        "word": "meaning",
+        "sentence": "Did you catch my meaning?"
+      },
+      {
+        "word": "breath",
+        "sentence": "He stopped to catch his breath."
+      }
+    ]
+  },
+  "dress": {
+    "target": "dress",
+    "links": [
+      {
+        "word": "blue",
+        "sentence": "She bought a blue dress yesterday."
+      },
+      {
+        "word": "wedding",
+        "sentence": "Her wedding dress looks beautiful."
+      },
+      {
+        "word": "wear",
+        "sentence": "I want to wear this dress."
+      },
+      {
+        "word": "shop",
+        "sentence": "The dress shop opens at nine."
+      },
+      {
+        "word": "long",
+        "sentence": "That long dress suits you."
+      },
+      {
+        "word": "price",
+        "sentence": "Did you check the dress price?"
+      },
+      {
+        "word": "iron",
+        "sentence": "Please iron my dress before dinner."
+      },
+      {
+        "word": "party",
+        "sentence": "She chose a dress for the party."
+      }
+    ]
+  },
+  "color": {
+    "target": "color",
+    "links": [
+      {
+        "word": "favorite",
+        "sentence": "Blue is my favorite color."
+      },
+      {
+        "word": "car",
+        "sentence": "What color is your new car?"
+      },
+      {
+        "word": "wall",
+        "sentence": "The color of the wall changed."
+      },
+      {
+        "word": "paint",
+        "sentence": "Mix the color with white paint."
+      },
+      {
+        "word": "room",
+        "sentence": "Bright color makes this room cheerful."
+      },
+      {
+        "word": "sky",
+        "sentence": "At dusk the sky changes color."
+      },
+      {
+        "word": "choose",
+        "sentence": "Choose a color that feels warm."
+      },
+      {
+        "word": "dark",
+        "sentence": "I prefer a dark color for winter."
+      }
+    ]
+  },
+  "green": {
+    "target": "green",
+    "links": [
+      {
+        "word": "leaves",
+        "sentence": "The leaves turn green in spring."
+      },
+      {
+        "word": "door",
+        "sentence": "She painted the door green."
+      },
+      {
+        "word": "calm",
+        "sentence": "Green is a calm, quiet color."
+      },
+      {
+        "word": "tea",
+        "sentence": "I drink green tea every morning."
+      },
+      {
+        "word": "traffic",
+        "sentence": "The traffic light turned green."
+      },
+      {
+        "word": "shirt",
+        "sentence": "His green shirt matches your hat."
+      },
+      {
+        "word": "garden",
+        "sentence": "The garden stays green all year."
+      },
+      {
+        "word": "fields",
+        "sentence": "We walked through green fields."
+      }
+    ]
+  },
+  "come": {
+    "target": "come",
+    "links": [
+      {
+        "word": "house",
+        "sentence": "Please come to my house tonight."
+      },
+      {
+        "word": "sit",
+        "sentence": "Come and sit beside me."
+      },
+      {
+        "word": "friends",
+        "sentence": "My friends come here every Friday."
+      },
+      {
+        "word": "spring",
+        "sentence": "Spring will come after the winter."
+      },
+      {
+        "word": "bus",
+        "sentence": "Did you come by bus?"
+      },
+      {
+        "word": "listen",
+        "sentence": "Come closer and listen."
+      },
+      {
+        "word": "rain",
+        "sentence": "Rain may come later this afternoon."
+      },
+      {
+        "word": "market",
+        "sentence": "Come with us to the market."
+      }
+    ]
+  },
+  "upstairs": {
+    "target": "upstairs",
+    "links": [
+      {
+        "word": "bedroom",
+        "sentence": "My bedroom is upstairs."
+      },
+      {
+        "word": "sleep",
+        "sentence": "She went upstairs to sleep."
+      },
+      {
+        "word": "bathroom",
+        "sentence": "The bathroom upstairs is very small."
+      },
+      {
+        "word": "boxes",
+        "sentence": "Please carry these boxes upstairs."
+      },
+      {
+        "word": "noise",
+        "sentence": "I heard a noise from upstairs."
+      },
+      {
+        "word": "cat",
+        "sentence": "The cat ran upstairs quickly."
+      },
+      {
+        "word": "office",
+        "sentence": "The office upstairs is still open."
+      },
+      {
+        "word": "neighbor",
+        "sentence": "Our upstairs neighbor plays loud music."
+      }
+    ]
+  },
+  "look": {
+    "target": "look",
+    "links": [
+      {
+        "word": "photo",
+        "sentence": "Please look at this old photo."
+      },
+      {
+        "word": "tired",
+        "sentence": "You look tired after the trip."
+      },
+      {
+        "word": "strange",
+        "sentence": "She gave me a strange look."
+      },
+      {
+        "word": "road",
+        "sentence": "Look before you cross the road."
+      },
+      {
+        "word": "cake",
+        "sentence": "The cake looks ready to eat."
+      },
+      {
+        "word": "letter",
+        "sentence": "I look forward to your letter."
+      },
+      {
+        "word": "print",
+        "sentence": "Look closely at the small print."
+      },
+      {
+        "word": "happy",
+        "sentence": "They look happy together."
+      }
+    ]
+  },
+  "smart": {
+    "target": "smart",
+    "links": [
+      {
+        "word": "woman",
+        "sentence": "She is a smart young woman."
+      },
+      {
+        "word": "suit",
+        "sentence": "Wear a smart suit to the interview."
+      },
+      {
+        "word": "answer",
+        "sentence": "His smart answer surprised the class."
+      },
+      {
+        "word": "choice",
+        "sentence": "That was a smart choice."
+      },
+      {
+        "word": "student",
+        "sentence": "The smart student finished first."
+      },
+      {
+        "word": "umbrella",
+        "sentence": "It was smart to bring an umbrella."
+      },
+      {
+        "word": "hat",
+        "sentence": "She looks smart in that hat."
+      },
+      {
+        "word": "plan",
+        "sentence": "A smart plan saves time."
+      }
+    ]
+  },
+  "same": {
+    "target": "same",
+    "links": [
+      {
+        "word": "building",
+        "sentence": "We live in the same building."
+      },
+      {
+        "word": "thing",
+        "sentence": "She said the same thing twice."
+      },
+      {
+        "word": "place",
+        "sentence": "Same time, same place tomorrow."
+      },
+      {
+        "word": "train",
+        "sentence": "We take the same train daily."
+      },
+      {
+        "word": "cups",
+        "sentence": "Both cups hold the same amount."
+      },
+      {
+        "word": "mistake",
+        "sentence": "I made the same mistake again."
+      },
+      {
+        "word": "town",
+        "sentence": "Both roads lead to the same town."
+      },
+      {
+        "word": "street",
+        "sentence": "They live on the same street."
+      }
+    ]
+  },
+  "lovely": {
+    "target": "lovely",
+    "links": [
+      {
+        "word": "day",
+        "sentence": "What a lovely day it is."
+      },
+      {
+        "word": "smile",
+        "sentence": "She has a lovely smile."
+      },
+      {
+        "word": "flowers",
+        "sentence": "The flowers look lovely this morning."
+      },
+      {
+        "word": "time",
+        "sentence": "We had a lovely time together."
+      },
+      {
+        "word": "little",
+        "sentence": "That is a lovely little house."
+      },
+      {
+        "word": "voice",
+        "sentence": "Her lovely voice filled the room."
+      },
+      {
+        "word": "gift",
+        "sentence": "Thank you for the lovely gift."
+      },
+      {
+        "word": "weather",
+        "sentence": "The weather is lovely today."
+      }
+    ]
+  },
+  "passport": {
+    "target": "passport",
+    "links": [
+      {
+        "word": "forget",
+        "sentence": "Do not forget your passport."
+      },
+      {
+        "word": "expire",
+        "sentence": "My passport will expire soon."
+      },
+      {
+        "word": "border",
+        "sentence": "Show your passport at the border."
+      },
+      {
+        "word": "abroad",
+        "sentence": "She lost her passport abroad."
+      },
+      {
+        "word": "counter",
+        "sentence": "The passport counter opens at nine."
+      },
+      {
+        "word": "safe",
+        "sentence": "Keep your passport in a safe."
+      },
+      {
+        "word": "renewed",
+        "sentence": "He renewed his passport last week."
+      },
+      {
+        "word": "flight",
+        "sentence": "Check your passport before the flight."
+      }
+    ]
+  },
+  "swedish": {
+    "target": "Swedish",
+    "links": [
+      {
+        "word": "speaks",
+        "sentence": "She speaks Swedish very well."
+      },
+      {
+        "word": "book",
+        "sentence": "I bought a Swedish book yesterday."
+      },
+      {
+        "word": "winter",
+        "sentence": "The Swedish winter is long and cold."
+      },
+      {
+        "word": "company",
+        "sentence": "He works for a Swedish company."
+      },
+      {
+        "word": "meatballs",
+        "sentence": "Swedish meatballs taste really good."
+      },
+      {
+        "word": "subtitles",
+        "sentence": "The film had Swedish subtitles."
+      },
+      {
+        "word": "design",
+        "sentence": "Swedish design is simple and clean."
+      },
+      {
+        "word": "school",
+        "sentence": "They study Swedish at school."
+      }
+    ]
+  },
+  "danish": {
+    "target": "Danish",
+    "links": [
+      {
+        "word": "pastries",
+        "sentence": "Danish pastries sell well here."
+      },
+      {
+        "word": "learning",
+        "sentence": "She is learning Danish this year."
+      },
+      {
+        "word": "flag",
+        "sentence": "The Danish flag is red and white."
+      },
+      {
+        "word": "couple",
+        "sentence": "We met a Danish couple yesterday."
+      },
+      {
+        "word": "furniture",
+        "sentence": "Danish furniture is famous worldwide."
+      },
+      {
+        "word": "newspapers",
+        "sentence": "He reads Danish newspapers every morning."
+      },
+      {
+        "word": "coast",
+        "sentence": "The Danish coast is beautiful."
+      },
+      {
+        "word": "teacher",
+        "sentence": "My Danish teacher speaks slowly."
+      }
+    ]
+  },
+  "friend": {
+    "target": "friend",
+    "links": [
+      {
+        "word": "best",
+        "sentence": "My best friend lives nearby."
+      },
+      {
+        "word": "kind",
+        "sentence": "She is a kind friend."
+      },
+      {
+        "word": "new",
+        "sentence": "I made a new friend today."
+      },
+      {
+        "word": "listens",
+        "sentence": "A true friend always listens."
+      },
+      {
+        "word": "invited",
+        "sentence": "He invited every friend to dinner."
+      },
+      {
+        "word": "bank",
+        "sentence": "My friend works in a bank."
+      },
+      {
+        "word": "camp",
+        "sentence": "We became good friends at camp."
+      },
+      {
+        "word": "helped",
+        "sentence": "Her friend helped with the move."
+      }
+    ]
+  },
+  "norwegian": {
+    "target": "Norwegian",
+    "links": [
+      {
+        "word": "salmon",
+        "sentence": "Norwegian salmon is very popular."
+      },
+      {
+        "word": "university",
+        "sentence": "She studies Norwegian at university."
+      },
+      {
+        "word": "mountains",
+        "sentence": "The Norwegian mountains look beautiful."
+      },
+      {
+        "word": "ship",
+        "sentence": "A Norwegian ship arrived this morning."
+      },
+      {
+        "word": "poetry",
+        "sentence": "He reads Norwegian poetry."
+      },
+      {
+        "word": "wood",
+        "sentence": "Norwegian wood burns slowly."
+      },
+      {
+        "word": "cousin",
+        "sentence": "My Norwegian cousin lives in Oslo."
+      },
+      {
+        "word": "cheese",
+        "sentence": "They enjoy Norwegian cheese."
+      }
+    ]
+  },
+  "case": {
+    "target": "case",
+    "links": [
+      {
+        "word": "coat",
+        "sentence": "Take a coat in case it rains."
+      },
+      {
+        "word": "police",
+        "sentence": "The police solved the case quickly."
+      },
+      {
+        "word": "glasses",
+        "sentence": "Put your glasses in this case."
+      },
+      {
+        "word": "guitar",
+        "sentence": "This case holds my old guitar."
+      },
+      {
+        "word": "wait",
+        "sentence": "In that case, we should wait."
+      },
+      {
+        "word": "lawyer",
+        "sentence": "The lawyer studied the case file."
+      },
+      {
+        "word": "heavy",
+        "sentence": "Please carry this heavy case."
+      },
+      {
+        "word": "court",
+        "sentence": "The court heard the case today."
+      }
+    ]
+  },
+  "brown": {
+    "target": "brown",
+    "links": [
+      {
+        "word": "hair",
+        "sentence": "She has long brown hair."
+      },
+      {
+        "word": "dog",
+        "sentence": "The brown dog sleeps by the door."
+      },
+      {
+        "word": "bread",
+        "sentence": "I like brown bread with butter."
+      },
+      {
+        "word": "shoes",
+        "sentence": "His brown shoes need polish."
+      },
+      {
+        "word": "coffee",
+        "sentence": "We drank brown coffee by the fire."
+      },
+      {
+        "word": "bag",
+        "sentence": "That brown bag belongs to me."
+      },
+      {
+        "word": "painted",
+        "sentence": "The wall was painted brown."
+      },
+      {
+        "word": "gloves",
+        "sentence": "He wore brown gloves in the snow."
+      }
+    ]
+  },
+  "tourist": {
+    "target": "tourist",
+    "links": [
+      {
+        "word": "directions",
+        "sentence": "The tourist asked for directions."
+      },
+      {
+        "word": "castle",
+        "sentence": "Every tourist visits the old castle."
+      },
+      {
+        "word": "picture",
+        "sentence": "A tourist took our picture."
+      },
+      {
+        "word": "season",
+        "sentence": "Tourist season starts in June."
+      },
+      {
+        "word": "shops",
+        "sentence": "Many tourist shops open early."
+      },
+      {
+        "word": "lost",
+        "sentence": "The lost tourist needed help."
+      },
+      {
+        "word": "guide",
+        "sentence": "A tourist guide showed us around."
+      },
+      {
+        "word": "camera",
+        "sentence": "The tourist carried a small camera."
+      }
+    ]
+  },
+  "employee": {
+    "target": "employee",
+    "links": [
+      {
+        "word": "badge",
+        "sentence": "Every employee gets a badge."
+      },
+      {
+        "word": "Monday",
+        "sentence": "The new employee starts Monday."
+      },
+      {
+        "word": "broken",
+        "sentence": "An employee reported the broken light."
+      },
+      {
+        "word": "raise",
+        "sentence": "The employee asked for a raise."
+      },
+      {
+        "word": "uniform",
+        "sentence": "Each employee must wear a uniform."
+      },
+      {
+        "word": "handbook",
+        "sentence": "Our employee handbook is online."
+      },
+      {
+        "word": "home",
+        "sentence": "The employee works from home."
+      },
+      {
+        "word": "team",
+        "sentence": "A happy employee helps the team."
+      }
+    ]
+  },
+  "women": {
+    "target": "women",
+    "links": [
+      {
+        "word": "factory",
+        "sentence": "Many women left the factory early."
+      },
+      {
+        "word": "window",
+        "sentence": "Two women sat near the window."
+      },
+      {
+        "word": "run",
+        "sentence": "These women run a small cafe."
+      },
+      {
+        "word": "children",
+        "sentence": "The women talked about their children."
+      },
+      {
+        "word": "young",
+        "sentence": "Young women often study abroad."
+      },
+      {
+        "word": "hats",
+        "sentence": "The women wore colorful hats."
+      },
+      {
+        "word": "meeting",
+        "sentence": "Several women joined the meeting."
+      },
+      {
+        "word": "gathered",
+        "sentence": "Old women gathered at the square."
+      }
+    ]
+  },
+  "hard": {
+    "target": "hard",
+    "links": [
+      {
+        "word": "exam",
+        "sentence": "This exam is very hard."
+      },
+      {
+        "word": "study",
+        "sentence": "They study hard before finals."
+      },
+      {
+        "word": "ground",
+        "sentence": "The ground feels hard and dry."
+      },
+      {
+        "word": "rained",
+        "sentence": "It rained hard all night."
+      },
+      {
+        "word": "ball",
+        "sentence": "He hit the ball hard."
+      },
+      {
+        "word": "questions",
+        "sentence": "Hard questions need careful thought."
+      },
+      {
+        "word": "chair",
+        "sentence": "The chair is too hard to sleep on."
+      },
+      {
+        "word": "language",
+        "sentence": "Learning a language is hard."
+      }
+    ]
+  },
+  "work": {
+    "target": "work",
+    "links": [
+      {
+        "word": "hotel",
+        "sentence": "I work in a large hotel."
+      },
+      {
+        "word": "eight",
+        "sentence": "She starts work at eight."
+      },
+      {
+        "word": "group",
+        "sentence": "They work well as a group."
+      },
+      {
+        "word": "restaurant",
+        "sentence": "He found work at a restaurant."
+      },
+      {
+        "word": "machine",
+        "sentence": "The machine does not work today."
+      },
+      {
+        "word": "together",
+        "sentence": "We work together every weekend."
+      },
+      {
+        "word": "neat",
+        "sentence": "Her work is always very neat."
+      },
+      {
+        "word": "quiet",
+        "sentence": "I need quiet to work."
+      }
+    ]
+  },
+  "hard-working": {
+    "target": "hard-working",
+    "links": [
+      {
+        "word": "pupil",
+        "sentence": "She is a hard-working pupil."
+      },
+      {
+        "word": "staff",
+        "sentence": "The hard-working staff deserve praise."
+      },
+      {
+        "word": "farmer",
+        "sentence": "He is a hard-working farmer."
+      },
+      {
+        "word": "complain",
+        "sentence": "Hard-working people seldom complain."
+      },
+      {
+        "word": "assistant",
+        "sentence": "They hired a hard-working assistant."
+      },
+      {
+        "word": "attitude",
+        "sentence": "Her hard-working attitude impressed everyone."
+      },
+      {
+        "word": "nurse",
+        "sentence": "The hard-working nurse stayed late."
+      },
+      {
+        "word": "brother",
+        "sentence": "My hard-working brother runs a shop."
+      }
+    ]
+  },
+  "busy": {
+    "target": "busy",
+    "links": [
+      {
+        "word": "cook",
+        "sentence": "I am too busy to cook."
+      },
+      {
+        "word": "streets",
+        "sentence": "Busy streets make driving difficult."
+      },
+      {
+        "word": "doctor",
+        "sentence": "The doctor is busy this morning."
+      },
+      {
+        "word": "week",
+        "sentence": "We had a busy week here."
+      },
+      {
+        "word": "phone",
+        "sentence": "Why is the phone line busy?"
+      },
+      {
+        "word": "hobbies",
+        "sentence": "She stays busy with her hobbies."
+      },
+      {
+        "word": "mall",
+        "sentence": "The mall gets busy on weekends."
+      },
+      {
+        "word": "lunch",
+        "sentence": "The cafe is busy at lunch."
+      }
+    ]
+  },
+  "sale": {
+    "target": "sale",
+    "links": [
+      {
+        "word": "apartment",
+        "sentence": "Their apartment is for sale."
+      },
+      {
+        "word": "boots",
+        "sentence": "These boots are on sale today."
+      },
+      {
+        "word": "Friday",
+        "sentence": "The sale ends on Friday."
+      },
+      {
+        "word": "bargain",
+        "sentence": "She found a bargain at the sale."
+      },
+      {
+        "word": "weekend",
+        "sentence": "The sale runs through the weekend."
+      },
+      {
+        "word": "crowds",
+        "sentence": "The sale drew large crowds."
+      },
+      {
+        "word": "bakery",
+        "sentence": "The bakery advertises a bread sale."
+      },
+      {
+        "word": "customers",
+        "sentence": "Every sale brings new customers."
+      }
+    ]
+  },
+  "representative": {
+    "target": "representative",
+    "links": [
+      {
+        "word": "called",
+        "sentence": "The sales representative called this morning."
+      },
+      {
+        "word": "city",
+        "sentence": "She met a representative from the city."
+      },
+      {
+        "word": "email",
+        "sentence": "Our representative answers every email."
+      },
+      {
+        "word": "rules",
+        "sentence": "The representative explained the new rules."
+      },
+      {
+        "word": "tag",
+        "sentence": "Each representative wears a name tag."
+      },
+      {
+        "word": "union",
+        "sentence": "The union representative spoke for us."
+      },
+      {
+        "word": "form",
+        "sentence": "Send the form to our representative."
+      },
+      {
+        "word": "greeted",
+        "sentence": "A friendly representative greeted the guests."
+      }
+    ]
+  },
+  "lazy": {
+    "target": "lazy",
+    "links": [
+      {
+        "word": "Sunday",
+        "sentence": "My lazy Sunday starts with coffee."
+      },
+      {
+        "word": "cat",
+        "sentence": "The lazy cat sleeps all day."
+      },
+      {
+        "word": "afternoon",
+        "sentence": "We had a lazy afternoon at home."
+      },
+      {
+        "word": "student",
+        "sentence": "A lazy student often misses class."
+      },
+      {
+        "word": "summer",
+        "sentence": "Lazy summer days feel very long."
+      },
+      {
+        "word": "brother",
+        "sentence": "My lazy brother never cleans up."
+      },
+      {
+        "word": "morning",
+        "sentence": "I feel lazy every morning."
+      },
+      {
+        "word": "mood",
+        "sentence": "His lazy mood annoyed the team."
+      }
+    ]
+  },
+  "young": {
+    "target": "young",
+    "links": [
+      {
+        "word": "girl",
+        "sentence": "A young girl crossed the street."
+      },
+      {
+        "word": "writer",
+        "sentence": "The young writer published two books."
+      },
+      {
+        "word": "couple",
+        "sentence": "The young couple bought a house."
+      },
+      {
+        "word": "trees",
+        "sentence": "Young trees need plenty of sun."
+      },
+      {
+        "word": "age",
+        "sentence": "He started at a young age."
+      },
+      {
+        "word": "coach",
+        "sentence": "Our young coach trains the team."
+      },
+      {
+        "word": "family",
+        "sentence": "The young family moved last spring."
+      },
+      {
+        "word": "voice",
+        "sentence": "She has a young voice."
+      }
+    ]
+  },
+  "office": {
+    "target": "office",
+    "links": [
+      {
+        "word": "manager",
+        "sentence": "The office manager starts early."
+      },
+      {
+        "word": "meeting",
+        "sentence": "Our office meeting starts at nine."
+      },
+      {
+        "word": "desk",
+        "sentence": "My office desk is very clean."
+      },
+      {
+        "word": "downtown",
+        "sentence": "Their office sits downtown near the station."
+      },
+      {
+        "word": "printer",
+        "sentence": "The office printer broke this morning."
+      },
+      {
+        "word": "staff",
+        "sentence": "Office staff work late on Fridays."
+      },
+      {
+        "word": "window",
+        "sentence": "The office window faces the park."
+      },
+      {
+        "word": "coffee",
+        "sentence": "Someone spilled coffee in my office."
+      }
+    ]
+  },
+  "assistant": {
+    "target": "assistant",
+    "links": [
+      {
+        "word": "director",
+        "sentence": "The assistant called the director twice."
+      },
+      {
+        "word": "phone",
+        "sentence": "My assistant answers the phone politely."
+      },
+      {
+        "word": "shop",
+        "sentence": "The shop assistant helped me today."
+      },
+      {
+        "word": "new",
+        "sentence": "Our new assistant starts on Monday."
+      },
+      {
+        "word": "desk",
+        "sentence": "The assistant arranged the desk neatly."
+      },
+      {
+        "word": "errand",
+        "sentence": "She sends her assistant on an errand."
+      },
+      {
+        "word": "note",
+        "sentence": "The assistant wrote a short note."
+      },
+      {
+        "word": "doctor",
+        "sentence": "The doctor's assistant checked my weight."
+      }
+    ]
+  },
+  "tried": {
+    "target": "tried",
+    "links": [
+      {
+        "word": "recipe",
+        "sentence": "I tried a new recipe today."
+      },
+      {
+        "word": "again",
+        "sentence": "She tried the door again."
+      },
+      {
+        "word": "hard",
+        "sentence": "We tried hard to finish it."
+      },
+      {
+        "word": "call",
+        "sentence": "He tried to call you twice."
+      },
+      {
+        "word": "cake",
+        "sentence": "They tried my chocolate cake yesterday."
+      },
+      {
+        "word": "fix",
+        "sentence": "I tried to fix the sink."
+      },
+      {
+        "word": "shoes",
+        "sentence": "She tried on new shoes."
+      },
+      {
+        "word": "medicine",
+        "sentence": "Have you tried this medicine yet?"
+      }
+    ]
+  },
+  "thirsty": {
+    "target": "thirsty",
+    "links": [
+      {
+        "word": "water",
+        "sentence": "I am thirsty for cold water."
+      },
+      {
+        "word": "run",
+        "sentence": "We felt thirsty after the long run."
+      },
+      {
+        "word": "hike",
+        "sentence": "They got thirsty during the hike."
+      },
+      {
+        "word": "dog",
+        "sentence": "The thirsty dog drank quickly."
+      },
+      {
+        "word": "summer",
+        "sentence": "Hot summer days make me thirsty."
+      },
+      {
+        "word": "juice",
+        "sentence": "She was thirsty and wanted juice."
+      },
+      {
+        "word": "tired",
+        "sentence": "Thirsty and tired, we stopped walking."
+      },
+      {
+        "word": "soup",
+        "sentence": "The hot soup made us thirsty."
+      }
+    ]
+  },
+  "matter": {
+    "target": "matter",
+    "links": [
+      {
+        "word": "problem",
+        "sentence": "This matter is a real problem."
+      },
+      {
+        "word": "family",
+        "sentence": "Family matters more than money."
+      },
+      {
+        "word": "opinion",
+        "sentence": "Your opinion does not matter here."
+      },
+      {
+        "word": "serious",
+        "sentence": "This is a serious matter for us."
+      },
+      {
+        "word": "private",
+        "sentence": "They discussed a private matter quietly."
+      },
+      {
+        "word": "small",
+        "sentence": "Do not worry about small matters."
+      },
+      {
+        "word": "money",
+        "sentence": "Money matters a lot to him."
+      },
+      {
+        "word": "time",
+        "sentence": "Time does not matter in this game."
+      }
+    ]
+  },
+  "children": {
+    "target": "children",
+    "links": [
+      {
+        "word": "school",
+        "sentence": "The children walk to school together."
+      },
+      {
+        "word": "playground",
+        "sentence": "Children love the new playground."
+      },
+      {
+        "word": "stories",
+        "sentence": "The children read stories every night."
+      },
+      {
+        "word": "parents",
+        "sentence": "Parents waited for their children outside."
+      },
+      {
+        "word": "toys",
+        "sentence": "The children shared their toys nicely."
+      },
+      {
+        "word": "dinner",
+        "sentence": "Children eat dinner before seven."
+      },
+      {
+        "word": "garden",
+        "sentence": "The children played in the garden."
+      },
+      {
+        "word": "teacher",
+        "sentence": "A teacher helped the children draw."
+      }
+    ]
+  },
+  "down": {
+    "target": "down",
+    "links": [
+      {
+        "word": "stairs",
+        "sentence": "She walked down the stairs slowly."
+      },
+      {
+        "word": "sit",
+        "sentence": "Please sit down and relax."
+      },
+      {
+        "word": "fall",
+        "sentence": "The leaves fall down in autumn."
+      },
+      {
+        "word": "river",
+        "sentence": "We rowed down the river quietly."
+      },
+      {
+        "word": "hall",
+        "sentence": "He looked down the long hall."
+      },
+      {
+        "word": "hill",
+        "sentence": "The car moved down the hill."
+      },
+      {
+        "word": "write",
+        "sentence": "Write down your name here."
+      },
+      {
+        "word": "box",
+        "sentence": "Put the box down carefully."
+      }
+    ]
+  },
+  "right": {
+    "target": "right",
+    "links": [
+      {
+        "word": "answer",
+        "sentence": "Your answer is exactly right."
+      },
+      {
+        "word": "turn",
+        "sentence": "Turn right at the corner."
+      },
+      {
+        "word": "side",
+        "sentence": "The right side looks brighter."
+      },
+      {
+        "word": "time",
+        "sentence": "We arrived at the right time."
+      },
+      {
+        "word": "hand",
+        "sentence": "Raise your right hand now."
+      },
+      {
+        "word": "direction",
+        "sentence": "She pointed in the right direction."
+      },
+      {
+        "word": "choice",
+        "sentence": "You made the right choice."
+      },
+      {
+        "word": "exit",
+        "sentence": "The right exit is closed."
+      }
+    ]
+  },
+  "cream": {
+    "target": "cream",
+    "links": [
+      {
+        "word": "ice",
+        "sentence": "I want ice cream today."
+      },
+      {
+        "word": "coffee",
+        "sentence": "He added cream to his coffee."
+      },
+      {
+        "word": "skin",
+        "sentence": "This cream softens dry skin."
+      },
+      {
+        "word": "cake",
+        "sentence": "The cream cake tastes very sweet."
+      },
+      {
+        "word": "milk",
+        "sentence": "Cream comes from fresh milk."
+      },
+      {
+        "word": "face",
+        "sentence": "She put cream on her face."
+      },
+      {
+        "word": "dessert",
+        "sentence": "Cream makes the dessert taste rich."
+      },
+      {
+        "word": "butter",
+        "sentence": "Mix cream and butter together."
+      }
+    ]
+  },
+  "book": {
+    "target": "book",
+    "links": [
+      {
+        "word": "library",
+        "sentence": "I borrowed a book from the library."
+      },
+      {
+        "word": "read",
+        "sentence": "She will read a book tonight."
+      },
+      {
+        "word": "cover",
+        "sentence": "The book cover looks very old."
+      },
+      {
+        "word": "market",
+        "sentence": "We bought this book at a market."
+      },
+      {
+        "word": "pages",
+        "sentence": "The book has three hundred pages."
+      },
+      {
+        "word": "write",
+        "sentence": "He wants to write a book."
+      },
+      {
+        "word": "bag",
+        "sentence": "My book is in the bag."
+      },
+      {
+        "word": "author",
+        "sentence": "The author signed my book."
+      }
+    ]
+  },
+  "give": {
+    "target": "give",
+    "links": [
+      {
+        "word": "salt",
+        "sentence": "Please give me the salt."
+      },
+      {
+        "word": "gift",
+        "sentence": "I will give her a gift."
+      },
+      {
+        "word": "hand",
+        "sentence": "Give me your hand now."
+      },
+      {
+        "word": "chance",
+        "sentence": "Give him another chance."
+      },
+      {
+        "word": "advice",
+        "sentence": "She will give me good advice."
+      },
+      {
+        "word": "reason",
+        "sentence": "Can you give a reason today?"
+      },
+      {
+        "word": "up",
+        "sentence": "Do not give up so easily."
+      },
+      {
+        "word": "birthday",
+        "sentence": "We give gifts on her birthday."
+      }
+    ]
+  },
+  "glass": {
+    "target": "glass",
+    "links": [
+      {
+        "word": "soda",
+        "sentence": "He poured soda into the glass."
+      },
+      {
+        "word": "bowl",
+        "sentence": "The glass bowl slipped from my hands."
+      },
+      {
+        "word": "tray",
+        "sentence": "Put the glass on the tray."
+      },
+      {
+        "word": "broken",
+        "sentence": "The broken glass cut his foot."
+      },
+      {
+        "word": "milk",
+        "sentence": "She drank a glass of milk."
+      },
+      {
+        "word": "sister",
+        "sentence": "That glass belongs to my sister."
+      },
+      {
+        "word": "bottle",
+        "sentence": "The glass bottle fell and shattered."
+      },
+      {
+        "word": "mirror",
+        "sentence": "The mirror is made of glass."
+      }
+    ]
+  },
+  "some": {
+    "target": "some",
+    "links": [
+      {
+        "word": "water",
+        "sentence": "Please bring me some cold water."
+      },
+      {
+        "word": "friends",
+        "sentence": "Some friends came over last night."
+      },
+      {
+        "word": "bread",
+        "sentence": "There is some bread left."
+      },
+      {
+        "word": "patience",
+        "sentence": "We need some patience now."
+      },
+      {
+        "word": "books",
+        "sentence": "Some books are quite old."
+      },
+      {
+        "word": "sugar",
+        "sentence": "Add some sugar to your tea."
+      },
+      {
+        "word": "people",
+        "sentence": "Some people prefer quiet mornings."
+      },
+      {
+        "word": "money",
+        "sentence": "Some money is still missing."
+      }
+    ]
+  },
+  "shelf": {
+    "target": "shelf",
+    "links": [
+      {
+        "word": "top",
+        "sentence": "The top shelf holds old photos."
+      },
+      {
+        "word": "jar",
+        "sentence": "A jar sits on the shelf."
+      },
+      {
+        "word": "dust",
+        "sentence": "Dust covered the empty shelf."
+      },
+      {
+        "word": "reach",
+        "sentence": "She cannot reach the high shelf."
+      },
+      {
+        "word": "wooden",
+        "sentence": "A wooden shelf hangs above the bench."
+      },
+      {
+        "word": "keep",
+        "sentence": "Keep the plates on the shelf."
+      },
+      {
+        "word": "store",
+        "sentence": "We store boxes on that shelf."
+      },
+      {
+        "word": "library",
+        "sentence": "The library shelf looks quite full."
+      }
+    ]
+  },
+  "kitchen": {
+    "target": "kitchen",
+    "links": [
+      {
+        "word": "cook",
+        "sentence": "My mother will cook in the kitchen."
+      },
+      {
+        "word": "stove",
+        "sentence": "The kitchen stove heats up fast."
+      },
+      {
+        "word": "clean",
+        "sentence": "We clean the kitchen every evening."
+      },
+      {
+        "word": "window",
+        "sentence": "The kitchen window faces the yard."
+      },
+      {
+        "word": "food",
+        "sentence": "They prepared food in the kitchen."
+      },
+      {
+        "word": "floor",
+        "sentence": "The kitchen floor is very wet."
+      },
+      {
+        "word": "sink",
+        "sentence": "The kitchen sink is full again."
+      },
+      {
+        "word": "warm",
+        "sentence": "The kitchen feels warm in winter."
+      }
+    ]
+  },
+  "small": {
+    "target": "small",
+    "links": [
+      {
+        "word": "room",
+        "sentence": "This small room feels quite cozy."
+      },
+      {
+        "word": "town",
+        "sentence": "She grew up in a small town."
+      },
+      {
+        "word": "problem",
+        "sentence": "We fixed a small problem quickly."
+      },
+      {
+        "word": "dog",
+        "sentence": "The small dog barked loudly."
+      },
+      {
+        "word": "pocket",
+        "sentence": "The small pocket holds two coins."
+      },
+      {
+        "word": "amount",
+        "sentence": "Only a small amount is needed."
+      },
+      {
+        "word": "shop",
+        "sentence": "They opened a small shop downtown."
+      },
+      {
+        "word": "voice",
+        "sentence": "She spoke in a small voice."
+      }
+    ]
+  },
+  "there": {
+    "target": "there",
+    "links": [
+      {
+        "word": "park",
+        "sentence": "There is a park nearby."
+      },
+      {
+        "word": "keys",
+        "sentence": "The keys are over there."
+      },
+      {
+        "word": "people",
+        "sentence": "There are many people waiting."
+      },
+      {
+        "word": "nothing",
+        "sentence": "There is nothing to worry about."
+      },
+      {
+        "word": "seat",
+        "sentence": "Is there a free seat?"
+      },
+      {
+        "word": "station",
+        "sentence": "There is a station near here."
+      },
+      {
+        "word": "once",
+        "sentence": "We went there once before."
+      },
+      {
+        "word": "stay",
+        "sentence": "Please stay there until I return."
+      }
+    ]
+  },
+  "refrigerator": {
+    "target": "refrigerator",
+    "links": [
+      {
+        "word": "cheese",
+        "sentence": "The refrigerator keeps the cheese cold."
+      },
+      {
+        "word": "magnet",
+        "sentence": "A magnet sticks to the refrigerator."
+      },
+      {
+        "word": "fruit",
+        "sentence": "Store the fruit in the refrigerator."
+      },
+      {
+        "word": "door",
+        "sentence": "The refrigerator door stays open."
+      },
+      {
+        "word": "drawer",
+        "sentence": "The refrigerator has one small drawer."
+      },
+      {
+        "word": "repair",
+        "sentence": "Someone will repair the refrigerator tomorrow."
+      },
+      {
+        "word": "noisy",
+        "sentence": "The old refrigerator is very noisy."
+      },
+      {
+        "word": "empty",
+        "sentence": "The refrigerator looks almost empty."
+      }
+    ]
+  },
+  "electric": {
+    "target": "electric",
+    "links": [
+      {
+        "word": "car",
+        "sentence": "They bought an electric car."
+      },
+      {
+        "word": "light",
+        "sentence": "The electric light flickered twice."
+      },
+      {
+        "word": "power",
+        "sentence": "Electric power failed during the storm."
+      },
+      {
+        "word": "guitar",
+        "sentence": "He plays an electric guitar."
+      },
+      {
+        "word": "bill",
+        "sentence": "Our electric bill rose again."
+      },
+      {
+        "word": "kettle",
+        "sentence": "The electric kettle boils quickly."
+      },
+      {
+        "word": "fan",
+        "sentence": "An electric fan cools the room."
+      },
+      {
+        "word": "train",
+        "sentence": "The electric train arrives soon."
+      }
+    ]
+  },
+  "cooker": {
+    "target": "cooker",
+    "links": [
+      {
+        "word": "rice",
+        "sentence": "The cooker makes rice quickly."
+      },
+      {
+        "word": "pressure",
+        "sentence": "A pressure cooker saves cooking time."
+      },
+      {
+        "word": "beans",
+        "sentence": "The slow cooker cooks beans well."
+      },
+      {
+        "word": "gas",
+        "sentence": "The gas cooker heats fast."
+      },
+      {
+        "word": "lid",
+        "sentence": "Lift the cooker lid carefully."
+      },
+      {
+        "word": "timer",
+        "sentence": "Set the cooker timer for twenty minutes."
+      },
+      {
+        "word": "switch",
+        "sentence": "Turn off the cooker switch."
+      },
+      {
+        "word": "stew",
+        "sentence": "The cooker makes a rich stew."
+      }
+    ]
+  },
+  "left": {
+    "target": "left",
+    "links": [
+      {
+        "word": "turn",
+        "sentence": "Turn left at the light."
+      },
+      {
+        "word": "hand",
+        "sentence": "My left hand feels cold."
+      },
+      {
+        "word": "side",
+        "sentence": "The left side is free."
+      },
+      {
+        "word": "door",
+        "sentence": "She left the door open."
+      },
+      {
+        "word": "early",
+        "sentence": "He left the party early."
+      },
+      {
+        "word": "coat",
+        "sentence": "I left my coat upstairs."
+      },
+      {
+        "word": "corner",
+        "sentence": "The left corner looks dark."
+      },
+      {
+        "word": "message",
+        "sentence": "She left a short message."
+      }
+    ]
+  },
+  "table": {
+    "target": "table",
+    "links": [
+      {
+        "word": "lunch",
+        "sentence": "The table is ready for lunch."
+      },
+      {
+        "word": "chair",
+        "sentence": "Put the chair near the table."
+      },
+      {
+        "word": "wood",
+        "sentence": "This table is made of wood."
+      },
+      {
+        "word": "set",
+        "sentence": "Please set the table now."
+      },
+      {
+        "word": "cloth",
+        "sentence": "Put a clean cloth on the table."
+      },
+      {
+        "word": "wall",
+        "sentence": "The table sits by the wall."
+      },
+      {
+        "word": "lamp",
+        "sentence": "A lamp stands on the table."
+      },
+      {
+        "word": "round",
+        "sentence": "They bought a round table."
+      }
+    ]
+  },
+  "middle": {
+    "target": "middle",
+    "links": [
+      {
+        "word": "chair",
+        "sentence": "A chair stands in the middle."
+      },
+      {
+        "word": "night",
+        "sentence": "He woke up in the middle of the night."
+      },
+      {
+        "word": "week",
+        "sentence": "We meet in the middle of the week."
+      },
+      {
+        "word": "school",
+        "sentence": "She is in middle school now."
+      },
+      {
+        "word": "road",
+        "sentence": "The car stopped in the middle of the road."
+      },
+      {
+        "word": "class",
+        "sentence": "The middle class grew quickly."
+      },
+      {
+        "word": "finger",
+        "sentence": "The middle finger hurts a little."
+      },
+      {
+        "word": "row",
+        "sentence": "We sat in the middle row."
+      }
+    ]
+  }
+}

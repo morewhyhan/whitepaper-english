@@ -31,6 +31,7 @@ import {
 } from '../lib/vocabulary'
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import { useClearJudgements } from '../hooks/use-clear-judgements'
+import { useAssociation } from '../hooks/use-association'
 import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
 import { useResetToday } from '../hooks/use-reset-today'
 import { useStudyHistory, type StudyHistoryDay } from '../hooks/use-study-history'
@@ -1267,8 +1268,9 @@ function AssociationView({
   onFocus: (id: string) => void
 }) {
   const word = words[0]
+  const remoteNetwork = useAssociation(word?.en ?? '')
   if (!word) return <div className={styles.paperInner} />
-  const network = getAssociation(networks, word)
+  const network = remoteNetwork.data ?? getAssociation(networks, word)
   const mark = session.marks[word.id]
 
   return (
@@ -1314,7 +1316,9 @@ function AssociationView({
               >
                 <span className={styles.targetNote}>TARGET WORD</span>
                 <span className={styles.targetEn}>{word.en}</span>
-                <span className={styles.targetZh}>{mark === 'unknown' ? word.zh || '暂无释义' : '\u00a0'}</span>
+                <span className={styles.targetZh}>
+                  {mark === 'unknown' ? word.zh || '暂无释义' : '\u00a0'}
+                </span>
               </button>
             </div>
           </div>

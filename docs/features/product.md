@@ -71,6 +71,7 @@
 - R17（REQ-ACCOUNT-010）：设置里的“重新开始今天”清空当前词书当天的判定和会话，重建完整首轮；其他日期不受影响。
 - R18（REQ-ACCOUNT-011）：学习记录按天返回当前词书的词数、会、不会、轮次和是否完成；日期从新到旧。
 - R19（REQ-ACCOUNT-012）：点击词条时播放美式发音；系统没有语音时判定照常。
+- R20（REQ-ACCOUNT-013）：关联辅助按目标词返回 8 条真实短句，句子同时包含目标词和外围词。
 
 ## 验收标准
 
@@ -93,6 +94,7 @@
 - AC-ACCOUNT-010（REQ-ACCOUNT-010）：Given 登录用户已提交第一页，When 在设置里点“重新开始今天”并确认，Then 当天判定清空，页面回到第 1 轮。
 - AC-ACCOUNT-011（REQ-ACCOUNT-011）：Given 账号有 2026-11-07 和 2026-11-08 两天的会话与判定，When 请求学习记录，Then 按日期从新到旧返回词数、会、不会、轮次和完成状态。
 - AC-ACCOUNT-012（REQ-ACCOUNT-012）：Given 词汇白纸已打开，When 点击一个词条，Then 以 en-US 调用系统语音播放该词。
+- AC-ACCOUNT-013（REQ-ACCOUNT-013）：Given 关联数据里存在 lesson，When 请求关联接口，Then 返回 lesson 的 8 条句子，每条包含 lesson。
 
 ## 后续讨论边界
 

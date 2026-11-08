@@ -195,6 +195,19 @@ paths:
           description: Today reset
         '401':
           $ref: '#/components/responses/Unauthorized'
+  /api/vocabulary/association:
+    get:
+      operationId: getVocabularyAssociation
+      summary: Read the cached 1:8 association for a target word
+      parameters:
+        - name: word
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Association network or null
   /api/tasks:
     get:
       operationId: listTasks

@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { prisma } from '@/server/database/client'
+import associations from '@/modules/vocabulary/data/associations.json'
 import {
   clearWordStates,
   getDailySession,
@@ -94,8 +95,20 @@ const sessionSchema = z
   })
   .strict()
 
+const associationQuerySchema = z
+  .object({
+    word: z.string().trim().min(1).max(120),
+  })
+  .strict()
+
 const vocabulary = new Hono()
   .basePath('/vocabulary')
+  .get('/association', zValidator('query', associationQuerySchema), async (c) => {
+    const { word } = c.req.valid('query')
+    const network = (associations as Record<string, unknown>)[word.toLowerCase()] ?? null
+
+    return c.json({ data: { network } })
+  })
   .get('/state', zValidator('query', stateQuerySchema), async (c) => {
     const userId = await requireUserId(c.req.raw.headers)
     const { bookId = 'parallel-world', date = localDate() } = c.req.valid('query')
