@@ -505,21 +505,23 @@ export function VocabularyScreen() {
           白纸 <small>MEMORY, IN THE OPEN.</small>
         </div>
         <div className={styles.topActions}>
-          {workspaceMode === 'vocabulary' && (
-            <button
-              className={styles.quiet}
-              type="button"
-              aria-expanded={shelfOpen}
-              onClick={() => setShelfOpen(!shelfOpen)}
-            >
-              词书
-            </button>
-          )}
-          {workspaceMode === 'vocabulary' && (
-            <button className={styles.quiet} type="button" onClick={enterZenMode}>
-              禅模式
-            </button>
-          )}
+          <button
+            className={styles.quiet}
+            type="button"
+            aria-expanded={shelfOpen}
+            disabled={workspaceMode !== 'vocabulary'}
+            onClick={() => setShelfOpen(!shelfOpen)}
+          >
+            词书
+          </button>
+          <button
+            className={styles.quiet}
+            type="button"
+            disabled={workspaceMode !== 'vocabulary'}
+            onClick={enterZenMode}
+          >
+            禅模式
+          </button>
           {authSession?.user ? (
             <button
               className={styles.quiet}

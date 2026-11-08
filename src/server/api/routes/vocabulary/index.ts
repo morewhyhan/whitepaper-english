@@ -1,7 +1,8 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { prisma } from '@/server/database/client'
-import associations from '@/modules/vocabulary/data/associations.json'
 import {
   clearWordStates,
   getDailySession,
@@ -15,6 +16,22 @@ import { requireUserId } from '../../session'
 import { zValidator } from '../../validator'
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/
+
+type AssociationNetwork = {
+  target: string
+  links: { word: string; sentence: string }[]
+}
+
+let associationsCache: Record<string, AssociationNetwork> | null = null
+
+function getAssociations(): Record<string, AssociationNetwork> {
+  if (!associationsCache) {
+    const file = join(process.cwd(), 'src/modules/vocabulary/data/associations.json')
+    associationsCache = JSON.parse(readFileSync(file, 'utf8')) as Record<string, AssociationNetwork>
+  }
+
+  return associationsCache
+}
 
 function localDate() {
   return new Date().toISOString().slice(0, 10)
@@ -105,7 +122,7 @@ const vocabulary = new Hono()
   .basePath('/vocabulary')
   .get('/association', zValidator('query', associationQuerySchema), async (c) => {
     const { word } = c.req.valid('query')
-    const network = (associations as Record<string, unknown>)[word.toLowerCase()] ?? null
+    const network = getAssociations()[word.toLowerCase()] ?? null
 
     return c.json({ data: { network } })
   })
