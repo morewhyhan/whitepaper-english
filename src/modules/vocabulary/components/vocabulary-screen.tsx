@@ -1330,7 +1330,9 @@ function AssociationView({
               这个词还没有预先校验的 1:8
               英文关联句。关联句不会凭空拼凑；你仍然可以标记它，并继续当前轮次。
             </p>
-            <p className={styles.hint}>当前仅提供 4 组人工整理的关联网络，其余词暂不自动生成。</p>
+            <p className={styles.hint}>
+              当前词暂时没有可用的关联数据，你仍然可以标记它并继续当前轮次。
+            </p>
           </div>
         )}
         <p className={styles.assocHelp}>
