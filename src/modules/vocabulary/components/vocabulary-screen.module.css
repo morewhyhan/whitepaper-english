@@ -2656,36 +2656,56 @@
 }
 
 
-/* Trash: a small paper bin next to the view switch. */
+/* Trash: a vertical paper tab above the view switch, opening a centered sheet. */
 .trashButton {
-  position: fixed;
-  right: 22px;
-  top: 300px;
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 14px);
   z-index: 35;
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  border: 1px solid #d5d9cf;
-  border-radius: 999px;
-  background: #fbfaf5;
-  color: #59645a;
-  padding: 6px 10px 6px 8px;
+  gap: 5px;
+  width: 46px;
+  padding: 12px 0 10px;
+  border: 1px solid #ffffffbc;
+  border-radius: 24px;
+  background: #e6e9e0b8;
+  color: #737f69;
+  box-shadow:
+    0 2px 8px #25301b06,
+    inset 0 1px #fff9;
+  backdrop-filter: blur(16px);
   cursor: pointer;
   font: inherit;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1;
+  transition:
+    color 160ms,
+    background 160ms,
+    transform 160ms;
 }
 
 .trashButton:hover,
 .trashButton[aria-expanded='true'] {
-  border-color: #a9b8a5;
-  color: #2f4a35;
+  background: #fff;
+  color: #3e5033;
+  box-shadow: 0 2px 5px #27351b12;
+}
+
+.trashButton:active {
+  transform: scale(0.96);
+}
+
+.trashButton:focus-visible {
+  outline: 2px solid #7e936e;
+  outline-offset: 2px;
 }
 
 .trashIcon {
   display: inline-flex;
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
 }
 
 .trashIcon svg {
@@ -2693,31 +2713,61 @@
   height: 100%;
 }
 
-.trashPanel {
+.trashBackdrop {
   position: fixed;
-  right: 24px;
-  top: 118px;
-  z-index: 60;
-  width: min(330px, calc(100vw - 32px));
-  max-height: min(560px, calc(100vh - 150px));
-  overflow: auto;
-  padding: 16px;
-  border: 1px solid #d9dfd8;
-  border-radius: 3px;
-  background: #fbfaf5;
-  box-shadow: 0 18px 38px #2f3a2a18;
-}
-
-.trashHead {
+  inset: 0;
+  z-index: 80;
   display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: #222a2047;
+  backdrop-filter: blur(5px);
+}
+
+.trashDialog {
+  display: flex;
+  flex-direction: column;
+  width: min(860px, 100%);
+  max-height: min(78vh, 720px);
+  padding: 30px 32px 20px;
+  border: 1px solid #e1e0d4;
+  border-radius: 5px;
+  background: #fbfaf4;
+  box-shadow: 0 26px 80px #1b211726;
+  animation: sheetEnter 180ms ease-out;
+}
+
+.trashDialogHead {
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #e1e4dc;
+  gap: 20px;
+}
+
+.trashKicker {
+  color: #9a9c8d;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+.trashTitle {
+  margin: 7px 0 0;
   color: #2f3a2c;
-  font-family: Georgia, 'Songti SC', serif;
-  font-size: 17px;
+  font-family: Georgia, 'Songti SC', 'SimSun', serif;
+  font-size: 27px;
+  font-weight: 400;
+}
+
+.trashDialogActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.trashCount {
+  color: #7c8576;
+  font-size: 11px;
 }
 
 .trashClose {
@@ -2725,80 +2775,117 @@
   background: transparent;
   color: #626d60;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 25px;
   line-height: 1;
 }
 
 .trashHint {
-  margin: 10px 0 12px;
+  margin: 16px 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e7e7dd;
   color: #7b8277;
   font-size: 11px;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
-.trashList {
+.trashGrid {
   display: grid;
-  gap: 2px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px 24px;
+  overflow: auto;
+  padding-right: 4px;
 }
 
-.trashList li {
+.trashCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  min-height: 52px;
   padding: 8px 0;
-  border-bottom: 1px solid #eeefe9;
+  border-bottom: 1px solid #eeefe7;
 }
 
-.trashList li > span {
+.trashCardText {
   display: grid;
-  gap: 3px;
+  gap: 4px;
+  min-width: 0;
 }
 
-.trashList strong {
+.trashCard strong {
+  overflow: hidden;
   color: #303a2e;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.trashList small {
+.trashCard small {
+  overflow: hidden;
   color: #8a8f86;
   font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.trashList button {
+.trashCard button {
   flex: none;
   border: 1px solid #d5d9cf;
   border-radius: 999px;
   background: transparent;
   color: #52604f;
-  padding: 4px 8px;
+  padding: 5px 10px;
   cursor: pointer;
   font: inherit;
   font-size: 10px;
 }
 
-.trashList button:hover {
+.trashCard button:hover {
   border-color: #a9b8a5;
   color: #2f4a35;
 }
 
 .trashEmpty {
-  margin: 16px 0 4px;
+  margin: 24px 0;
   color: #8a8f86;
   font-size: 12px;
+  text-align: center;
+}
+
+.trashDialogFoot {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid #e7e7dd;
+  color: #a0a295;
+  font-size: 10px;
+}
+
+@media (max-width: 900px) {
+  .trashGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 680px) {
   .trashButton {
-    right: 14px;
-    top: 220px;
+    width: 42px;
+    padding: 11px 0 9px;
   }
-  .trashPanel {
-    right: 16px;
-    top: 96px;
+
+  .trashBackdrop {
+    padding: 14px;
+  }
+
+  .trashDialog {
+    padding: 22px 20px 16px;
+  }
+
+  .trashTitle {
+    font-size: 23px;
+  }
+
+  .trashGrid {
+    grid-template-columns: 1fr;
   }
 }

@@ -24,7 +24,7 @@ test('[AC-ACCOUNT-020] 双击归档、共享垃圾桶和放回', async ({ page }
   await expect(badge).toContainText('1')
 
   await badge.click()
-  const panel = page.getByRole('complementary', { name: '垃圾桶' })
+  const panel = page.getByRole('dialog', { name: '垃圾桶' })
   await expect(panel).toContainText(word)
   await panel.getByRole('button', { name: '放回' }).click()
   await expect(badge).toContainText('0')

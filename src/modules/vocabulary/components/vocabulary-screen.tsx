@@ -240,6 +240,15 @@ export function VocabularyScreen() {
   }, [dailySession.data, hydrated, authSession?.user, activeBookId, today])
 
   useEffect(() => {
+    if (!trashOpen) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setTrashOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [trashOpen])
+
+  useEffect(() => {
     if (!notice) return
     const timer = window.setTimeout(() => setNotice(null), 2500)
     return () => window.clearTimeout(timer)
@@ -825,37 +834,61 @@ export function VocabularyScreen() {
       </div>
 
       {trashOpen && (
-        <aside className={styles.trashPanel} aria-label="垃圾桶">
-          <div className={styles.trashHead}>
-            <span>不再推送</span>
-            <button
-              className={styles.trashClose}
-              type="button"
-              aria-label="关闭垃圾桶"
-              onClick={() => setTrashOpen(false)}
-            >
-              ×
-            </button>
-          </div>
-          <p className={styles.trashHint}>双击九宫格中心词或关联中心词会放进这里；周围辅助词不归档。放回后会在之后的轮次继续出现。</p>
-          {trashedWords.length ? (
-            <ul className={styles.trashList}>
-              {trashedWords.map((word) => (
-                <li key={word.id}>
-                  <span>
-                    <strong>{word.en}</strong>
-                    <small>{word.zh || '暂无释义'}</small>
-                  </span>
-                  <button type="button" onClick={() => restoreTrash(word.id)}>
-                    放回
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className={styles.trashEmpty}>垃圾桶是空的。</p>
-          )}
-        </aside>
+        <div
+          className={styles.trashBackdrop}
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setTrashOpen(false)
+          }}
+        >
+          <section
+            className={styles.trashDialog}
+            role="dialog"
+            aria-modal="true"
+            aria-label="垃圾桶"
+          >
+            <div className={styles.trashDialogHead}>
+              <div>
+                <div className={styles.trashKicker}>NOT IN ROTATION</div>
+                <h2 className={styles.trashTitle}>不再推送</h2>
+              </div>
+              <div className={styles.trashDialogActions}>
+                <span className={styles.trashCount}>{trashedWords.length} 词</span>
+                <button
+                  className={styles.trashClose}
+                  type="button"
+                  aria-label="关闭垃圾桶"
+                  onClick={() => setTrashOpen(false)}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            <p className={styles.trashHint}>
+              双击九宫格中心词或关联中心词会放进这里；周围辅助词不归档。放回后会在之后的轮次继续出现。
+            </p>
+            {trashedWords.length ? (
+              <div className={styles.trashGrid}>
+                {trashedWords.map((word) => (
+                  <article className={styles.trashCard} key={word.id}>
+                    <div className={styles.trashCardText}>
+                      <strong>{word.en}</strong>
+                      <small>{word.zh || '暂无释义'}</small>
+                    </div>
+                    <button type="button" onClick={() => restoreTrash(word.id)}>
+                      放回
+                    </button>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className={styles.trashEmpty}>垃圾桶是空的。</p>
+            )}
+            <div className={styles.trashDialogFoot}>
+              这里只保存本机当前词书的排除词，不会改变其他词书。
+            </div>
+          </section>
+        </div>
       )}
 
       {zenMode && (
