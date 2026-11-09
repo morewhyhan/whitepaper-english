@@ -2081,6 +2081,39 @@
   right: -44px;
   bottom: 30px;
   z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 9px;
+}
+
+.clearPageButton {
+  width: 44px;
+  min-height: 60px;
+  padding: 9px 8px;
+  border: 1px solid #d5d9cf;
+  border-right: 0;
+  border-radius: 8px 0 0 8px;
+  background: #f8f7f1;
+  color: #6f7a68;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  line-height: 1.4;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.08em;
+}
+
+.clearPageButton:hover:not(:disabled) {
+  border-color: #a9b8a5;
+  background: #fff;
+  color: #2f4a35;
+}
+
+.clearPageButton:disabled {
+  cursor: default;
+  opacity: 0.35;
 }
 
 .paperAdvance .primaryButton {
@@ -2589,6 +2622,10 @@
   }
   .primaryButton {
     padding: 10px 14px;
+  }
+  .clearPageButton {
+    width: 40px;
+    min-height: 56px;
   }
   .paperAdvance .primaryButton {
     width: 40px;

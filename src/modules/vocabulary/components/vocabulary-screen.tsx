@@ -452,6 +452,17 @@ export function VocabularyScreen() {
     })
   }
 
+  function handleClearPage() {
+    const currentPage = pageWords(state.words, session)
+    if (!currentPage.length) return
+    updateSession((current) => {
+      const marks = { ...current.marks }
+      for (const word of currentPage) delete marks[word.id]
+      return { ...current, marks, peek: false }
+    })
+    setNotice('本页已清空')
+  }
+
   async function handleNext() {
     if (session.complete) return
     if (!(await commitCurrentPage())) return
@@ -462,6 +473,22 @@ export function VocabularyScreen() {
     persistSession(next)
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
+
+  useEffect(() => {
+    const handleNextShortcut = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter' || event.isComposing || event.repeat) return
+      if (modal || authOpen || settingsOpen || trashOpen || zenMode) return
+      if (session.complete) return
+      const target = event.target
+      if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')) {
+        return
+      }
+      event.preventDefault()
+      void handleNext()
+    }
+    window.addEventListener('keydown', handleNextShortcut)
+    return () => window.removeEventListener('keydown', handleNextShortcut)
+  }, [modal, authOpen, settingsOpen, trashOpen, zenMode, session, handleNext])
 
   async function handleZenNext() {
     if (session.complete) return
@@ -793,6 +820,14 @@ export function VocabularyScreen() {
                   </div>
                 </PaperSurface>
                 <div className={styles.paperAdvance}>
+                  <button
+                    className={styles.clearPageButton}
+                    type="button"
+                    disabled={session.complete}
+                    onClick={handleClearPage}
+                  >
+                    本页清空
+                  </button>
                   <button
                     className={styles.primaryButton}
                     type="button"
