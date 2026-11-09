@@ -1,0 +1,151 @@
+result: failed\n\n
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/mnt/c/Users/why/Documents/ChatGPT/whitepaper-english[39m
+
+ [31m❯[39m [30m[43m behavior [49m[39m tests/contracts/experience.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 42[2mms[22m[39m
+[31m     [31m×[31m [AC-EXPERIENCE-001] 优先本地神经语音，只有失败才系统兜底[39m[32m 17[2mms[22m[39m
+     [32m✓[39m [AC-EXPERIENCE-004] 只有纸面词句可选中，拖选不误触[32m 11[2mms[22m[39m
+     [32m✓[39m [AC-EXPERIENCE-002] 关联句与纸面同底，没有白色块[32m 7[2mms[22m[39m
+     [32m✓[39m [AC-EXPERIENCE-003] 换词动效短，减少动态时关闭[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-state-data.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 21500[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-daily-state.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 19266[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-state.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 14304[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-judgements.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 17059[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/tasks.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 15300[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/contracts/product-goal.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-history.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 16549[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m24 passed[39m[22m[90m (25)[39m
+[2m   Start at [22m 09:22:47
+[2m   Duration [22m 70.24s[2m (transform 1.61s, setup 0ms, import 4.92s, tests 104.07s, environment 1ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[43m behavior [49m[39m tests/contracts/experience.test.ts[2m > [22m体验领域契约[2m > [22m[AC-EXPERIENCE-001] 优先本地神经语音，只有失败才系统兜底
+[31m[1mAssertionError[22m: expected '\'use client\'\n\nconst CACHE_LIMIT =…' to contain '\'/api/vocabulary/tts\''[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- '[7m/api/vocabulary/tts'[27m[39m
+[31m+ '[7muse client'[27m[39m
+[31m+[39m
+[31m+ const CACHE_LIMIT = 100[39m
+[31m+ const cache = new Map<string, HTMLAudioElement>()[39m
+[31m+ let current: HTMLAudioElement | null = null[39m
+[31m+[39m
+[31m+ function urlFor(text: string, audio?: string) {[39m
+[31m+   return audio || '/api/vocabulary/tts?text=' + encodeURIComponent(text)[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ function audioFor(text: string, audioUrl?: string) {[39m
+[31m+   const key = audioUrl || text[39m
+[31m+   const cached = cache.get(key)[39m
+[31m+   if (cached) return cached[39m
+[31m+   const audio = new Audio(urlFor(text, audioUrl))[39m
+[31m+   audio.preload = 'auto'[39m
+[31m+   audio.load()[39m
+[31m+   if (cache.size >= CACHE_LIMIT) {[39m
+[31m+     const oldest = cache.keys().next().value[39m
+[31m+     if (oldest) {[39m
+[31m+       const old = cache.get(oldest)[39m
+[31m+       if (old) {[39m
+[31m+         old.pause()[39m
+[31m+         old.removeAttribute('src')[39m
+[31m+         old.load()[39m
+[31m+       }[39m
+[31m+       cache.delete(oldest)[39m
+[31m+     }[39m
+[31m+   }[39m
+[31m+   cache.set(key, audio)[39m
+[31m+   return audio[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ export function stopSpeech() {[39m
+[31m+   if (current) {[39m
+[31m+     current.pause()[39m
+[31m+     current.currentTime = 0[39m
+[31m+     current = null[39m
+[31m+   }[39m
+[31m+   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {[39m
+[31m+     window.speechSynthesis.cancel()[39m
+[31m+   }[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ function pickSystemVoice(): SpeechSynthesisVoice | null {[39m
+[31m+   if (!('speechSynthesis' in window)) return null[39m
+[31m+   const voices = window.speechSynthesis[39m
+[31m+     .getVoices()[39m
+[31m+     .filter((voice) => voice.lang.toLowerCase().startsWith('en'))[39m
+[31m+   if (!voices.length) return null[39m
+[31m+   const preferred = [/natural/i, /neural/i, /online/i, /aria/i, /jenny/i, /guy/i, /samantha/i, /google us english/i, /zira/i, /ava/i][39m
+[31m+   const avoid = /david|mark|espeak|compact|robot/i[39m
+[31m+   return ([39m
+[31m+     voices[39m
+[31m+       .map((voice) => {[39m
+[31m+         let score = 0[39m
+[31m+         if (voice.lang.toLowerCase() === 'en-us') score += 6[39m
+[31m+         else if (voice.lang.toLowerCase() === 'en-gb') score += 3[39m
+[31m+         if (voice.localService) score += 1[39m
+[31m+         if (voice.default) score += 1[39m
+[31m+         preferred.forEach((pattern, index) => {[39m
+[31m+           if (pattern.test(voice.name)) score += 12 - index[39m
+[31m+         })[39m
+[31m+         if (avoid.test(voice.name)) score -= 20[39m
+[31m+         return { voice, score }[39m
+[31m+       })[39m
+[31m+       .sort((a, b) => b.score - a.score)[0]?.voice ?? null[39m
+[31m+   )[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ function speakSystem(text: string) {[39m
+[31m+   if (!('speechSynthesis' in window)) return[39m
+[31m+   window.speechSynthesis.cancel()[39m
+[31m+   const utterance = new SpeechSynthesisUtterance(text)[39m
+[31m+   utterance.lang = 'en-US'[39m
+[31m+   utterance.rate = 0.94[39m
+[31m+   utterance.pitch = 1[39m
+[31m+   const voice = pickSystemVoice()[39m
+[31m+   if (voice) utterance.voice = voice[39m
+[31m+   window.speechSynthesis.speak(utterance)[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ export function warmSpeech() {}[39m
+[31m+ export function prefetchSpeech(items: Array<{ text: string; audio?: string }>) {[39m
+[31m+   const seen = new Set<string>()[39m
+[31m+   for (const item of items) {[39m
+[31m+     const text = item.text.trim()[39m
+[31m+     if (!text || !item.audio || seen.has(text)) continue[39m
+[31m+     seen.add(text)[39m
+[31m+     audioFor(text, item.audio)[39m
+[31m+   }[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ export async function speakText(text: string, audioUrl?: string) {[39m
+[31m+   if (typeof window === 'undefined') return[39m
+[31m+   const clean = text.trim()[39m
+[31m+   if (!clean) return[39m
+[31m+   stopSpeech()[39m
+[31m+   const audio = audioFor(clean, audioUrl)[39m
+[31m+   current = audio[39m
+[31m+   audio.currentTime = 0[39m
+[31m+   try {[39m
+[31m+     await audio.play()[39m
+[31m+   } catch {[39m
+[31m+     if (current === audio) current = null[39m
+[31m+     speakSystem(clean)[39m
+[31m+   }[39m
+[31m+ }[39m
+[31m+[39m
+
+[36m [2m❯[22m tests/contracts/experience.test.ts:[2m13:20[22m[39m
+    [90m 11|[39m     [35mconst[39m server [33m=[39m [34mread[39m([32m'src/server/vocabulary/tts.ts'[39m)
+    [90m 12|[39m     [34mexpect[39m(server)[33m.[39m[34mtoContain[39m([32m'en-US-AriaNeural'[39m)
+    [90m 13|[39m     [34mexpect[39m(speech)[33m.[39m[34mtoContain[39m([32m"'/api/vocabulary/tts'"[39m)
+    [90m   |[39m                    [31m^[39m
+    [90m 14|[39m     [34mexpect[39m(speech)[33m.[39m[34mtoContain[39m([32m'speakSystem'[39m)
+    [90m 15|[39m     [34mexpect[39m(speech)[33m.[39m[34mtoMatch[39m([36m/speakSystem\(clean\)/[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

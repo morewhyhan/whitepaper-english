@@ -3141,3 +3141,20 @@
     page-break-after: always;
   }
 }
+
+
+/* Paper text can be copied; chrome and controls cannot. */
+.layout {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.word,
+.word *,
+.assocNode,
+.assocNode *,
+.targetEn,
+.targetZh {
+  user-select: text;
+  -webkit-user-select: text;
+}

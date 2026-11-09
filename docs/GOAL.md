@@ -44,7 +44,7 @@ flowchart LR
 ## 三、金字塔（文字）
 
 <!-- goal-summary -->
-合计 31 条：已验证 31（验证于 2026-11-09-00-54）
+合计 32 条：已验证 32
 <!-- /goal-summary -->
 
 - **目标**：让一个人每天在一张纸上完成词汇自评、理解与清零。
@@ -180,7 +180,7 @@ flowchart LR
     - **REQ-EXPERIENCE-001 发音优先服务端神经语音**
       - 来源事件：点击词条、点击关联句
       - 规则：词和关联句预生成为静态音频，点击直接播放；缺失或失败才用系统英文语音；不提供手动音色选择
-      - AC-EXPERIENCE-001（REQ-EXPERIENCE-001）：Given 服务端神经语音已加载，When 点击词条或关联句，Then 播放神经语音；只有未就绪或失败时才用系统语音，界面没有手动音色选择。
+      - AC-EXPERIENCE-001（REQ-EXPERIENCE-001）：Given 词或句已有预生成音频，When 点击词条或关联句，Then 立即播放静态音频，不再现场合成；只有文件缺失或失败时才用系统语音，界面没有手动音色选择。
         - **测试用例**：点击词条或句子 → 听到自然神经语音 ｜ **状态**：已验证 ｜ [用例](others/test-cases/vocabulary.md) · [tests](../tests/contracts/experience.test.ts) · [查看](others/evidence/goal-runs/2026-11-08-22-24.txt)
     - **REQ-EXPERIENCE-002 关联句与纸面同底**
       - 来源事件：打开关联辅助、悬停节点
@@ -192,6 +192,11 @@ flowchart LR
       - 规则：节点 150ms 渐入；减少动态时关闭；tab 位置稳定
       - AC-EXPERIENCE-003（REQ-EXPERIENCE-003）：Given 切换下一词、切换模块或系统开启减少动态，When 页面更新，Then 节点 150ms 渐入或关闭动画，顶部 tab 位置保持稳定。
         - **测试用例**：换词/切模块 → 动效短且 tab 不跳 ｜ **状态**：已验证 ｜ [用例](others/test-cases/vocabulary.md) · [tests](../tests/contracts/experience.test.ts) · [查看](others/evidence/goal-runs/2026-11-08-22-24.txt)
+    - **REQ-EXPERIENCE-004 只允许纸面词句被选中**
+      - 来源事件：拖选九宫格词块、拖选关联句节点
+      - 规则：只有词块和关联句文本可选中复制；顶部、设置和说明不可选；拖选后不触发判定或发音
+      - AC-EXPERIENCE-004（REQ-EXPERIENCE-004）：Given 打开词汇纸，When 拖选九宫格词块或关联句节点，Then 文本可复制；拖选顶部或设置不会选中；拖选后不触发判定。
+        - **测试用例**：拖选词块/句子 → 可复制且不误判 ｜ **状态**：已验证 ｜ [用例](others/test-cases/vocabulary.md) · [tests](../tests/contracts/experience.test.ts) · [查看](others/evidence/goal-runs/2026-11-09-01-28.txt)
   - **外壳（非领域）**
     - 事件链：打开产品 → 切换模块 → 打开设置
     - 聚合：导航、设置面板、页面外壳

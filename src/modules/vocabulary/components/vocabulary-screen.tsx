@@ -40,6 +40,12 @@ import { SettingsPanel } from './settings-panel'
 import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
 
+function hasTextSelection() {
+  if (typeof window === 'undefined') return false
+  const selection = window.getSelection()
+  return Boolean(selection && selection.toString().trim())
+}
+
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
 
 type ModalName = 'import' | 'settings' | 'history' | null
@@ -268,6 +274,7 @@ export function VocabularyScreen() {
   }
 
   function handleWordClick(id: string, reverse: boolean) {
+    if (hasTextSelection()) return
     const spoken = state.words.find((word) => word.id === id)
     if (soundOn && spoken) speakText(spoken.en, spoken.audio)
     const mark: Judgement = reverse
@@ -1275,7 +1282,10 @@ function AssociationView({
                 aria-label={`朗读：${link.sentence}`}
                 onPointerEnter={() => onPrefetch(link.sentence, link.audio)}
                 onFocus={() => onPrefetch(link.sentence, link.audio)}
-                onClick={() => onSpeak(link.sentence, link.audio)}
+                onClick={() => {
+                  if (hasTextSelection()) return
+                  onSpeak(link.sentence, link.audio)
+                }}
               >
                 <span className={styles.assocWord}>{link.word}</span>
                 <span className={styles.assocSentence}>{highlight(link.sentence, link.word)}</span>
@@ -1635,11 +1645,15 @@ function loadState(): VocabularyState {
     const parsed = JSON.parse(raw) as Partial<VocabularyState>
     if (!Array.isArray(parsed.words) || !parsed.words.length) return createInitialState()
     const defaults = createInitialState()
-    const audioByWord = new Map(defaults.words.map((word) => [word.en, word.audio]))
-    const words = normalizeWords(parsed.words).map((word) => ({
-      ...word,
-      audio: audioByWord.get(word.en) ?? word.audio,
-    }))
+    const canonical = new Map(defaults.words.map((word) => [word.en, word]))
+    const words = normalizeWords(parsed.words).map((word) => {
+      const current = canonical.get(word.en)
+      return {
+        ...word,
+        zh: word.zh || current?.zh || '',
+        audio: current?.audio ?? word.audio,
+      }
+    })
     if (!words.length) return createInitialState()
     return {
       ...defaults,

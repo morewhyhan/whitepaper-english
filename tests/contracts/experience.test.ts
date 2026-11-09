@@ -6,13 +6,22 @@ const root = process.cwd()
 const read = (file: string) => readFileSync(join(root, file), 'utf8')
 
 describe('体验领域契约', () => {
-  it('[AC-EXPERIENCE-001] 优先本地神经语音，只有失败才系统兜底', () => {
+  it('[AC-EXPERIENCE-001] 预生成神经语音，只有失败才系统兜底', () => {
     const speech = read('src/modules/vocabulary/lib/speech.ts')
     const server = read('src/server/vocabulary/tts.ts')
     expect(server).toContain('en-US-AriaNeural')
-    expect(speech).toContain("'/api/vocabulary/tts'")
+    expect(speech).toContain('/api/vocabulary/tts?text=')
     expect(speech).toContain('speakSystem')
     expect(speech).toMatch(/speakSystem\(clean\)/)
+  })
+
+  it('[AC-EXPERIENCE-004] 只有纸面词句可选中，拖选不误触', () => {
+    const css = read('src/modules/vocabulary/components/vocabulary-screen.module.css')
+    const screen = read('src/modules/vocabulary/components/vocabulary-screen.tsx')
+    expect(css).toMatch(/\.layout\s*\{[^}]*user-select:\s*none/s)
+    expect(css).toMatch(/\.word,[\s\S]*?user-select:\s*text/s)
+    expect(css).toMatch(/\.assocNode,[\s\S]*?user-select:\s*text/s)
+    expect(screen).toContain('hasTextSelection')
   })
 
   it('[AC-EXPERIENCE-002] 关联句与纸面同底，没有白色块', () => {
