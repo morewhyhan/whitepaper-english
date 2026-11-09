@@ -837,7 +837,7 @@ export function VocabularyScreen() {
               ×
             </button>
           </div>
-          <p className={styles.trashHint}>双击词条会放进这里；放回后会继续出现在之后的轮次。</p>
+          <p className={styles.trashHint}>双击九宫格中心词或关联中心词会放进这里；周围辅助词不归档。放回后会在之后的轮次继续出现。</p>
           {trashedWords.length ? (
             <ul className={styles.trashList}>
               {trashedWords.map((word) => (
@@ -1205,7 +1205,7 @@ function ScanGrid({
               word={word}
               session={session}
               onWordClick={onWordClick}
-              onTrash={onTrash}
+              onTrash={wordIndex === 4 ? onTrash : undefined}
               style={
                 variant === 'zen'
                   ? {
@@ -1470,7 +1470,7 @@ function WordButton({
       type="button"
       style={style}
       aria-label={`${word.en}, ${mark || (previewUnknown ? '不会预览' : '未判定')}`}
-      title={`普通点击标${session.mode === 'unknown' ? '不会' : '会'}；Shift＋点击反向`}
+      title={`普通点击标${session.mode === 'unknown' ? '不会' : '会'}；Shift＋点击反向${onTrash ? '；双击归档' : ''}`}
       onClick={handleClick}
       onContextMenu={(event) => {
         event.preventDefault()

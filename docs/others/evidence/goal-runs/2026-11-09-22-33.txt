@@ -1,0 +1,17 @@
+result: passed\n\n
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/mnt/c/Users/why/Documents/ChatGPT/whitepaper-english[39m
+
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-state.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 15205[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-judgements.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 17262[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-history.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 18922[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/tasks.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 17008[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-state-data.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 20194[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/api/vocabulary-daily-state.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 20033[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/contracts/product-goal.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 119[2mms[22m[39m
+ [32m✓[39m [30m[43m behavior [49m[39m tests/contracts/experience.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m25 passed[39m[22m[90m (25)[39m
+[2m   Start at [22m 06:33:56
+[2m   Duration [22m 72.87s[2m (transform 2.14s, setup 0ms, import 5.45s, tests 108.80s, environment 1ms)[22m
+
