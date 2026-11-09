@@ -43,6 +43,7 @@ export type VocabularyState = {
     groups: 4 | 6
   }
   sessions: Record<string, VocabularySession>
+  trashedIds: string[]
 }
 
 export type ImportedVocabulary = {
@@ -312,16 +313,19 @@ export function createInitialState(): VocabularyState {
     networks: DEMO_NETWORKS,
     settings: defaultSettings,
     sessions: {},
+    trashedIds: [],
   }
 }
 
 export function createSession(
   words: VocabularyWord[],
   settings = defaultSettings,
+  trashedIds: string[] = [],
 ): VocabularySession {
+  const trashed = new Set(trashedIds)
   return {
     round: 1,
-    ids: shuffle(words.map((word) => word.id)),
+    ids: shuffle(words.filter((word) => !trashed.has(word.id)).map((word) => word.id)),
     cursor: 0,
     missed: [],
     marks: {},

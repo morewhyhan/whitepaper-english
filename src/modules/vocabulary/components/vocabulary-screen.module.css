@@ -2654,3 +2654,151 @@
   user-select: text;
   -webkit-user-select: text;
 }
+
+
+/* Trash: a small paper bin next to the view switch. */
+.trashButton {
+  position: fixed;
+  right: 22px;
+  top: 300px;
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #d5d9cf;
+  border-radius: 999px;
+  background: #fbfaf5;
+  color: #59645a;
+  padding: 6px 10px 6px 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.trashButton:hover,
+.trashButton[aria-expanded='true'] {
+  border-color: #a9b8a5;
+  color: #2f4a35;
+}
+
+.trashIcon {
+  display: inline-flex;
+  width: 17px;
+  height: 17px;
+}
+
+.trashIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.trashPanel {
+  position: fixed;
+  right: 24px;
+  top: 118px;
+  z-index: 60;
+  width: min(330px, calc(100vw - 32px));
+  max-height: min(560px, calc(100vh - 150px));
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid #d9dfd8;
+  border-radius: 3px;
+  background: #fbfaf5;
+  box-shadow: 0 18px 38px #2f3a2a18;
+}
+
+.trashHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e1e4dc;
+  color: #2f3a2c;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 17px;
+}
+
+.trashClose {
+  border: 0;
+  background: transparent;
+  color: #626d60;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.trashHint {
+  margin: 10px 0 12px;
+  color: #7b8277;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.trashList {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trashList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eeefe9;
+}
+
+.trashList li > span {
+  display: grid;
+  gap: 3px;
+}
+
+.trashList strong {
+  color: #303a2e;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.trashList small {
+  color: #8a8f86;
+  font-size: 10px;
+}
+
+.trashList button {
+  flex: none;
+  border: 1px solid #d5d9cf;
+  border-radius: 999px;
+  background: transparent;
+  color: #52604f;
+  padding: 4px 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+}
+
+.trashList button:hover {
+  border-color: #a9b8a5;
+  color: #2f4a35;
+}
+
+.trashEmpty {
+  margin: 16px 0 4px;
+  color: #8a8f86;
+  font-size: 12px;
+}
+
+@media (max-width: 680px) {
+  .trashButton {
+    right: 14px;
+    top: 220px;
+  }
+  .trashPanel {
+    right: 16px;
+    top: 96px;
+  }
+}

@@ -8,6 +8,7 @@ import {
   type CSSProperties,
   type ReactNode,
   type Ref,
+  type MouseEvent as ReactMouseEvent,
 } from 'react'
 import {
   advanceSession,
@@ -39,6 +40,35 @@ import { useStudyHistory, type StudyHistoryDay } from '../hooks/use-study-histor
 import { SettingsPanel } from './settings-panel'
 import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
+
+function useTrashClick(
+  onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void,
+  onTrash?: () => void,
+) {
+  const timer = useRef<number | null>(null)
+  useEffect(() => {
+    return () => {
+      if (timer.current) window.clearTimeout(timer.current)
+    }
+  }, [])
+  return (event: ReactMouseEvent<HTMLButtonElement>) => {
+    if (!onTrash) {
+      onClick(event)
+      return
+    }
+    if (event.detail >= 2) {
+      if (timer.current) window.clearTimeout(timer.current)
+      timer.current = null
+      onTrash()
+      return
+    }
+    if (timer.current) window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => {
+      timer.current = null
+      onClick(event)
+    }, 240)
+  }
+}
 
 function hasTextSelection() {
   if (typeof window === 'undefined') return false
@@ -93,6 +123,7 @@ export function VocabularyScreen() {
   const [hydrated, setHydrated] = useState(false)
   const [undoSession, setUndoSession] = useState<VocabularySession | null>(null)
   const [modal, setModal] = useState<ModalName>(null)
+  const [trashOpen, setTrashOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
@@ -181,7 +212,7 @@ export function VocabularyScreen() {
     }
 
     const apply = (current: VocabularyState): VocabularyState => {
-      const local = current.sessions[today] ?? createSession(current.words, current.settings)
+      const local = current.sessions[today] ?? createSession(current.words, current.settings, current.trashedIds)
       const sameRound = local.round === remote.round
       const cursor = sameRound ? Math.max(local.cursor, remote.cursor) : remote.cursor
       if (local.cursor === cursor && local.round === remote.round) return current
@@ -194,7 +225,7 @@ export function VocabularyScreen() {
             ...local,
             round: remote.round,
             cursor,
-            ids: remote.ids,
+            ids: remote.ids.filter((id) => !current.trashedIds.includes(id)),
             missed: remote.missed,
             history: remote.history,
             complete: remote.complete,
@@ -214,8 +245,9 @@ export function VocabularyScreen() {
     return () => window.clearTimeout(timer)
   }, [notice])
 
-  const session = hydrated ? state.sessions[today] : createSession(state.words, state.settings)
+  const session = hydrated ? state.sessions[today] : createSession(state.words, state.settings, state.trashedIds)
   const currentWords = pageWords(state.words, session)
+  const trashedWords = state.words.filter((word) => state.trashedIds.includes(word.id))
   useEffect(() => {
     prefetchSpeech(
       pageWords(state.words, session).map((word) => ({ text: word.en, audio: word.audio })),
@@ -263,7 +295,7 @@ export function VocabularyScreen() {
   }
 
   function updateSession(updater: (current: VocabularySession) => VocabularySession) {
-    const current = state.sessions[today] ?? createSession(state.words, state.settings)
+    const current = state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
     const next = updater(current)
     commit({ ...state, sessions: { ...state.sessions, [today]: next } })
   }
@@ -277,7 +309,7 @@ export function VocabularyScreen() {
         ...state.sessions,
         [today]: current
           ? { ...current, mode: nextSettings.mode, groups: nextSettings.groups }
-          : createSession(state.words, nextSettings),
+          : createSession(state.words, nextSettings, state.trashedIds),
       },
     }
     commit(nextState)
@@ -300,6 +332,60 @@ export function VocabularyScreen() {
       const marks = { ...current.marks, [id]: mark }
       return { ...current, marks }
     })
+  }
+
+  function handleTrash(id: string) {
+    const word = state.words.find((item) => item.id === id)
+    if (!word || state.trashedIds.includes(id)) return
+    const current = state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
+    const ids = current.ids.filter((item) => item !== id)
+    const marks = { ...current.marks }
+    delete marks[id]
+    const nextSession: VocabularySession = {
+      ...current,
+      ids,
+      marks,
+      missed: current.missed.filter((item) => item !== id),
+      cursor: Math.min(current.cursor, ids.length),
+      complete: ids.length === 0,
+    }
+    const nextState: VocabularyState = {
+      ...state,
+      trashedIds: [...state.trashedIds, id],
+      sessions: { ...state.sessions, [today]: nextSession },
+    }
+    commit(nextState)
+    if (authSession?.user) persistSession(nextSession)
+    setNotice(`「${word.en}」已放入垃圾桶，之后不再推送`)
+  }
+
+  function restoreTrash(id: string) {
+    const word = state.words.find((item) => item.id === id)
+    if (!word) return
+    const trashedIds = state.trashedIds.filter((item) => item !== id)
+    const current = state.sessions[today]
+    let nextSession = current
+    let message = `「${word.en}」已放回，下一轮继续推送`
+    if (current) {
+      if (!current.ids.includes(id)) {
+        const ids = [...current.ids, id]
+        nextSession = {
+          ...current,
+          ids,
+          cursor: current.complete ? current.ids.length : current.cursor,
+          complete: false,
+        }
+        message = `「${word.en}」已放回，稍后继续推送`
+      }
+    }
+    const nextState: VocabularyState = {
+      ...state,
+      trashedIds,
+      sessions: nextSession ? { ...state.sessions, [today]: nextSession } : state.sessions,
+    }
+    commit(nextState)
+    if (nextSession && authSession?.user) persistSession(nextSession)
+    setNotice(message)
   }
 
   async function commitCurrentPage(size?: number) {
@@ -435,7 +521,7 @@ export function VocabularyScreen() {
       ...state,
       words,
       networks,
-      sessions: { [today]: createSession(words, state.settings) },
+      sessions: { [today]: createSession(words, state.settings, state.trashedIds) },
     }
     setUndoSession(null)
     commit(nextState)
@@ -478,7 +564,7 @@ export function VocabularyScreen() {
       }
     }
 
-    updateSession(() => createSession(state.words, state.settings))
+    updateSession(() => createSession(state.words, state.settings, state.trashedIds))
     setUndoSession(null)
     setSettingsOpen(false)
     setModal(null)
@@ -501,6 +587,7 @@ export function VocabularyScreen() {
   const total = session.ids.length
   const markedUnknown = Object.values(session.marks).filter((mark) => mark === 'unknown').length
   const progress = total ? Math.round((session.cursor * 100) / total) : 100
+  const activeWordCount = Math.max(0, state.words.length - state.trashedIds.length)
 
   return (
     <main className={`${styles.layout} ${zenMode ? styles.zenLayout : ''}`}>
@@ -586,6 +673,20 @@ export function VocabularyScreen() {
                     关联辅助
                   </button>
                 </div>
+                <button
+                  className={styles.trashButton}
+                  type="button"
+                  aria-label="打开垃圾桶"
+                  aria-expanded={trashOpen}
+                  onClick={() => setTrashOpen((open) => !open)}
+                >
+                  <span className={styles.trashIcon} aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13M10 11v5M14 11v5" />
+                    </svg>
+                  </span>
+                  <span>{state.trashedIds.length}</span>
+                </button>
               </div>
               <div className={styles.paperStage}>
                 <PaperSurface
@@ -601,7 +702,7 @@ export function VocabularyScreen() {
                     <div>
                       <div className={styles.kicker}>
                         {WORDBOOKS.find((book) => book.id === activeBookId)?.subtitle} ·{' '}
-                        {state.words.length} 词条
+                        {activeWordCount} 词条
                       </div>
                       <h1 className={styles.roundHeading}>
                         {session.complete ? '今日清零' : `第 ${session.round} 轮`}
@@ -627,12 +728,13 @@ export function VocabularyScreen() {
                   </div>
 
                   {session.complete ? (
-                    <Completion words={state.words.length} rounds={session.history.length} />
+                    <Completion words={activeWordCount} rounds={session.history.length} />
                   ) : session.view === 'scan' ? (
                     <ScanView
                       words={currentWords}
                       session={session}
                       onWordClick={handleWordClick}
+                      onTrash={handleTrash}
                     />
                   ) : (
                     <AssociationView
@@ -645,6 +747,7 @@ export function VocabularyScreen() {
                       onPrefetch={(text, audio) => prefetchSpeech([{ text, audio }])}
                       onMark={handleMark}
                       onFocus={(id) => focusWord(id, session, state, commit, today)}
+                      onTrash={handleTrash}
                     />
                   )}
 
@@ -721,12 +824,46 @@ export function VocabularyScreen() {
         </div>
       </div>
 
+      {trashOpen && (
+        <aside className={styles.trashPanel} aria-label="垃圾桶">
+          <div className={styles.trashHead}>
+            <span>不再推送</span>
+            <button
+              className={styles.trashClose}
+              type="button"
+              aria-label="关闭垃圾桶"
+              onClick={() => setTrashOpen(false)}
+            >
+              ×
+            </button>
+          </div>
+          <p className={styles.trashHint}>双击词条会放进这里；放回后会继续出现在之后的轮次。</p>
+          {trashedWords.length ? (
+            <ul className={styles.trashList}>
+              {trashedWords.map((word) => (
+                <li key={word.id}>
+                  <span>
+                    <strong>{word.en}</strong>
+                    <small>{word.zh || '暂无释义'}</small>
+                  </span>
+                  <button type="button" onClick={() => restoreTrash(word.id)}>
+                    放回
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className={styles.trashEmpty}>垃圾桶是空的。</p>
+          )}
+        </aside>
+      )}
+
       {zenMode && (
         <ZenCanvas
           pages={zenPages}
           session={session}
           layout={zenLayout}
-          totalWords={state.words.length}
+          totalWords={activeWordCount}
           onWordClick={handleWordClick}
           onNext={handleZenNext}
           onExit={() => setZenMode(false)}
@@ -1005,15 +1142,23 @@ function ScanView({
   words,
   session,
   onWordClick,
+  onTrash,
 }: {
   words: VocabularyWord[]
   session: VocabularySession
   onWordClick: (id: string, reverse: boolean) => void
+  onTrash: (id: string) => void
 }) {
   return (
     <div className={styles.paperInner}>
       <div className={styles.scanWrap}>
-        <ScanGrid words={words} session={session} variant="workspace" onWordClick={onWordClick} />
+        <ScanGrid
+          words={words}
+          session={session}
+          variant="workspace"
+          onWordClick={onWordClick}
+          onTrash={onTrash}
+        />
       </div>
     </div>
   )
@@ -1025,12 +1170,14 @@ function ScanGrid({
   variant,
   sheetIndex,
   onWordClick,
+  onTrash,
 }: {
   words: VocabularyWord[]
   session: VocabularySession
   variant: 'workspace' | 'zen'
   sheetIndex?: number
   onWordClick: (id: string, reverse: boolean) => void
+  onTrash?: (id: string) => void
 }) {
   const groupCount = variant === 'zen' ? 4 : Math.max(1, Math.ceil(words.length / 9))
   const rootClass =
@@ -1058,6 +1205,7 @@ function ScanGrid({
               word={word}
               session={session}
               onWordClick={onWordClick}
+              onTrash={onTrash}
               style={
                 variant === 'zen'
                   ? {
@@ -1112,6 +1260,7 @@ function AssociationView({
   onPrefetch,
   onMark,
   onFocus,
+  onTrash,
 }: {
   words: VocabularyWord[]
   allWords: VocabularyWord[]
@@ -1122,6 +1271,7 @@ function AssociationView({
   onPrefetch: (text: string, audio?: string) => void
   onMark: (id: string, mark: Judgement) => void
   onFocus: (id: string) => void
+  onTrash: (id: string) => void
 }) {
   const word = words[0]
   const chunkStart = Math.floor(session.cursor / 36) * 36
@@ -1155,6 +1305,14 @@ function AssociationView({
     if (!network) return
     prefetchSpeech(network.links.map((link) => ({ text: link.sentence, audio: link.audio })))
   }, [network])
+  const centerClick = useTrashClick(
+    (event) => {
+      if (word) onWordClick(word.id, event.shiftKey)
+    },
+    () => {
+      if (word) onTrash(word.id)
+    },
+  )
   if (!word) return <div className={styles.paperInner} />
   const mark = session.marks[word.id]
 
@@ -1209,8 +1367,8 @@ function AssociationView({
                 className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
                 data-selectable="true"
                 type="button"
-                title="点击按当前模式判定，Shift+点击反向"
-                onClick={(event) => onWordClick(word.id, event.shiftKey)}
+                title="单击判定，双击放入垃圾桶，Shift+点击反向"
+                onClick={centerClick}
               >
                 <span className={styles.targetNote}>TARGET WORD</span>
                 <span className={styles.targetEn}>{word.en}</span>
@@ -1233,7 +1391,8 @@ function AssociationView({
                 className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
                 data-selectable="true"
                 type="button"
-                onClick={(event) => onWordClick(word.id, event.shiftKey)}
+                title="单击判定，双击放入垃圾桶，Shift+点击反向"
+                onClick={centerClick}
               >
                 <span className={styles.targetNote}>TARGET WORD</span>
                 <span className={styles.targetEn}>{word.en}</span>
@@ -1284,15 +1443,21 @@ function WordButton({
   word,
   session,
   onWordClick,
+  onTrash,
   style,
 }: {
   word: VocabularyWord
   session: VocabularySession
   onWordClick: (id: string, reverse: boolean) => void
+  onTrash?: (id: string) => void
   style?: CSSProperties
 }) {
   const mark = session.marks[word.id]
   const previewUnknown = !mark && session.peek && session.mode === 'unknown'
+  const handleClick = useTrashClick(
+    (event) => onWordClick(word.id, event.shiftKey),
+    onTrash ? () => onTrash(word.id) : undefined,
+  )
   const className = [
     styles.word,
     mark ? markClass(mark) : '',
@@ -1306,7 +1471,7 @@ function WordButton({
       style={style}
       aria-label={`${word.en}, ${mark || (previewUnknown ? '不会预览' : '未判定')}`}
       title={`普通点击标${session.mode === 'unknown' ? '不会' : '会'}；Shift＋点击反向`}
-      onClick={(event) => onWordClick(word.id, event.shiftKey)}
+      onClick={handleClick}
       onContextMenu={(event) => {
         event.preventDefault()
         onWordClick(word.id, true)
@@ -1578,6 +1743,7 @@ function loadState(): VocabularyState {
       settings: { ...defaults.settings, ...parsed.settings },
       networks: Array.isArray(parsed.networks) ? normalizeNetworks(parsed.networks) : DEMO_NETWORKS,
       sessions: parsed.sessions ?? {},
+      trashedIds: Array.isArray(parsed.trashedIds) ? parsed.trashedIds : [],
     }
   } catch {
     return createInitialState()
@@ -1594,7 +1760,7 @@ function createStarterState(): VocabularyState {
 
 function ensureTodaySession(state: VocabularyState, today: string) {
   if (!state.sessions[today]) {
-    state.sessions[today] = createSession(state.words, state.settings)
+    state.sessions[today] = createSession(state.words, state.settings, state.trashedIds)
   }
 }
 
