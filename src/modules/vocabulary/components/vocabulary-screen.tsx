@@ -146,6 +146,17 @@ export function VocabularyScreen() {
   }, [])
 
   useEffect(() => {
+    const clearSelectionOutsidePaper = (event: PointerEvent) => {
+      const target = event.target
+      if (!(target instanceof Element)) return
+      if (target.closest('[data-selectable="true"]')) return
+      window.getSelection()?.removeAllRanges()
+    }
+    document.addEventListener('pointerdown', clearSelectionOutsidePaper, true)
+    return () => document.removeEventListener('pointerdown', clearSelectionOutsidePaper, true)
+  }, [])
+
+  useEffect(() => {
     const remote = dailySession.data?.session
     if (!remote || !hydrated || !authSession?.user) return
 
@@ -1277,6 +1288,7 @@ function AssociationView({
             {network.links.map((link) => (
               <button
                 className={styles.assocNode}
+                data-selectable="true"
                 key={link.word}
                 type="button"
                 aria-label={`朗读：${link.sentence}`}
@@ -1294,6 +1306,7 @@ function AssociationView({
             <div className={styles.assocCenter}>
               <button
                 className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
+                data-selectable="true"
                 type="button"
                 title="点击按当前模式判定，Shift+点击反向"
                 onClick={(event) => onWordClick(word.id, event.shiftKey)}
@@ -1317,6 +1330,7 @@ function AssociationView({
             <div className={styles.assocCenter}>
               <button
                 className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
+                data-selectable="true"
                 type="button"
                 onClick={(event) => onWordClick(word.id, event.shiftKey)}
               >
@@ -1386,6 +1400,7 @@ function WordButton({
   return (
     <button
       className={className}
+      data-selectable="true"
       type="button"
       style={style}
       aria-label={`${word.en}, ${mark || (previewUnknown ? '不会预览' : '未判定')}`}

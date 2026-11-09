@@ -18,7 +18,7 @@
 - AC-EXPERIENCE-001（REQ-EXPERIENCE-001）：Given 词或句已有预生成音频，When 点击词条或关联句，Then 立即播放静态音频，不再现场合成；只有文件缺失或失败时才用系统语音，界面没有手动音色选择。
 - AC-EXPERIENCE-002（REQ-EXPERIENCE-002）：Given 打开关联辅助，When 查看或悬停 8 个句子节点，Then 句子与纸面同底，没有白色色块，节点整体反馈一致。
 - AC-EXPERIENCE-003（REQ-EXPERIENCE-003）：Given 切换下一词、切换模块或系统开启减少动态，When 页面更新，Then 节点 150ms 渐入或关闭动画，顶部 tab 位置保持稳定。
-- AC-EXPERIENCE-004（REQ-EXPERIENCE-004）：Given 打开词汇纸，When 拖选九宫格词块或关联句节点，Then 文本可复制；拖选顶部或设置不会选中；拖选后不触发判定。
+- AC-EXPERIENCE-004（REQ-EXPERIENCE-004）：Given 打开词汇纸，When 拖选九宫格词块或关联句节点，Then 文本可复制；点击纸张空白或其他非可选区域时选区立即清除；拖选顶部或设置不会选中，也不触发判定。
 
 ## 边界
 

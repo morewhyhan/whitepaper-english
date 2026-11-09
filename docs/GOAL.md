@@ -44,7 +44,7 @@ flowchart LR
 ## 三、金字塔（文字）
 
 <!-- goal-summary -->
-合计 32 条：已验证 32
+合计 32 条：已验证 32（验证于 2026-11-09-01-45）
 <!-- /goal-summary -->
 
 - **目标**：让一个人每天在一张纸上完成词汇自评、理解与清零。
@@ -195,8 +195,8 @@ flowchart LR
     - **REQ-EXPERIENCE-004 只允许纸面词句被选中**
       - 来源事件：拖选九宫格词块、拖选关联句节点
       - 规则：只有词块和关联句文本可选中复制；顶部、设置和说明不可选；拖选后不触发判定或发音
-      - AC-EXPERIENCE-004（REQ-EXPERIENCE-004）：Given 打开词汇纸，When 拖选九宫格词块或关联句节点，Then 文本可复制；拖选顶部或设置不会选中；拖选后不触发判定。
-        - **测试用例**：拖选词块/句子 → 可复制且不误判 ｜ **状态**：已验证 ｜ [用例](others/test-cases/vocabulary.md) · [tests](../tests/contracts/experience.test.ts) · [查看](others/evidence/goal-runs/2026-11-09-01-28.txt)
+      - AC-EXPERIENCE-004（REQ-EXPERIENCE-004）：Given 打开词汇纸，When 拖选九宫格词块或关联句节点，Then 文本可复制；点击纸张空白或其他非可选区域时选区立即清除；拖选顶部或设置不会选中，也不触发判定。
+        - **测试用例**：拖选词块/句子 → 可复制；点击空白 → 选区清除 ｜ **状态**：已验证 ｜ [用例](others/test-cases/vocabulary.md) · [tests](../tests/contracts/experience.test.ts) · [查看](others/evidence/goal-runs/2026-11-09-01-28.txt)
   - **外壳（非领域）**
     - 事件链：打开产品 → 切换模块 → 打开设置
     - 聚合：导航、设置面板、页面外壳

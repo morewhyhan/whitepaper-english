@@ -22,6 +22,8 @@ describe('体验领域契约', () => {
     expect(css).toMatch(/\.word,[\s\S]*?user-select:\s*text/s)
     expect(css).toMatch(/\.assocNode,[\s\S]*?user-select:\s*text/s)
     expect(screen).toContain('hasTextSelection')
+    expect(screen).toContain('removeAllRanges')
+    expect(screen).toContain('data-selectable="true"')
   })
 
   it('[AC-EXPERIENCE-002] 关联句与纸面同底，没有白色块', () => {
