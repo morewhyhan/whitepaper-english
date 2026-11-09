@@ -23,6 +23,7 @@
 - `GET /api/vocabulary/history?bookId=...&days=30`：按日期从新到旧返回当前词书的词数、会、不会、轮次和完成状态；`days` 默认 30，最大 365。
 - `GET /api/vocabulary/association?word=lesson`：公开接口，返回单个目标词的 `{ target, links: [{ word, sentence }] }` 或 `null`。
 - `GET /api/vocabulary/associations?words=lesson,apple,...`：公开接口，一次最多 36 个词，返回 `{ data: { networks: { [word]: { target, links } | null } } }`。客户端按 36 词批次预取，避免每次换词单独请求。
+- `GET /api/vocabulary/tts?text=...`：公开兜底接口，用 Edge `en-US-AriaNeural` 生成 `audio/mpeg`，服务端串行并缓存最近 200 条。内置词书的音频已预生成为 `public/audio/*.webm`，正常播放不经过这个接口。
 
 关联数据来自 `src/modules/vocabulary/data/associations.json`。服务端首次读取后缓存在进程内，不在请求时生成模型；文件缺失或解析失败返回 500。单接口与批量接口共用同一份缓存。
 

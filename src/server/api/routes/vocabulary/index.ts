@@ -12,6 +12,7 @@ import {
   saveDailySession,
   setWordStates,
 } from '@/server/vocabulary/store'
+import { synthesizeSpeech } from '@/server/vocabulary/tts'
 import { requireUserId } from '../../session'
 import { zValidator } from '../../validator'
 
@@ -124,8 +125,27 @@ const associationBatchQuerySchema = z
   })
   .strict()
 
+const ttsQuerySchema = z
+  .object({
+    text: z.string().trim().min(1).max(300),
+  })
+  .strict()
+
 const vocabulary = new Hono()
   .basePath('/vocabulary')
+  .get('/tts', zValidator('query', ttsQuerySchema), async (c) => {
+    const { text } = c.req.valid('query')
+
+    try {
+      const audio = await synthesizeSpeech(text)
+      return c.body(new Uint8Array(audio), 200, {
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      })
+    } catch {
+      return c.json({ code: 502, message: '语音生成失败' }, 502)
+    }
+  })
   .get('/associations', zValidator('query', associationBatchQuerySchema), async (c) => {
     const words = c.req
       .valid('query')

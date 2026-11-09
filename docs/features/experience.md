@@ -8,13 +8,13 @@
 
 ## 规则
 
-- R1（REQ-EXPERIENCE-001）：发音优先使用本地神经语音，不提供手动音色选择；模型未就绪或不可用时才用系统英文语音兜底。
+- R1（REQ-EXPERIENCE-001）：内置词书的词和关联句全部预生成为 WebM/Opus 静态音频，前端直接播放；实时接口只作为缺失兜底；不提供手动音色选择。
 - R2（REQ-EXPERIENCE-002）：关联辅助的句子、词和节点必须与纸面同底，不能出现突兀的白色块；悬停时整块反馈一致。
 - R3（REQ-EXPERIENCE-003）：换词和切换视图使用短促渐入；系统开启减少动态效果时关闭动画；顶部三个 tab 的位置不因模块切换而移动。
 
 ## 验收标准
 
-- AC-EXPERIENCE-001（REQ-EXPERIENCE-001）：Given 本地神经语音已加载，When 点击词条或关联句，Then 播放神经语音；只有未就绪或失败时才用系统语音，界面没有手动音色选择。
+- AC-EXPERIENCE-001（REQ-EXPERIENCE-001）：Given 词或句已有预生成音频，When 点击词条或关联句，Then 立即播放静态音频，不再现场合成；只有文件缺失或失败时才用系统语音，界面没有手动音色选择。
 - AC-EXPERIENCE-002（REQ-EXPERIENCE-002）：Given 打开关联辅助，When 查看或悬停 8 个句子节点，Then 句子与纸面同底，没有白色色块，节点整体反馈一致。
 - AC-EXPERIENCE-003（REQ-EXPERIENCE-003）：Given 切换下一词、切换模块或系统开启减少动态，When 页面更新，Then 节点 150ms 渐入或关闭动画，顶部 tab 位置保持稳定。
 

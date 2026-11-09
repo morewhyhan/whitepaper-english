@@ -223,6 +223,25 @@ paths:
       responses:
         '200':
           description: Map of target word to association network or null
+  /api/vocabulary/tts:
+    get:
+      operationId: getVocabularyTts
+      summary: Fallback neural speech for a missing pre-generated clip
+      parameters:
+        - name: text
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 300
+      responses:
+        '200':
+          description: MP3 audio
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
   /api/tasks:
     get:
       operationId: listTasks

@@ -1,39 +1,42 @@
 'use client'
 
-const CACHE_LIMIT = 60
+const CACHE_LIMIT = 40
+const cache = new Map<string, HTMLAudioElement>()
+let current: HTMLAudioElement | null = null
 
-let worker: Worker | null = null
-let workerReady = false
-let workerFailed = false
-let requestId = 0
-const pending = new Map<number, { resolve: (url: string | null) => void }>()
-const pendingText = new Map<string, Promise<string | null>>()
-const prefetchQueue = new Set<string>()
-const audioCache = new Map<string, string>()
-let currentAudio: HTMLAudioElement | null = null
-
-function remember(text: string, url: string) {
-  if (audioCache.size >= CACHE_LIMIT) {
-    const oldest = audioCache.keys().next().value
-    if (oldest) {
-      const oldUrl = audioCache.get(oldest)
-      if (oldUrl) URL.revokeObjectURL(oldUrl)
-      audioCache.delete(oldest)
-    }
-  }
-  audioCache.set(text, url)
+function urlFor(text: string, audio?: string) {
+  return audio || '/api/vocabulary/tts?text=' + encodeURIComponent(text)
 }
 
-function playUrl(url: string) {
-  currentAudio?.pause()
-  const audio = new Audio(url)
-  currentAudio = audio
-  void audio.play().catch(() => {})
+function audioFor(text: string, audioUrl?: string) {
+  const key = audioUrl || text
+  const cached = cache.get(key)
+  if (cached) return cached
+  const audio = new Audio(urlFor(text, audioUrl))
+  audio.preload = 'auto'
+  audio.load()
+  if (cache.size >= CACHE_LIMIT) {
+    const oldest = cache.keys().next().value
+    if (oldest) {
+      const old = cache.get(oldest)
+      if (old) {
+        old.pause()
+        old.removeAttribute('src')
+        old.load()
+      }
+      cache.delete(oldest)
+    }
+  }
+  cache.set(key, audio)
+  return audio
 }
 
 export function stopSpeech() {
-  currentAudio?.pause()
-  currentAudio = null
+  if (current) {
+    current.pause()
+    current.currentTime = 0
+    current = null
+  }
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel()
   }
@@ -77,119 +80,29 @@ function speakSystem(text: string) {
   window.speechSynthesis.speak(utterance)
 }
 
-function ensureWorker() {
-  if (typeof window === 'undefined' || worker || workerFailed) return
-  try {
-    worker = new Worker('/kokoro-worker.mjs', { type: 'module' })
-  } catch {
-    workerFailed = true
-    return
-  }
-  worker.onmessage = (event) => {
-    const data = event.data || {}
-    if (data.type === 'ready') {
-      workerReady = true
-      for (const text of [...prefetchQueue].slice(0, 2)) {
-        prefetchQueue.delete(text)
-        void renderKokoro(text, false)
-      }
-      return
-    }
-    if (data.type === 'fatal') {
-      workerFailed = true
-      workerReady = false
-      return
-    }
-    if (data.type === 'audio') {
-      const waiter = pending.get(data.id)
-      pending.delete(data.id)
-      const url = URL.createObjectURL(new Blob([data.wav], { type: 'audio/wav' }))
-      waiter?.resolve(url)
-      return
-    }
-    if (data.type === 'error') {
-      if (process.env.NODE_ENV !== 'production') console.warn('[speech] worker error', data.message)
-      const waiter = pending.get(data.id)
-      pending.delete(data.id)
-      waiter?.resolve(null)
-    }
-  }
-  worker.onerror = () => {
-    workerFailed = true
-    workerReady = false
-    for (const waiter of pending.values()) waiter.resolve(null)
-    pending.clear()
-  }
-  worker.postMessage({ type: 'load' })
-}
-
-export function warmSpeech() {
-  ensureWorker()
-}
-
-function renderKokoro(text: string, priority: boolean): Promise<string | null> {
-  if (!worker || !workerReady) return Promise.resolve(null)
-  const cached = audioCache.get(text)
-  if (cached) return Promise.resolve(cached)
-  const existing = pendingText.get(text)
-  if (existing) return existing
-  const job = new Promise<string | null>((resolve) => {
-    const id = ++requestId
-    const timer = window.setTimeout(() => {
-      pending.delete(id)
-      resolve(null)
-    }, 20_000)
-    pending.set(id, {
-      resolve: (url) => {
-        window.clearTimeout(timer)
-        if (url) remember(text, url)
-        resolve(url)
-      },
-    })
-    worker?.postMessage({ type: 'speak', id, text, priority })
-  }).finally(() => pendingText.delete(text))
-  pendingText.set(text, job)
-  return job
-}
-
-export function prefetchSpeech(texts: string[]) {
-  for (const text of new Set(texts.map((item) => item.trim()).filter(Boolean))) {
-    if (audioCache.has(text) || pendingText.has(text)) continue
-    if (workerReady) void renderKokoro(text, false)
-    else prefetchQueue.add(text)
+export function warmSpeech() {}
+export function prefetchSpeech(items: Array<{ text: string; audio?: string }>) {
+  const seen = new Set<string>()
+  for (const item of items) {
+    const text = item.text.trim()
+    if (!text || seen.has(text)) continue
+    seen.add(text)
+    audioFor(text, item.audio)
   }
 }
 
-async function speakKokoro(text: string, priority: boolean) {
-  const url = await renderKokoro(text, priority)
-  if (!url) return false
-  playUrl(url)
-  return true
-}
-
-export async function speakText(text: string) {
+export async function speakText(text: string, audioUrl?: string) {
   if (typeof window === 'undefined') return
   const clean = text.trim()
   if (!clean) return
   stopSpeech()
-  const cached = audioCache.get(clean)
-  if (cached) {
-    playUrl(cached)
-    return
+  const audio = audioFor(clean, audioUrl)
+  current = audio
+  audio.currentTime = 0
+  try {
+    await audio.play()
+  } catch {
+    if (current === audio) current = null
+    speakSystem(clean)
   }
-  if (workerReady && (await speakKokoro(clean, true))) return
-  speakSystem(clean)
-  warmSpeech()
-}
-
-if (typeof window !== 'undefined') {
-  ;(
-    window as unknown as {
-      __whiteSpeech: () => { ready: boolean; loading: boolean; cached: number }
-    }
-  ).__whiteSpeech = () => ({
-    ready: workerReady,
-    loading: Boolean(worker && !workerReady && !workerFailed),
-    cached: audioCache.size,
-  })
 }

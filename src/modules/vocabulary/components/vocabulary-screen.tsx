@@ -262,7 +262,8 @@ export function VocabularyScreen() {
   }
 
   function handleWordClick(id: string, reverse: boolean) {
-    if (soundOn) speakText(state.words.find((word) => word.id === id)?.en ?? '')
+    const spoken = state.words.find((word) => word.id === id)
+    if (soundOn && spoken) speakText(spoken.en, spoken.audio)
     const mark: Judgement = reverse
       ? session.mode === 'known'
         ? 'unknown'
@@ -663,7 +664,7 @@ export function VocabularyScreen() {
                       networks={state.networks}
                       onWordClick={handleWordClick}
                       onSpeak={speakText}
-                      onPrefetch={(text) => prefetchSpeech([text])}
+                      onPrefetch={(text, audio) => prefetchSpeech([{ text, audio }])}
                       onMark={handleMark}
                       onFocus={(id) => focusWord(id, session, state, commit, today)}
                     />
@@ -1192,8 +1193,8 @@ function AssociationView({
   session: VocabularySession
   networks: VocabularyState['networks']
   onWordClick: (id: string, reverse: boolean) => void
-  onSpeak: (text: string) => void
-  onPrefetch: (text: string) => void
+  onSpeak: (text: string, audio?: string) => void
+  onPrefetch: (text: string, audio?: string) => void
   onMark: (id: string, mark: Judgement) => void
   onFocus: (id: string) => void
 }) {
@@ -1225,9 +1226,6 @@ function AssociationView({
     ? (batch.data?.[word.en.toLowerCase()] ?? getAssociation(networks, word))
     : undefined
   const loading = Boolean(word) && batch.isLoading && !network
-  useEffect(() => {
-    if (network) prefetchSpeech(network.links.map((link) => link.sentence))
-  }, [network])
   if (!word) return <div className={styles.paperInner} />
   const mark = session.marks[word.id]
 
@@ -1265,9 +1263,9 @@ function AssociationView({
                 key={link.word}
                 type="button"
                 aria-label={`朗读：${link.sentence}`}
-                onPointerEnter={() => onPrefetch(link.sentence)}
-                onFocus={() => onPrefetch(link.sentence)}
-                onClick={() => onSpeak(link.sentence)}
+                onPointerEnter={() => onPrefetch(link.sentence, link.audio)}
+                onFocus={() => onPrefetch(link.sentence, link.audio)}
+                onClick={() => onSpeak(link.sentence, link.audio)}
               >
                 <span className={styles.assocWord}>{link.word}</span>
                 <span className={styles.assocSentence}>{highlight(link.sentence, link.word)}</span>

@@ -4,6 +4,7 @@ export type VocabularyWord = {
   id: string
   en: string
   zh: string
+  audio?: string
 }
 
 export type Judgement = 'known' | 'unknown'
@@ -11,7 +12,7 @@ export type LearningView = 'scan' | 'connect'
 
 export type AssociationNetwork = {
   target: string
-  links: Array<{ word: string; sentence: string }>
+  links: Array<{ word: string; sentence: string; audio?: string }>
 }
 
 export type SessionHistory = {
