@@ -1,6 +1,6 @@
 'use client'
 
-const CACHE_LIMIT = 40
+const CACHE_LIMIT = 100
 const cache = new Map<string, HTMLAudioElement>()
 let current: HTMLAudioElement | null = null
 
@@ -85,7 +85,7 @@ export function prefetchSpeech(items: Array<{ text: string; audio?: string }>) {
   const seen = new Set<string>()
   for (const item of items) {
     const text = item.text.trim()
-    if (!text || seen.has(text)) continue
+    if (!text || !item.audio || seen.has(text)) continue
     seen.add(text)
     audioFor(text, item.audio)
   }

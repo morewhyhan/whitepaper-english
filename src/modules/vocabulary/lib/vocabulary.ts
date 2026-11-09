@@ -262,7 +262,8 @@ export function normalizeWords(input: unknown): VocabularyWord[] {
     const en = String(record.en ?? record.english ?? record.word ?? '').trim()
     const zh = String(record.zh ?? record.chinese ?? record.meaning ?? '').trim()
     if (!en) continue
-    words.push({ en, zh, id: `w-${words.length}-${slug(en)}` })
+    const audio = typeof record.audio === 'string' ? record.audio : undefined
+    words.push({ en, zh, id: `w-${words.length}-${slug(en)}`, audio })
   }
 
   return words
@@ -292,6 +293,7 @@ export function normalizeNetworks(input: unknown): AssociationNetwork[] {
               return {
                 word: String(record.word ?? '').trim(),
                 sentence: String(record.sentence ?? '').trim(),
+                ...(typeof record.audio === 'string' ? { audio: record.audio } : {}),
               }
             })
             .filter((link): link is { word: string; sentence: string } =>

@@ -200,6 +200,12 @@ export function VocabularyScreen() {
 
   const session = hydrated ? state.sessions[today] : createSession(state.words, state.settings)
   const currentWords = pageWords(state.words, session)
+  useEffect(() => {
+    prefetchSpeech(
+      pageWords(state.words, session).map((word) => ({ text: word.en, audio: word.audio })),
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.words, session.cursor, session.round, session.view, session.groups])
   const zenPages = useMemo(() => buildZenPages(state.words, session), [state.words, session])
   const zenMaxWordLength = useMemo(
     () => Math.max(1, ...zenPages.flat().map((word) => word.en.length)),
@@ -1226,6 +1232,10 @@ function AssociationView({
     ? (batch.data?.[word.en.toLowerCase()] ?? getAssociation(networks, word))
     : undefined
   const loading = Boolean(word) && batch.isLoading && !network
+  useEffect(() => {
+    if (!network) return
+    prefetchSpeech(network.links.map((link) => ({ text: link.sentence, audio: link.audio })))
+  }, [network])
   if (!word) return <div className={styles.paperInner} />
   const mark = session.marks[word.id]
 
@@ -1625,7 +1635,11 @@ function loadState(): VocabularyState {
     const parsed = JSON.parse(raw) as Partial<VocabularyState>
     if (!Array.isArray(parsed.words) || !parsed.words.length) return createInitialState()
     const defaults = createInitialState()
-    const words = normalizeWords(parsed.words)
+    const audioByWord = new Map(defaults.words.map((word) => [word.en, word.audio]))
+    const words = normalizeWords(parsed.words).map((word) => ({
+      ...word,
+      audio: audioByWord.get(word.en) ?? word.audio,
+    }))
     if (!words.length) return createInitialState()
     return {
       ...defaults,
