@@ -2788,6 +2788,42 @@
   line-height: 1.8;
 }
 
+.trashSearch {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: -2px 0 14px;
+}
+
+.trashSearch label {
+  flex: none;
+  color: #95988a;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.trashSearch input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #dcded4;
+  border-radius: 0;
+  background: transparent;
+  color: #303a2e;
+  padding: 6px 0;
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+}
+
+.trashSearch input::placeholder {
+  color: #b0b2a5;
+}
+
+.trashSearch input:focus {
+  border-bottom-color: #7e936e;
+}
+
 .trashGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2842,6 +2878,37 @@
 }
 
 .trashCard button:hover {
+  border-color: #a9b8a5;
+  color: #2f4a35;
+}
+
+.trashPager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 16px;
+  color: #7c8576;
+  font-size: 10px;
+}
+
+.trashPager button {
+  border: 1px solid #d5d9cf;
+  border-radius: 999px;
+  background: transparent;
+  color: #52604f;
+  padding: 5px 12px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+}
+
+.trashPager button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.trashPager button:not(:disabled):hover {
   border-color: #a9b8a5;
   color: #2f4a35;
 }

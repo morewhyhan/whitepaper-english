@@ -66,7 +66,7 @@ function useTrashClick(
     timer.current = window.setTimeout(() => {
       timer.current = null
       onClick(event)
-    }, 240)
+    }, 150)
   }
 }
 
@@ -77,6 +77,7 @@ function hasTextSelection() {
 }
 
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
+const TRASH_PAGE_SIZE = 24
 
 type ModalName = 'import' | 'settings' | 'history' | null
 type WordbookId = 'parallel-world' | 'starter'
@@ -124,6 +125,8 @@ export function VocabularyScreen() {
   const [undoSession, setUndoSession] = useState<VocabularySession | null>(null)
   const [modal, setModal] = useState<ModalName>(null)
   const [trashOpen, setTrashOpen] = useState(false)
+  const [trashQuery, setTrashQuery] = useState('')
+  const [trashPage, setTrashPage] = useState(0)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
@@ -257,6 +260,26 @@ export function VocabularyScreen() {
   const session = hydrated ? state.sessions[today] : createSession(state.words, state.settings, state.trashedIds)
   const currentWords = pageWords(state.words, session)
   const trashedWords = state.words.filter((word) => state.trashedIds.includes(word.id))
+  const normalizedTrashQuery = trashQuery.trim().toLowerCase()
+  const filteredTrashedWords = normalizedTrashQuery
+    ? trashedWords.filter(
+        (word) =>
+          word.en.toLowerCase().includes(normalizedTrashQuery) ||
+          word.zh.toLowerCase().includes(normalizedTrashQuery),
+      )
+    : trashedWords
+  const trashPageCount = Math.max(1, Math.ceil(filteredTrashedWords.length / TRASH_PAGE_SIZE))
+  const safeTrashPage = Math.min(trashPage, trashPageCount - 1)
+  const visibleTrashedWords = filteredTrashedWords.slice(
+    safeTrashPage * TRASH_PAGE_SIZE,
+    safeTrashPage * TRASH_PAGE_SIZE + TRASH_PAGE_SIZE,
+  )
+  useEffect(() => {
+    setTrashPage(0)
+  }, [trashQuery])
+  useEffect(() => {
+    setTrashPage((page) => Math.min(page, trashPageCount - 1))
+  }, [trashPageCount])
   useEffect(() => {
     prefetchSpeech(
       pageWords(state.words, session).map((word) => ({ text: word.en, audio: word.audio })),
@@ -336,12 +359,7 @@ export function VocabularyScreen() {
     updateSession((current) => toggleMark(current, id, mark))
   }
 
-  function handleMark(id: string, mark: Judgement) {
-    updateSession((current) => {
-      const marks = { ...current.marks, [id]: mark }
-      return { ...current, marks }
-    })
-  }
+
 
   function handleTrash(id: string) {
     const word = state.words.find((item) => item.id === id)
@@ -754,8 +772,7 @@ export function VocabularyScreen() {
                       onWordClick={handleWordClick}
                       onSpeak={speakText}
                       onPrefetch={(text, audio) => prefetchSpeech([{ text, audio }])}
-                      onMark={handleMark}
-                      onFocus={(id) => focusWord(id, session, state, commit, today)}
+                                  onFocus={(id) => focusWord(id, session, state, commit, today)}
                       onTrash={handleTrash}
                     />
                   )}
@@ -853,7 +870,11 @@ export function VocabularyScreen() {
                 <h2 className={styles.trashTitle}>不再推送</h2>
               </div>
               <div className={styles.trashDialogActions}>
-                <span className={styles.trashCount}>{trashedWords.length} 词</span>
+                <span className={styles.trashCount}>
+                  {normalizedTrashQuery
+                    ? `${filteredTrashedWords.length} / ${trashedWords.length} 词`
+                    : `${trashedWords.length} 词`}
+                </span>
                 <button
                   className={styles.trashClose}
                   type="button"
@@ -865,22 +886,60 @@ export function VocabularyScreen() {
               </div>
             </div>
             <p className={styles.trashHint}>
-              双击九宫格中心词或关联中心词会放进这里；周围辅助词不归档。放回后会在之后的轮次继续出现。
+              双击九宫格任意词或关联中心词会放进这里；放回后会在之后的轮次继续出现。
             </p>
+            <div className={styles.trashSearch}>
+              <label htmlFor="trash-search">搜索垃圾桶</label>
+              <input
+                id="trash-search"
+                type="search"
+                value={trashQuery}
+                placeholder="输入英文或中文"
+                autoComplete="off"
+                onChange={(event) => setTrashQuery(event.target.value)}
+              />
+            </div>
             {trashedWords.length ? (
-              <div className={styles.trashGrid}>
-                {trashedWords.map((word) => (
-                  <article className={styles.trashCard} key={word.id}>
-                    <div className={styles.trashCardText}>
-                      <strong>{word.en}</strong>
-                      <small>{word.zh || '暂无释义'}</small>
+              filteredTrashedWords.length ? (
+                <>
+                  <div className={styles.trashGrid}>
+                    {visibleTrashedWords.map((word) => (
+                      <article className={styles.trashCard} key={word.id}>
+                        <div className={styles.trashCardText}>
+                          <strong>{word.en}</strong>
+                          <small>{word.zh || '暂无释义'}</small>
+                        </div>
+                        <button type="button" onClick={() => restoreTrash(word.id)}>
+                          放回
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                  {filteredTrashedWords.length > TRASH_PAGE_SIZE && (
+                    <div className={styles.trashPager}>
+                      <button
+                        type="button"
+                        disabled={safeTrashPage === 0}
+                        onClick={() => setTrashPage((page) => Math.max(0, page - 1))}
+                      >
+                        上一页
+                      </button>
+                      <span>
+                        {safeTrashPage + 1} / {trashPageCount}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={safeTrashPage >= trashPageCount - 1}
+                        onClick={() => setTrashPage((page) => page + 1)}
+                      >
+                        下一页
+                      </button>
                     </div>
-                    <button type="button" onClick={() => restoreTrash(word.id)}>
-                      放回
-                    </button>
-                  </article>
-                ))}
-              </div>
+                  )}
+                </>
+              ) : (
+                <p className={styles.trashEmpty}>没有匹配的词。</p>
+              )
             ) : (
               <p className={styles.trashEmpty}>垃圾桶是空的。</p>
             )}
@@ -1238,7 +1297,7 @@ function ScanGrid({
               word={word}
               session={session}
               onWordClick={onWordClick}
-              onTrash={wordIndex === 4 ? onTrash : undefined}
+              onTrash={onTrash}
               style={
                 variant === 'zen'
                   ? {
@@ -1291,7 +1350,6 @@ function AssociationView({
   onWordClick,
   onSpeak,
   onPrefetch,
-  onMark,
   onFocus,
   onTrash,
 }: {
@@ -1302,7 +1360,6 @@ function AssociationView({
   onWordClick: (id: string, reverse: boolean) => void
   onSpeak: (text: string, audio?: string) => void
   onPrefetch: (text: string, audio?: string) => void
-  onMark: (id: string, mark: Judgement) => void
   onFocus: (id: string) => void
   onTrash: (id: string) => void
 }) {
@@ -1448,27 +1505,8 @@ function AssociationView({
             </p>
           </div>
         )}
-        <p className={styles.assocHelp}>
-          关联辅助只聚焦一个词，保证句子清晰。点「下一词」后仅提交当前词；切回九宫格仍接着同一轮继续。
-        </p>
-        <div className={styles.assocActionRow}>
-          <button
-            className={`${styles.actionKnown} ${mark === 'known' ? styles.active : ''}`}
-            type="button"
-            onClick={() => onMark(word.id, 'known')}
-          >
-            ✓ 会了
-          </button>
-          <button
-            className={`${styles.actionUnknown} ${mark === 'unknown' ? styles.active : ''}`}
-            type="button"
-            onClick={() => onMark(word.id, 'unknown')}
-          >
-            × 不会 · 显示中文
-          </button>
         </div>
       </div>
-    </div>
   )
 }
 

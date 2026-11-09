@@ -15,12 +15,9 @@ test('[AC-ACCOUNT-020] 双击归档、共享垃圾桶和放回', async ({ page }
   const cells = page.locator('button[class*=word]')
   const badge = page.getByRole('button', { name: '打开垃圾桶' })
 
-  await cells.nth(0).dblclick()
-  await expect(badge).toContainText('0')
-
-  const center = cells.nth(4)
-  const word = await center.locator('span').last().innerText()
-  await center.dblclick()
+  const first = cells.first()
+  const word = await first.locator('span').last().innerText()
+  await first.dblclick()
   await expect(badge).toContainText('1')
 
   await badge.click()
@@ -40,4 +37,23 @@ test('[AC-ACCOUNT-020] 关联辅助只归档中心词，外围句子不归档', 
 
   await page.locator('button[class*=centerChip]').dblclick()
   await expect(page.getByRole('button', { name: '打开垃圾桶' })).toContainText('1')
+})
+
+test('[AC-ACCOUNT-020] 垃圾桶搜索和翻页', async ({ page }) => {
+  await fresh(page)
+  await page.evaluate(() => {
+    const key = 'whitepaper-vocabulary-v2'
+    const state = JSON.parse(window.localStorage.getItem(key) as string)
+    state.trashedIds = state.words.slice(0, 30).map((word: { id: string }) => word.id)
+    window.localStorage.setItem(key, JSON.stringify(state))
+  })
+  await page.reload()
+  await page.waitForTimeout(1200)
+  await page.getByRole('button', { name: '打开垃圾桶' }).click()
+  const panel = page.getByRole('dialog', { name: '垃圾桶' })
+  await expect(panel.getByText('1 / 2')).toBeVisible()
+  await panel.getByRole('button', { name: '下一页' }).click()
+  await expect(panel.getByText('2 / 2')).toBeVisible()
+  await panel.getByRole('searchbox', { name: '搜索垃圾桶' }).fill('lesson')
+  await expect(panel).toContainText('lesson')
 })
