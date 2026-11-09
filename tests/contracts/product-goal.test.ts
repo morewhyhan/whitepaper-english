@@ -46,11 +46,13 @@ describe('产品目标契约', () => {
     expect(page).toContain('<VocabularyScreen />')
   })
 
-  it('[AC-WHITEPAPER-005] 第一动作是词汇纸，不把写作/语法标成可用', () => {
+  it('[AC-WHITEPAPER-005] 第一动作是词汇纸，没有写作/语法入口', () => {
     const nav = read('src/config/navigation.ts')
     expect(nav).toContain('/vocabulary')
     const screen = read('src/modules/vocabulary/components/vocabulary-screen.tsx')
-    expect(screen).toContain('暂未开放')
+    expect(screen).not.toContain('学语法')
+    expect(screen).not.toContain('写作')
+    expect(screen).not.toContain('暂未开放')
   })
 
   it('[AC-ACCOUNT-002] 词状态查询按当前用户隔离', () => {

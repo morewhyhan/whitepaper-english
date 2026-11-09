@@ -1,6 +1,6 @@
 # 领域模型：当前事实与采用目标
 
-关联需求：REQ-WORKSPACE-001、REQ-ACCOUNT-014
+关联需求：REQ-WHITEPAPER-005、REQ-ACCOUNT-014
 
 > 文档状态：定稿
 
@@ -52,7 +52,7 @@ user
 
 ## 认证与产品外壳
 
-首页和 `/dashboard` 在目标产品中对游客开放；Better Auth 只为同步和账户设置提供能力。Landing、Dashboard、Settings 是界面外壳，不额外制造学习领域实体。写作和语法在各自阶段建立独立实体，通过工作台引用原文和来源，不复用词汇掌握字段。
+首页和 `/dashboard` 在目标产品中对游客开放；Better Auth 只为同步和账户设置提供能力。Landing、Dashboard、Settings 是界面外壳，不额外制造学习领域实体。写作和语法已退出产品范围，不建立独立实体，也不复用词汇掌握字段。
 
 ## 迁移边界
 

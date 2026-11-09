@@ -49,7 +49,6 @@ function hasTextSelection() {
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
 
 type ModalName = 'import' | 'settings' | 'history' | null
-type WorkspaceMode = 'vocabulary' | 'writing' | 'grammar'
 type WordbookId = 'parallel-world' | 'starter'
 
 type WordbookDefinition = {
@@ -91,7 +90,6 @@ export function VocabularyScreen() {
   const [parallelState, setParallelState] = useState<VocabularyState>(createInitialState)
   const [starterState, setStarterState] = useState<VocabularyState>(createStarterState)
   const [activeBookId, setActiveBookId] = useState<WordbookId>('parallel-world')
-  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>('vocabulary')
   const [hydrated, setHydrated] = useState(false)
   const [undoSession, setUndoSession] = useState<VocabularySession | null>(null)
   const [modal, setModal] = useState<ModalName>(null)
@@ -417,10 +415,6 @@ export function VocabularyScreen() {
     setNotice(`已打开${wordbook?.title ?? '词书'}纸摞`)
   }
 
-  function switchWorkspaceMode(mode: WorkspaceMode) {
-    setWorkspaceMode(mode)
-  }
-
   function enterZenMode() {
     if (session.view !== 'scan') {
       updateSession((current) => ({ ...current, view: 'scan', peek: false }))
@@ -519,7 +513,6 @@ export function VocabularyScreen() {
             className={styles.quiet}
             type="button"
             aria-expanded={shelfOpen}
-            disabled={workspaceMode !== 'vocabulary'}
             onClick={() => setShelfOpen(!shelfOpen)}
           >
             词书
@@ -527,7 +520,6 @@ export function VocabularyScreen() {
           <button
             className={styles.quiet}
             type="button"
-            disabled={workspaceMode !== 'vocabulary'}
             onClick={enterZenMode}
           >
             禅模式
@@ -550,45 +542,13 @@ export function VocabularyScreen() {
             设置
           </button>
         </div>
-        <nav className={styles.workspaceNav} aria-label="学习模块">
-          <div className={styles.moduleTabs} role="tablist" aria-label="白纸学习模块">
-            <button
-              className={workspaceMode === 'vocabulary' ? styles.activeModule : undefined}
-              type="button"
-              role="tab"
-              aria-selected={workspaceMode === 'vocabulary'}
-              onClick={() => switchWorkspaceMode('vocabulary')}
-            >
-              背单词
-            </button>
-            <button
-              className={workspaceMode === 'writing' ? styles.activeModule : undefined}
-              type="button"
-              role="tab"
-              aria-selected={workspaceMode === 'writing'}
-              onClick={() => switchWorkspaceMode('writing')}
-            >
-              写作 <span>暂未开放</span>
-            </button>
-            <button
-              className={workspaceMode === 'grammar' ? styles.activeModule : undefined}
-              type="button"
-              role="tab"
-              aria-selected={workspaceMode === 'grammar'}
-              onClick={() => switchWorkspaceMode('grammar')}
-            >
-              学语法 <span>暂未开放</span>
-            </button>
-          </div>
-        </nav>
       </header>
 
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
 
       <div className={styles.workspaceBody}>
-        {workspaceMode === 'vocabulary' && (
-          <div
-            className={`${styles.shelfDock} ${shelfOpen ? styles.shelfDockOpen : ''}`}
+        <div
+          className={`${styles.shelfDock} ${shelfOpen ? styles.shelfDockOpen : ''}`}
             onPointerEnter={() => setShelfOpen(true)}
             onPointerLeave={() => setShelfOpen(false)}
             onKeyDown={(event) => {
@@ -603,11 +563,10 @@ export function VocabularyScreen() {
               onClick={() => setShelfOpen(true)}
             />
             <WordbookShelf activeBookId={activeBookId} onSelect={switchWordbook} />
-          </div>
-        )}
+        </div>
         <div className={styles.workspaceContent}>
-          {workspaceMode === 'vocabulary' ? (
-            <>
+          <>
+
               <div className={styles.toolbar}>
                 <div className={styles.segment} aria-label="本页学习呈现方式">
                   <button
@@ -659,13 +618,7 @@ export function VocabularyScreen() {
                           <>
                             全部 <strong>{state.words.length}</strong> 词已覆盖
                           </>
-                        ) : (
-                          <>
-                            已扫 <strong>{Math.min(session.cursor, total)}</strong> / {total}
-                            <br />
-                            下一轮待复习 <strong>{session.missed.length + markedUnknown}</strong> 词
-                          </>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -765,20 +718,6 @@ export function VocabularyScreen() {
                 {session.mode === 'unknown' ? '不会' : '会'} · Shift＋点击：反向 · 手动推进。
               </p>
             </>
-          ) : (
-            <>
-              <div className={styles.toolbar}>
-                <div className={styles.segment} aria-label="当前模块状态">
-                  <button className={styles.activeSegment} type="button" disabled>
-                    {workspaceMode === 'writing' ? '写作' : '语法'}
-                  </button>
-                </div>
-              </div>
-              <div className={styles.paperStage}>
-                <UnavailableModule mode={workspaceMode} />
-              </div>
-            </>
-          )}
         </div>
       </div>
 
@@ -1059,45 +998,6 @@ function WordbookShelf({
       <div className={styles.shelfRule} />
       <p className={styles.shelfNote}>每一摞纸都有自己的学习上下文。切换不会覆盖另一摞。</p>
     </aside>
-  )
-}
-
-function UnavailableModule({ mode }: { mode: Exclude<WorkspaceMode, 'vocabulary'> }) {
-  const isWriting = mode === 'writing'
-  return (
-    <section className={styles.unavailablePaper} aria-label={isWriting ? '写作页面' : '语法页面'}>
-      <div className={styles.unavailableHeader}>
-        <span className={styles.kicker}>{isWriting ? 'FREE WRITING PAPER' : 'GRAMMAR PAPER'}</span>
-        <span className={styles.unavailableBadge}>暂未开放</span>
-      </div>
-      <div className={styles.unavailableCenter}>
-        <div className={styles.unavailableMark}>{isWriting ? 'W' : 'G'}</div>
-        <h1>{isWriting ? '写作白纸' : '语法机制'}</h1>
-        <p>
-          {isWriting
-            ? '这里会是一张可以直接写任何英语的纸。当前先保留页面形态，输入和保存将在第二阶段开放。'
-            : '这里会按低级、中级和高级组织语法机制。当前先保留三级入口，实际学习功能暂不开放。'}
-        </p>
-        {isWriting ? (
-          <textarea
-            className={styles.previewTextarea}
-            disabled
-            placeholder="写作功能将在第二阶段开放"
-            aria-label="暂未开放的写作输入框"
-          />
-        ) : (
-          <div className={styles.grammarLevels} aria-label="语法等级">
-            {['低级语法', '中级语法', '高级语法'].map((level) => (
-              <button className={styles.levelCard} type="button" disabled key={level}>
-                <span>{level}</span>
-                <small>暂未开放</small>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className={styles.unavailableFoot}>白纸英语 · 当前只开放词汇学习</div>
-    </section>
   )
 }
 

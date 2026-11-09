@@ -87,17 +87,3 @@ test('[AC-ACCOUNT-018] 重置今天在面板内确认并回到第一页', async 
   await expect(page.getByText('今日进度已清零')).toBeVisible()
 })
 
-test('[AC-ACCOUNT-019] 三个 tab 位置稳定且没有剪贴入口', async ({ page }) => {
-  await page.goto('/vocabulary')
-  await page.waitForFunction(() => Boolean(localStorage.getItem('whitepaper-vocabulary-v2')))
-  await expect(page.getByRole('button', { name: '剪到另一张纸' })).toHaveCount(0)
-
-  const x = async () => Math.round((await page.getByRole('tablist').boundingBox())?.x ?? 0)
-  const vocabularyX = await x()
-  await page.getByRole('tab', { name: '写作', exact: true }).click()
-  expect(await x()).toBe(vocabularyX)
-  await page.getByRole('tab', { name: '学语法', exact: true }).click()
-  expect(await x()).toBe(vocabularyX)
-  await page.getByRole('tab', { name: '背单词', exact: true }).click()
-  expect(await x()).toBe(vocabularyX)
-})

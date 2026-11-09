@@ -42,7 +42,7 @@ learningSession 1 ─── n learningJudgement n ─── 1 vocabularyWord
 - 游客第一阶段先使用本地副本；本地副本不是 Prisma 记录，也不因未登录而创建匿名用户。
 - 登录同步后，服务端每条业务记录均绑定 Better Auth 的当前 `userId`；API 不信任客户端传入的用户归属。
 - `task` 删除属于破坏性变化。正式执行必须先备份并确认目标环境没有真实业务数据，然后生成具名 migration，保留旧 migration，不重写已应用历史。
-- 关联材料和写作/语法表不在第一阶段 Schema 中提前创建；进入对应阶段时按独立 Feature/Plan 增量增加。
+- 关联材料表不在当前 Schema 中提前创建；写作/语法已退出产品范围，不新增对应表。
 
 ## 回退
 
