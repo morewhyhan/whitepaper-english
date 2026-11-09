@@ -150,6 +150,7 @@ export function VocabularyScreen() {
       const target = event.target
       if (!(target instanceof Element)) return
       if (target.closest('[data-selectable="true"]')) return
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
       window.getSelection()?.removeAllRanges()
     }
     document.addEventListener('pointerdown', clearSelectionOutsidePaper, true)
