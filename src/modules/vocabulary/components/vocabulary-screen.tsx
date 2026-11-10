@@ -806,25 +806,25 @@ export function VocabularyScreen() {
                     </span>
                   </div>
                 </PaperSurface>
-                <button
-                  className={styles.undoTab}
-                  type="button"
-                  disabled={!undoSession}
-                  onClick={handleUndo}
-                >
-                  撤销上一页
-                </button>
-                <button
-                  className={styles.peekTab}
-                  type="button"
-                  disabled={session.complete}
-                  onClick={() =>
-                    updateSession((current) => ({ ...current, peek: !current.peek }))
-                  }
-                >
-                  {session.peek ? '隐藏未释义' : '显示未释义'}
-                </button>
                 <div className={styles.paperAdvance}>
+                  <button
+                    className={styles.peekTab}
+                    type="button"
+                    disabled={session.complete}
+                    onClick={() =>
+                      updateSession((current) => ({ ...current, peek: !current.peek }))
+                    }
+                  >
+                    {session.peek ? '隐藏未释义' : '显示未释义'}
+                  </button>
+                  <button
+                    className={styles.undoTab}
+                    type="button"
+                    disabled={!undoSession}
+                    onClick={handleUndo}
+                  >
+                    撤销上一页
+                  </button>
                   <button
                     className={styles.clearPageButton}
                     type="button"
