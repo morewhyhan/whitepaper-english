@@ -3179,3 +3179,175 @@
     0 10px 26px #6e2f2829,
     0 0 0 5px #e8c4bd99;
 }
+
+
+/* Association sentence cards */
+.assocNodeWrap {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  z-index: 1;
+}
+
+.assocNodeWrap > .assocNode {
+  width: 100%;
+  height: 100%;
+}
+
+.assocNodeCustom {
+  border: 1px dashed #c9d4c2;
+  background: #fafbf6;
+}
+
+.assocRemove {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  z-index: 4;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #e3e7df;
+  border-radius: 50%;
+  background: #fffdf8;
+  color: #8d9489;
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0;
+  cursor: pointer;
+  transition:
+    opacity 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.assocNodeWrap:hover .assocRemove,
+.assocRemove:focus-visible {
+  opacity: 1;
+}
+
+.assocRemove:hover {
+  color: #a2463c;
+  transform: scale(1.08);
+}
+
+.assocBoardMany {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+}
+
+.assocBoardMany .assocCenter {
+  grid-column: 2 / 4;
+  grid-row: 2 / 4;
+}
+
+.assocEmptyHint {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  left: 0;
+  margin: 0;
+  color: #a0a69d;
+  font-size: 10px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.sentenceTab {
+  background: #6e5d48 !important;
+  color: #fffdf7 !important;
+}
+
+.sentenceTab:hover:not(:disabled) {
+  background: #7f6c54 !important;
+}
+
+.sentenceBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #1f261d38;
+  backdrop-filter: blur(3px);
+  animation: sentenceFade 160ms ease both;
+}
+
+.sentenceCard {
+  width: min(100%, 520px);
+  padding: 28px;
+  border: 1px solid #e6e8df;
+  border-radius: 18px;
+  background: #fffef9;
+  box-shadow:
+    0 24px 70px #1c241b26,
+    0 2px 8px #1c241b12;
+  animation: sentenceIn 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sentenceKicker {
+  color: #9aa093;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+}
+
+.sentenceCard h2 {
+  margin: 8px 0 8px;
+  font-size: 24px;
+  font-weight: 520;
+  letter-spacing: -0.02em;
+}
+
+.sentenceHint {
+  margin: 0 0 18px;
+  color: #92988e;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.sentenceInput {
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+  min-height: 112px;
+  padding: 13px 14px;
+  border: 1px solid #dfe4d9;
+  border-radius: 10px;
+  outline: none;
+  background: #fbfcf7;
+  color: #353c34;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.sentenceInput:focus {
+  border-color: #a9b89e;
+  box-shadow: 0 0 0 3px #dce6d6a6;
+}
+
+.sentenceError {
+  margin: 9px 0 0;
+  color: #a2463c;
+  font-size: 11px;
+}
+
+.sentenceActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+@keyframes sentenceFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sentenceIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

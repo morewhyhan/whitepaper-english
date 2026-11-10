@@ -167,7 +167,7 @@ function hasTextSelection() {
 
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
 const TRASH_PAGE_SIZE = 24
-const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '下一页'] as const
+const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '造句', '下一页'] as const
 type PaperTab = (typeof TAB_NAMES)[number]
 
 function moveItem<T>(items: T[], item: T, targetIndex: number): T[] {
@@ -238,6 +238,9 @@ export function VocabularyScreen() {
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
+  const [sentenceOpen, setSentenceOpen] = useState(false)
+  const [sentenceText, setSentenceText] = useState('')
+  const [sentenceError, setSentenceError] = useState<string | null>(null)
   const { data: authSession } = useAuthSession()
   const signOut = useSignOut()
   const saveJudgements = useSaveJudgements()
@@ -540,6 +543,52 @@ export function VocabularyScreen() {
     commit(nextState)
     window.getSelection()?.removeAllRanges()
     setNotice(`「${word.en}」本页保留，按会处理，下一轮起不再推送`)
+  }
+
+  function addCustomAssociation(target: string, sentence: string) {
+    const text = sentence.trim()
+    const word = currentWords[0]
+    if (!word || text.length < 4) {
+      setSentenceError('句子太短，再写完整一点。')
+      return
+    }
+    if (!text.toLowerCase().includes(word.en.toLowerCase())) {
+      setSentenceError(`句子必须包含目标词「${word.en}」。`)
+      return
+    }
+    const key = target.toLowerCase()
+    const custom = state.customAssociations?.[key] ?? []
+    if (custom.length >= 4) {
+      setSentenceError('每个目标词最多添加 4 条自定义句。')
+      return
+    }
+    const nextCustom = {
+      ...(state.customAssociations ?? {}),
+      [key]: [...custom, { id: `custom-${Date.now().toString(36)}`, sentence: text }],
+    }
+    commit({ ...state, customAssociations: nextCustom })
+    setSentenceText('')
+    setSentenceError(null)
+    setSentenceOpen(false)
+    setNotice('句子已贴到关联纸')
+  }
+
+  function removeAssociation(target: string, sentence: string, custom: boolean) {
+    const key = target.toLowerCase()
+    if (custom) {
+      const next = (state.customAssociations?.[key] ?? []).filter((item) => item.sentence !== sentence)
+      commit({
+        ...state,
+        customAssociations: { ...(state.customAssociations ?? {}), [key]: next },
+      })
+      setNotice('自定义句已移除')
+      return
+    }
+    const marker = `${key}\u0000${sentence}`
+    const hidden = new Set(state.hiddenAssociationLinks ?? [])
+    hidden.add(marker)
+    commit({ ...state, hiddenAssociationLinks: [...hidden] })
+    setNotice('默认关联句已移除')
   }
 
   function restoreTrash(id: string) {
@@ -923,7 +972,9 @@ export function VocabularyScreen() {
   const markedUnknown = Object.values(session.marks).filter((mark) => mark === 'unknown').length
   const progress = total ? Math.round((session.cursor * 100) / total) : 100
   const activeWordCount = Math.max(0, state.words.length - state.trashedIds.length)
-  const visibleTabs = tabOrder.filter((tab) => !hiddenTabs.includes(tab))
+  const visibleTabs = tabOrder.filter(
+    (tab) => !hiddenTabs.includes(tab) && (tab !== '造句' || session.view === 'connect'),
+  )
   const tabStep = tabHeight / Math.max(1, visibleTabs.length)
   const displayTabs =
     dragTab && dragTargetIndex !== null
@@ -1089,7 +1140,11 @@ export function VocabularyScreen() {
                       onWordClick={handleWordClick}
                       onSpeak={speakText}
                       onPrefetch={(text, audio) => prefetchSpeech([{ text, audio }])}
-                                  onTrash={handleTrash}
+                      onTrash={handleTrash}
+                      showDefaultAssociations={state.settings.showDefaultAssociations !== false}
+                      customAssociations={state.customAssociations ?? {}}
+                      hiddenAssociationLinks={state.hiddenAssociationLinks ?? []}
+                      onRemoveLink={removeAssociation}
                     />
                   )}
 
@@ -1162,6 +1217,19 @@ export function VocabularyScreen() {
                             onClick={shufflePage}
                           >
                             打乱本页
+                          </button>
+                        ) : tab === '造句' ? (
+                          <button
+                            className={styles.sentenceTab}
+                            type="button"
+                            disabled={session.complete}
+                            onClick={() => {
+                              setSentenceText('')
+                              setSentenceError(null)
+                              setSentenceOpen(true)
+                            }}
+                          >
+                            造句
                           </button>
                         ) : (
                           <button
@@ -1325,6 +1393,13 @@ export function VocabularyScreen() {
           session={session}
           history={studyHistory.data ?? []}
           cycles={state.cycles ?? []}
+          showDefaultAssociations={state.settings.showDefaultAssociations !== false}
+          onToggleDefaultAssociations={() =>
+            updateSettings({
+              ...state.settings,
+              showDefaultAssociations: state.settings.showDefaultAssociations === false,
+            })
+          }
           soundOn={soundOn}
           email={authSession?.user.email}
           bookTitle={WORDBOOKS.find((book) => book.id === activeBookId)?.title ?? '平行世界'}
@@ -1372,6 +1447,21 @@ export function VocabularyScreen() {
         hidden
         onChange={handleFileChange}
       />
+      {sentenceOpen && (
+        <SentenceDialog
+          word={currentWords[0]?.en ?? ''}
+          value={sentenceText}
+          error={sentenceError}
+          onChange={(value) => {
+            setSentenceText(value)
+            setSentenceError(null)
+          }}
+          onClose={() => setSentenceOpen(false)}
+          onConfirm={() => {
+            if (currentWords[0]) addCustomAssociation(currentWords[0].en, sentenceText)
+          }}
+        />
+      )}
       {notice && <div className={styles.toast}>{notice}</div>}
     </main>
   )
@@ -1712,6 +1802,10 @@ function AssociationView({
   onSpeak,
   onPrefetch,
   onTrash,
+  showDefaultAssociations,
+  customAssociations,
+  hiddenAssociationLinks,
+  onRemoveLink,
 }: {
   words: VocabularyWord[]
   allWords: VocabularyWord[]
@@ -1721,6 +1815,10 @@ function AssociationView({
   onSpeak: (text: string, audio?: string) => void
   onPrefetch: (text: string, audio?: string) => void
   onTrash: (id: string) => void
+  showDefaultAssociations: boolean
+  customAssociations: Record<string, Array<{ id: string; sentence: string }>>
+  hiddenAssociationLinks: string[]
+  onRemoveLink: (target: string, sentence: string, custom: boolean) => void
 }) {
   const word = words[0]
   const chunkStart = Math.floor(session.cursor / 36) * 36
@@ -1750,13 +1848,32 @@ function AssociationView({
     ? (batch.data?.[word.en.toLowerCase()] ?? getAssociation(networks, word))
     : undefined
   const loading = Boolean(word) && batch.isLoading && !network
+  const custom = word ? (customAssociations[word.en.toLowerCase()] ?? []) : []
+  const hidden = new Set(hiddenAssociationLinks)
+  const defaultLinks =
+    word && showDefaultAssociations
+      ? (network?.links ?? []).filter(
+          (link) => !hidden.has(`${word.en.toLowerCase()}\u0000${link.sentence}`),
+        )
+      : []
+  const links = [
+    ...defaultLinks.map((link) => ({ ...link, custom: false, key: `default-${link.word}-${link.sentence}` })),
+    ...custom.map((item) => ({
+      word: '自定义',
+      sentence: item.sentence,
+      audio: undefined as string | undefined,
+      custom: true,
+      key: `custom-${item.id}`,
+    })),
+  ]
+  const hasBoard = links.length > 0 || !showDefaultAssociations
   useEffect(() => {
     if (!network) return
     prefetchSpeech(network.links.map((link) => ({ text: link.sentence, audio: link.audio })))
   }, [network])
   const centerDrag = useWordTrashDrag(
     (event) => {
-      if (word) onWordClick(word.id, event.shiftKey)
+      if (word) onWordClick(word.id, false)
     },
     () => {
       if (word) onTrash(word.id)
@@ -1770,25 +1887,39 @@ function AssociationView({
     <>
     <div className={styles.paperInner}>
       <div className={styles.assocWrap}>
-        {network ? (
-          <div className={styles.assocBoard}>
-            {network.links.map((link) => (
-              <button
-                className={styles.assocNode}
-                data-selectable="true"
-                key={link.word}
-                type="button"
-                aria-label={`朗读：${link.sentence}`}
-                onPointerEnter={() => onPrefetch(link.sentence, link.audio)}
-                onFocus={() => onPrefetch(link.sentence, link.audio)}
-                onClick={() => {
-                  if (hasTextSelection()) return
-                  onSpeak(link.sentence, link.audio)
-                }}
-              >
-                <span className={styles.assocWord}>{link.word}</span>
-                <span className={styles.assocSentence}>{highlight(link.sentence, link.word)}</span>
-              </button>
+        {hasBoard ? (
+          <div className={`${styles.assocBoard} ${links.length > 8 ? styles.assocBoardMany : ''}`}>
+            {links.map((link) => (
+              <div className={styles.assocNodeWrap} key={link.key}>
+                <button
+                  className={`${styles.assocNode} ${link.custom ? styles.assocNodeCustom : ''}`}
+                  data-selectable="true"
+                  type="button"
+                  aria-label={`朗读：${link.sentence}`}
+                  onPointerEnter={() => !link.custom && onPrefetch(link.sentence, link.audio)}
+                  onFocus={() => !link.custom && onPrefetch(link.sentence, link.audio)}
+                  onClick={() => {
+                    if (hasTextSelection()) return
+                    onSpeak(link.sentence, link.audio)
+                  }}
+                >
+                  <span className={styles.assocWord}>{link.word}</span>
+                  <span className={styles.assocSentence}>
+                    {highlight(link.sentence, link.custom ? word.en : link.word)}
+                  </span>
+                </button>
+                <button
+                  className={styles.assocRemove}
+                  type="button"
+                  aria-label={`移除${link.custom ? '自定义句' : '这条关联句'}`}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onRemoveLink(word.en, link.sentence, link.custom)
+                  }}
+                >
+                  ×
+                </button>
+              </div>
             ))}
             <div className={styles.assocCenter}>
               <button
@@ -1806,6 +1937,9 @@ function AssociationView({
                 </span>
               </button>
             </div>
+            {!links.length && (
+              <p className={styles.assocEmptyHint}>默认关联已关闭，点右侧“造句”添加一句。</p>
+            )}
           </div>
         ) : loading ? (
           <div className={styles.assocBoard} aria-busy="true" aria-label="正在加载关联句">
@@ -1881,7 +2015,7 @@ function WordButton({
   const mark = session.marks[word.id]
   const previewUnknown = !mark && session.peek && session.mode === 'unknown'
   const drag = useWordTrashDrag(
-    (event) => onWordClick(word.id, event.shiftKey),
+    (event) => onWordClick(word.id, false),
     onTrash ? () => onTrash(word.id) : undefined,
     trashed,
   )
@@ -1940,6 +2074,68 @@ function WordButton({
 
 function markClass(mark: Judgement) {
   return mark === 'known' ? styles.known : styles.unknown
+}
+
+function SentenceDialog({
+  word,
+  value,
+  error,
+  onChange,
+  onClose,
+  onConfirm,
+}: {
+  word: string
+  value: string
+  error: string | null
+  onChange: (value: string) => void
+  onClose: () => void
+  onConfirm: () => void
+}) {
+  return (
+    <div
+      className={styles.sentenceBackdrop}
+      role="presentation"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <section
+        className={styles.sentenceCard}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sentence-title"
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') onClose()
+          if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) onConfirm()
+        }}
+      >
+        <div className={styles.sentenceKicker}>MAKE A SENTENCE</div>
+        <h2 id="sentence-title">给「{word}」造一句</h2>
+        <p className={styles.sentenceHint}>句子要包含目标词。确认后会贴到关联纸的空位上。</p>
+        <textarea
+          className={styles.sentenceInput}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={`写一句包含 ${word} 的英文句子…`}
+          autoFocus
+          rows={4}
+          aria-label="新造句"
+        />
+        {error && <p className={styles.sentenceError}>{error}</p>}
+        <div className={styles.sentenceActions}>
+          <button className={styles.ghostButton} type="button" onClick={onClose}>
+            取消
+          </button>
+          <button
+            className={styles.primaryButton}
+            type="button"
+            disabled={!value.trim()}
+            onClick={onConfirm}
+          >
+            贴到纸上
+          </button>
+        </div>
+      </section>
+    </div>
+  )
 }
 
 function Completion({ words, rounds }: { words: number; rounds: number }) {
@@ -2170,6 +2366,13 @@ function loadState(): { state: VocabularyState; backupFailed: boolean } {
       sessions: parsed.sessions ?? {},
       trashedIds: Array.isArray(parsed.trashedIds) ? parsed.trashedIds : [],
       cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
+      customAssociations:
+        parsed.customAssociations && typeof parsed.customAssociations === 'object'
+          ? parsed.customAssociations
+          : {},
+      hiddenAssociationLinks: Array.isArray(parsed.hiddenAssociationLinks)
+        ? parsed.hiddenAssociationLinks
+        : [],
     }
     if (JSON.stringify(parsed.words) !== JSON.stringify(words)) {
       try {

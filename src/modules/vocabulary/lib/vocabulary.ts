@@ -10,9 +10,13 @@ export type VocabularyWord = {
 export type Judgement = 'known' | 'unknown'
 export type LearningView = 'scan' | 'connect'
 
+export type AssociationLink = { word: string; sentence: string; audio?: string }
+
+export type CustomAssociation = { id: string; sentence: string }
+
 export type AssociationNetwork = {
   target: string
-  links: Array<{ word: string; sentence: string; audio?: string }>
+  links: AssociationLink[]
 }
 
 export type SessionHistory = {
@@ -61,10 +65,13 @@ export type VocabularyState = {
   settings: {
     mode: 'known' | 'unknown'
     groups: 4 | 6
+    showDefaultAssociations?: boolean
   }
   sessions: Record<string, VocabularySession>
   trashedIds: string[]
   cycles?: CycleStat[]
+  customAssociations?: Record<string, CustomAssociation[]>
+  hiddenAssociationLinks?: string[]
 }
 
 export type ImportedVocabulary = {
@@ -270,6 +277,7 @@ export const DEMO_NETWORKS = demoNetworks
 export const defaultSettings: VocabularyState['settings'] = {
   mode: 'unknown',
   groups: 4,
+  showDefaultAssociations: true,
 }
 
 export function normalizeWords(input: unknown): VocabularyWord[] {
@@ -521,6 +529,8 @@ export function exportJson(state: VocabularyState): string {
       settings: state.settings,
       sessions: state.sessions,
       cycles: state.cycles ?? [],
+      customAssociations: state.customAssociations ?? {},
+      hiddenAssociationLinks: state.hiddenAssociationLinks ?? [],
     },
     null,
     2,

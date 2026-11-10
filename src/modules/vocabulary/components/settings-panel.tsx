@@ -6,13 +6,14 @@ import type { CycleStat, VocabularySession } from '../lib/vocabulary'
 import styles from './settings-panel.module.css'
 import { LearningStats } from './learning-stats'
 
-type PaperTab = '全部翻译' | '上一页' | '本页清空' | '打乱本页' | '下一页'
-type Category = 'account' | 'history' | 'stats' | 'sound' | 'judgement' | 'data' | 'appearance' | 'tabs'
+type PaperTab = '全部翻译' | '上一页' | '本页清空' | '打乱本页' | '造句' | '下一页'
+type Category = 'account' | 'history' | 'stats' | 'sound' | 'association' | 'judgement' | 'data' | 'appearance' | 'tabs'
 
 const CATEGORIES: { id: Category; label: string }[] = [
   { id: 'account', label: '账户' },
   { id: 'history', label: '学习记录' },
   { id: 'stats', label: '学习统计' },
+  { id: 'association', label: '关联辅助' },
   { id: 'sound', label: '发音与声音' },
   { id: 'judgement', label: '判定与操作' },
   { id: 'tabs', label: '常用标签' },
@@ -28,6 +29,8 @@ export function SettingsPanel({
   history,
   cycles,
   soundOn,
+  showDefaultAssociations,
+  onToggleDefaultAssociations,
   email,
   bookTitle,
   onToggleSound,
@@ -43,6 +46,8 @@ export function SettingsPanel({
   history: StudyHistoryDay[]
   cycles: CycleStat[]
   soundOn: boolean
+  showDefaultAssociations: boolean
+  onToggleDefaultAssociations: () => void
   email?: string
   bookTitle: string
   onToggleSound: () => void
@@ -166,6 +171,23 @@ export function SettingsPanel({
                     </div>
                   </>
                 )}
+              </section>
+            )}
+
+            {active === 'association' && (
+              <section className={styles.section}>
+                <p className={styles.label}>默认关联句</p>
+                <label className={styles.checkRow}>
+                  <input
+                    type="checkbox"
+                    checked={showDefaultAssociations}
+                    onChange={onToggleDefaultAssociations}
+                  />
+                  <span>显示内置的 8 条关联句</span>
+                </label>
+                <p className={styles.hint}>
+                  关闭后关联辅助只显示中心词；可以用右侧“造句”标签添加自己的句子。最多保存 4 条自定义句。
+                </p>
               </section>
             )}
 
