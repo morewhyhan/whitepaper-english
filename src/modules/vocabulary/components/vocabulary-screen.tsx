@@ -516,13 +516,21 @@ export function VocabularyScreen() {
   function handleTrash(id: string) {
     const word = state.words.find((item) => item.id === id)
     if (!word || state.trashedIds.includes(id)) return
+    const current = state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
     const nextState: VocabularyState = {
       ...state,
       trashedIds: [...state.trashedIds, id],
+      sessions: {
+        ...state.sessions,
+        [today]: {
+          ...current,
+          marks: { ...current.marks, [id]: 'known' },
+        },
+      },
     }
     commit(nextState)
     window.getSelection()?.removeAllRanges()
-    setNotice(`「${word.en}」本页保留，下一轮起不再推送`)
+    setNotice(`「${word.en}」本页保留，按会处理，下一轮起不再推送`)
   }
 
   function restoreTrash(id: string) {
@@ -596,7 +604,9 @@ export function VocabularyScreen() {
     if (!currentPage.length) return
     updateSession((current) => {
       const marks = { ...current.marks }
-      for (const word of currentPage) delete marks[word.id]
+      for (const word of currentPage) {
+        if (!state.trashedIds.includes(word.id)) delete marks[word.id]
+      }
       return { ...current, marks, peek: false }
     })
     setNotice('本页已清空')
@@ -607,7 +617,9 @@ export function VocabularyScreen() {
     if (!currentPage.length) return
     updateSession((current) => {
       const marks = { ...current.marks }
-      for (const word of currentPage) marks[word.id] = 'unknown'
+      for (const word of currentPage) {
+        if (!state.trashedIds.includes(word.id)) marks[word.id] = 'unknown'
+      }
       return { ...current, marks, peek: false }
     })
     setNotice('本页已全部标记为不会')
