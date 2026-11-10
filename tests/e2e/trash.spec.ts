@@ -19,6 +19,7 @@ test('[AC-ACCOUNT-020] 双击归档、共享垃圾桶和放回', async ({ page }
   const word = await first.locator('span').last().innerText()
   await first.dblclick()
   await expect(badge).toContainText('1')
+  await expect(first).toBeVisible()
 
   await badge.click()
   const panel = page.getByRole('dialog', { name: '垃圾桶' })

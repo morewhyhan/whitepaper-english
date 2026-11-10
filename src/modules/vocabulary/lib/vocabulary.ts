@@ -375,7 +375,7 @@ export function toggleMark(
 export function advanceSession(
   session: VocabularySession,
   words: VocabularyWord[],
-  options: { pageSize?: number } = {},
+  options: { pageSize?: number; trashedIds?: string[] } = {},
 ): VocabularySession {
   if (session.complete) return session
   const currentPage = pageWords(words, session, options.pageSize)
@@ -395,12 +395,14 @@ export function advanceSession(
     ...session.history,
     { round: session.round, total: session.ids.length, missed: missed.length },
   ]
-  if (missed.length === 0) return { ...clean, history, complete: true }
+  const trashed = new Set(options.trashedIds ?? [])
+  const remaining = missed.filter((id) => !trashed.has(id))
+  if (remaining.length === 0) return { ...clean, history, complete: true }
 
   return {
     ...clean,
     round: session.round + 1,
-    ids: shuffle(missed),
+    ids: shuffle(remaining),
     cursor: 0,
     missed: [],
     history,

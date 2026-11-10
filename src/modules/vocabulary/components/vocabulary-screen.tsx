@@ -364,26 +364,13 @@ export function VocabularyScreen() {
   function handleTrash(id: string) {
     const word = state.words.find((item) => item.id === id)
     if (!word || state.trashedIds.includes(id)) return
-    const current = state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
-    const ids = current.ids.filter((item) => item !== id)
-    const marks = { ...current.marks }
-    delete marks[id]
-    const nextSession: VocabularySession = {
-      ...current,
-      ids,
-      marks,
-      missed: current.missed.filter((item) => item !== id),
-      cursor: Math.min(current.cursor, ids.length),
-      complete: ids.length === 0,
-    }
     const nextState: VocabularyState = {
       ...state,
       trashedIds: [...state.trashedIds, id],
-      sessions: { ...state.sessions, [today]: nextSession },
     }
     commit(nextState)
-    if (authSession?.user) persistSession(nextSession)
-    setNotice(`「${word.en}」已放入垃圾桶，之后不再推送`)
+    window.getSelection()?.removeAllRanges()
+    setNotice(`「${word.en}」本页保留，下一轮起不再推送`)
   }
 
   function restoreTrash(id: string) {
@@ -467,7 +454,7 @@ export function VocabularyScreen() {
     if (session.complete) return
     if (!(await commitCurrentPage())) return
 
-    const next = advanceSession(session, state.words)
+    const next = advanceSession(session, state.words, { trashedIds: state.trashedIds })
     setUndoSession(session)
     updateSession(() => next)
     persistSession(next)
@@ -495,7 +482,7 @@ export function VocabularyScreen() {
     const pageSize = Math.max(1, zenLayout.count) * ZEN_WORDS_PER_SHEET
     if (!(await commitCurrentPage(pageSize))) return
 
-    const next = advanceSession(session, state.words, { pageSize })
+    const next = advanceSession(session, state.words, { pageSize, trashedIds: state.trashedIds })
     setUndoSession(session)
     updateSession(() => next)
     persistSession(next)
@@ -756,7 +743,7 @@ export function VocabularyScreen() {
                     <div>
                       <div className={styles.kicker}>
                         {WORDBOOKS.find((book) => book.id === activeBookId)?.subtitle} ·{' '}
-                        {activeWordCount} 词条
+                        {state.words.length} 词条
                       </div>
                       <h1 className={styles.roundHeading}>
                         {session.complete ? '今日清零' : `第 ${session.round} 轮`}
@@ -827,6 +814,16 @@ export function VocabularyScreen() {
                 >
                   撤销上一页
                 </button>
+                <button
+                  className={styles.peekTab}
+                  type="button"
+                  disabled={session.complete}
+                  onClick={() =>
+                    updateSession((current) => ({ ...current, peek: !current.peek }))
+                  }
+                >
+                  {session.peek ? '隐藏未释义' : '显示未释义'}
+                </button>
                 <div className={styles.paperAdvance}>
                   <button
                     className={styles.clearPageButton}
@@ -861,18 +858,6 @@ export function VocabularyScreen() {
                     : session.view === 'connect'
                       ? `本词 ${Math.min(session.cursor + 1, total)} / ${total}`
                       : `本页 ${Math.min(session.cursor + 1, total)}—${Math.min(session.cursor + currentWords.length, total)} / ${total}`}
-                </div>
-                <div className={styles.buttonRow}>
-                  <button
-                    className={styles.plainButton}
-                    type="button"
-                    disabled={session.complete}
-                    onClick={() =>
-                      updateSession((current) => ({ ...current, peek: !current.peek }))
-                    }
-                  >
-                    {session.peek ? '隐藏' : '显示'}未会释义
-                  </button>
                 </div>
               </div>
 
