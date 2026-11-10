@@ -819,6 +819,14 @@ export function VocabularyScreen() {
                     </span>
                   </div>
                 </PaperSurface>
+                <button
+                  className={styles.undoTab}
+                  type="button"
+                  disabled={!undoSession}
+                  onClick={handleUndo}
+                >
+                  撤销上一页
+                </button>
                 <div className={styles.paperAdvance}>
                   <button
                     className={styles.clearPageButton}
@@ -855,14 +863,6 @@ export function VocabularyScreen() {
                       : `本页 ${Math.min(session.cursor + 1, total)}—${Math.min(session.cursor + currentWords.length, total)} / ${total}`}
                 </div>
                 <div className={styles.buttonRow}>
-                  <button
-                    className={styles.plainButton}
-                    type="button"
-                    disabled={!undoSession}
-                    onClick={handleUndo}
-                  >
-                    撤销上一页
-                  </button>
                   <button
                     className={styles.plainButton}
                     type="button"

@@ -2076,6 +2076,44 @@
   gap: clamp(8px, 1.1vw, 16px) clamp(8px, 1.4vw, 20px);
 }
 
+.undoTab {
+  position: absolute;
+  left: -44px;
+  bottom: 30px;
+  z-index: 4;
+  width: 44px;
+  min-height: 116px;
+  padding: 16px 8px;
+  border: 1px solid #d4d7cb;
+  border-left: 0;
+  border-radius: 8px 0 0 8px;
+  background: #f7f5ed;
+  color: #687264;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  line-height: 1.5;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.08em;
+  transition:
+    background 160ms,
+    color 160ms,
+    border-color 160ms;
+}
+
+.undoTab:hover:not(:disabled) {
+  border-color: #a9b8a5;
+  background: #fffdf6;
+  color: #2f4a35;
+}
+
+.undoTab:disabled {
+  cursor: default;
+  background: #f4f2e9;
+  opacity: 0.55;
+}
+
 .paperAdvance {
   position: absolute;
   right: -44px;
@@ -2634,6 +2672,13 @@
   }
   .primaryButton {
     padding: 10px 14px;
+  }
+  .undoTab {
+    left: -4px;
+    width: 38px;
+    min-height: 96px;
+    padding: 12px 6px;
+    font-size: 9px;
   }
   .clearPageButton {
     width: 40px;
