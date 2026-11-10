@@ -2089,8 +2089,8 @@
   padding: 16px 10px;
   border: 0;
   border-radius: 8px 0 0 8px;
-  background: #f4e7b5;
-  color: #6f5b28;
+  background: #eadfc7;
+  color: #62553a;
   cursor: pointer;
   font: inherit;
   font-size: 12px;
@@ -2108,15 +2108,14 @@
 }
 
 .undoTab:hover:not(:disabled) {
-  border-color: #d8c27f;
-  background: #f9eecb;
-  color: #594718;
+  background: #f2e8d5;
+  color: #55482f;
 }
 
 .undoTab:disabled {
   cursor: default;
-  background: #f4e7b5;
-  opacity: 0.55;
+  background: #eadfc7;
+  opacity: 0.6;
 }
 
 .peekTab {
@@ -2132,8 +2131,8 @@
   padding: 16px 10px;
   border: 0;
   border-radius: 8px 0 0 8px;
-  background: #dce9f2;
-  color: #395d73;
+  background: #dce8df;
+  color: #4a604f;
   cursor: pointer;
   font: inherit;
   font-size: 12px;
@@ -2151,9 +2150,8 @@
 }
 
 .peekTab:hover:not(:disabled) {
-  border-color: #abc9db;
-  background: #e9f3f9;
-  color: #294d62;
+  background: #e9f2ea;
+  color: #3d543f;
 }
 
 .peekTab:disabled {
