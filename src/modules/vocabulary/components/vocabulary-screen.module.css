@@ -3127,3 +3127,55 @@
 .shuffleTab:hover:not(:disabled) {
   background: #5a6a7d !important;
 }
+
+
+/* Word drag-to-trash */
+.trashedWord,
+.trashedWord:disabled {
+  color: #c7cbc4 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  opacity: 1;
+  cursor: default;
+}
+
+.trashedWord .en,
+.trashedWord .zh {
+  color: #c7cbc4 !important;
+}
+
+.wordGhost {
+  position: fixed;
+  z-index: 300;
+  transform: translate(-50%, -60%) rotate(-2deg);
+  padding: 9px 14px;
+  border: 1px solid #ffffff2e;
+  border-radius: 9px;
+  background: #303a31f2;
+  box-shadow:
+    0 10px 24px #1d261e3d,
+    0 2px 5px #1d261e24;
+  color: #fffdf7;
+  font-size: 14px;
+  line-height: 1.2;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+:global(body[data-word-drag='true']) .trashButton {
+  transform: scale(1.06);
+  border-color: #a9b5a7;
+  box-shadow:
+    0 8px 22px #26332624,
+    0 0 0 4px #dce4d8a6;
+}
+
+:global(body[data-trash-over='true']) .trashButton {
+  transform: scale(1.14);
+  border-color: #a2463c;
+  background: #f7e5e1;
+  color: #a2463c;
+  box-shadow:
+    0 10px 26px #6e2f2829,
+    0 0 0 5px #e8c4bd99;
+}

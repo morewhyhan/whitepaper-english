@@ -1,5 +1,6 @@
 'use client'
 
+import { createPortal } from 'react-dom'
 import {
   useEffect,
   useMemo,
@@ -43,32 +44,117 @@ import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
 import layout from './workspace-layout.module.css'
 
-function useTrashClick(
+function useWordTrashDrag(
   onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void,
-  onTrash?: () => void,
+  onTrash: (() => void) | undefined,
+  disabled: boolean,
 ) {
-  const timer = useRef<number | null>(null)
+  const [dragging, setDragging] = useState(false)
+  const [overTrash, setOverTrash] = useState(false)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const drag = useRef<{ x: number; y: number; pointerId: number; active: boolean } | null>(null)
+  const over = useRef(false)
+  const suppressClick = useRef(false)
+  const clickTimer = useRef<number | null>(null)
+
   useEffect(() => {
     return () => {
-      if (timer.current) window.clearTimeout(timer.current)
+      if (clickTimer.current) window.clearTimeout(clickTimer.current)
+      delete document.body.dataset.wordDrag
+      delete document.body.dataset.trashOver
     }
   }, [])
-  return (event: ReactMouseEvent<HTMLButtonElement>) => {
-    if (!onTrash) {
-      onClick(event)
-      return
+
+  function cleanup() {
+    drag.current = null
+    setDragging(false)
+    setOverTrash(false)
+    over.current = false
+    delete document.body.dataset.wordDrag
+    delete document.body.dataset.trashOver
+  }
+
+  function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    if (disabled || !onTrash || event.button !== 0) return
+    const state = { x: event.clientX, y: event.clientY, pointerId: event.pointerId, active: false }
+    drag.current = state
+
+    const move = (moveEvent: PointerEvent) => {
+      if (!drag.current || moveEvent.pointerId !== state.pointerId) return
+      if ((moveEvent.buttons & 1) === 0) {
+        cleanup()
+        return
+      }
+      const distance = Math.hypot(moveEvent.clientX - state.x, moveEvent.clientY - state.y)
+      if (!state.active && distance < 26) return
+      if (!state.active) {
+        state.active = true
+        setDragging(true)
+        document.body.dataset.wordDrag = 'true'
+      }
+      moveEvent.preventDefault()
+      setPosition({ x: moveEvent.clientX + 14, y: moveEvent.clientY - 16 })
+
+      const target = document.querySelector<HTMLElement>('[data-trash-drop="true"]')
+      if (!target) return
+      const rect = target.getBoundingClientRect()
+      const isOver =
+        moveEvent.clientX >= rect.left - 18 &&
+        moveEvent.clientX <= rect.right + 18 &&
+        moveEvent.clientY >= rect.top - 18 &&
+        moveEvent.clientY <= rect.bottom + 18
+      over.current = isOver
+      setOverTrash(isOver)
+      if (isOver) document.body.dataset.trashOver = 'true'
+      else delete document.body.dataset.trashOver
     }
-    if (event.detail >= 2) {
-      if (timer.current) window.clearTimeout(timer.current)
-      timer.current = null
-      onTrash()
-      return
+
+    const up = () => {
+      const wasActive = drag.current?.active ?? false
+      if (wasActive) {
+        if (over.current) onTrash()
+        suppressClick.current = true
+        window.setTimeout(() => {
+          suppressClick.current = false
+        }, 0)
+      }
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', cancel)
+      cleanup()
     }
-    if (timer.current) window.clearTimeout(timer.current)
-    timer.current = window.setTimeout(() => {
-      timer.current = null
-      onClick(event)
-    }, 150)
+
+    const cancel = () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', cancel)
+      suppressClick.current = true
+      cleanup()
+    }
+
+    window.addEventListener('pointermove', move, { passive: false })
+    window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', cancel)
+  }
+
+  return {
+    dragging,
+    overTrash,
+    position,
+    handlePointerDown: onPointerDown,
+    handleClick(event: ReactMouseEvent<HTMLButtonElement>) {
+      if (suppressClick.current) {
+        suppressClick.current = false
+        return
+      }
+      if (disabled) return
+      if (clickTimer.current) window.clearTimeout(clickTimer.current)
+      if (event.detail >= 2) return
+      clickTimer.current = window.setTimeout(() => {
+        clickTimer.current = null
+        onClick(event)
+      }, 180)
+    },
   }
 }
 
@@ -143,7 +229,7 @@ export function VocabularyScreen() {
   const [starterState, setStarterState] = useState<VocabularyState>(createStarterState)
   const [activeBookId, setActiveBookId] = useState<WordbookId>('parallel-world')
   const [hydrated, setHydrated] = useState(false)
-  const [undoSession, setUndoSession] = useState<VocabularySession | null>(null)
+  const [undoStack, setUndoStack] = useState<VocabularySession[]>([])
   const [modal, setModal] = useState<ModalName>(null)
   const [trashOpen, setTrashOpen] = useState(false)
   const [trashQuery, setTrashQuery] = useState('')
@@ -265,7 +351,7 @@ export function VocabularyScreen() {
 
     if (remote.cursor > 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUndoSession({
+      setUndoStack([{
         round: remote.round,
         ids: remote.ids,
         cursor: Math.max(0, remote.cursor - 36),
@@ -277,7 +363,7 @@ export function VocabularyScreen() {
         history: remote.history,
         complete: false,
         peek: false,
-      })
+      }])
     }
 
     const apply = (current: VocabularyState): VocabularyState => {
@@ -521,7 +607,7 @@ export function VocabularyScreen() {
     if (!(await commitCurrentPage())) return
 
     const next = advanceSession(session, state.words, { trashedIds: state.trashedIds })
-    setUndoSession(session)
+    setUndoStack((stack) => [...stack, session].slice(-80))
     updateSession(() => next)
     persistSession(next)
     window.scrollTo({ top: 0, behavior: 'instant' })
@@ -549,19 +635,22 @@ export function VocabularyScreen() {
     if (!(await commitCurrentPage(pageSize))) return
 
     const next = advanceSession(session, state.words, { pageSize, trashedIds: state.trashedIds })
-    setUndoSession(session)
+    setUndoStack((stack) => [...stack, session].slice(-80))
     updateSession(() => next)
     persistSession(next)
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
   function handleUndo() {
-    if (!undoSession) return
-    const next = { ...undoSession, marks: { ...undoSession.marks } }
+    const previous = undoStack[undoStack.length - 1]
+    if (!previous) return
+    const next = { ...previous, marks: { ...previous.marks } }
     updateSession(() => next)
     persistSession(next)
-    setUndoSession(null)
-    setNotice('已回到上一页')
+    setUndoStack((stack) => stack.slice(0, -1))
+    setNotice(
+      undoStack.length > 1 ? `已回到上一页，还可退回 ${undoStack.length - 1} 页` : '已回到上一页',
+    )
   }
 
   function startTabDrag(
@@ -654,7 +743,7 @@ export function VocabularyScreen() {
       )
     }
     setActiveBookId(id)
-    setUndoSession(null)
+    setUndoStack([])
     const wordbook = WORDBOOKS.find((item) => item.id === id)
     setNotice(`已打开${wordbook?.title ?? '词书'}纸摞`)
   }
@@ -681,7 +770,7 @@ export function VocabularyScreen() {
       networks,
       sessions: { [today]: createSession(words, state.settings, state.trashedIds) },
     }
-    setUndoSession(null)
+    setUndoStack([])
     commit(nextState)
     setModal(null)
     setPaste('')
@@ -723,7 +812,7 @@ export function VocabularyScreen() {
     }
 
     updateSession(() => createSession(state.words, state.settings, state.trashedIds))
-    setUndoSession(null)
+    setUndoStack([])
     setSettingsOpen(false)
     setModal(null)
     setNotice('今日进度已清零，从第 1 页重新开始')
@@ -839,8 +928,9 @@ export function VocabularyScreen() {
                 </div>
                 <button
                   className={styles.trashButton}
+                  data-trash-drop="true"
                   type="button"
-                  aria-label="打开垃圾桶"
+                  aria-label="打开垃圾桶，也可把单词拖到这里"
                   aria-expanded={trashOpen}
                   onClick={() => setTrashOpen((open) => !open)}
                 >
@@ -898,6 +988,7 @@ export function VocabularyScreen() {
                     <ScanView
                       words={currentWords}
                       session={session}
+                      trashedIds={state.trashedIds}
                       onWordClick={handleWordClick}
                       onTrash={handleTrash}
                     />
@@ -964,7 +1055,7 @@ export function VocabularyScreen() {
                           <button
                             className={styles.undoTab}
                             type="button"
-                            disabled={!undoSession}
+                            disabled={!undoStack.length}
                             onClick={handleUndo}
                           >
                             上一页
@@ -1066,7 +1157,7 @@ export function VocabularyScreen() {
               </div>
             </div>
             <p className={styles.trashHint}>
-              双击九宫格任意词或关联中心词会放进这里；放回后会在之后的轮次继续出现。
+              把九宫格里的词按住拖到这个垃圾桶会放进这里；放回后会在之后的轮次继续出现。
             </p>
             <div className={styles.trashSearch}>
               <label htmlFor="trash-search">搜索垃圾桶</label>
@@ -1416,11 +1507,13 @@ function WordbookShelf({
 function ScanView({
   words,
   session,
+  trashedIds,
   onWordClick,
   onTrash,
 }: {
   words: VocabularyWord[]
   session: VocabularySession
+  trashedIds: string[]
   onWordClick: (id: string, reverse: boolean) => void
   onTrash: (id: string) => void
 }) {
@@ -1430,6 +1523,7 @@ function ScanView({
         <ScanGrid
           words={words}
           session={session}
+          trashedIds={trashedIds}
           variant="workspace"
           onWordClick={onWordClick}
           onTrash={onTrash}
@@ -1444,6 +1538,7 @@ function ScanGrid({
   session,
   variant,
   sheetIndex,
+  trashedIds = [],
   onWordClick,
   onTrash,
 }: {
@@ -1451,6 +1546,7 @@ function ScanGrid({
   session: VocabularySession
   variant: 'workspace' | 'zen'
   sheetIndex?: number
+  trashedIds?: string[]
   onWordClick: (id: string, reverse: boolean) => void
   onTrash?: (id: string) => void
 }) {
@@ -1480,6 +1576,7 @@ function ScanGrid({
               key={word.id}
               word={word}
               session={session}
+              trashed={trashedIds.includes(word.id)}
               onWordClick={onWordClick}
               onTrash={onTrash}
               style={{
@@ -1576,18 +1673,20 @@ function AssociationView({
     if (!network) return
     prefetchSpeech(network.links.map((link) => ({ text: link.sentence, audio: link.audio })))
   }, [network])
-  const centerClick = useTrashClick(
+  const centerDrag = useWordTrashDrag(
     (event) => {
       if (word) onWordClick(word.id, event.shiftKey)
     },
     () => {
       if (word) onTrash(word.id)
     },
+    false,
   )
   if (!word) return <div className={styles.paperInner} />
   const mark = session.marks[word.id]
 
   return (
+    <>
     <div className={styles.paperInner}>
       <div className={styles.assocWrap}>
         <div className={styles.assocMeta}>
@@ -1638,8 +1737,9 @@ function AssociationView({
                 className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
                 data-selectable="true"
                 type="button"
-                title="单击判定，双击放入垃圾桶，Shift+点击反向"
-                onClick={centerClick}
+                title="单击判定，Shift+点击反向"
+                onPointerDown={centerDrag.handlePointerDown}
+                onClick={centerDrag.handleClick}
               >
                 <span className={styles.targetNote}>TARGET WORD</span>
                 <span className={styles.targetEn}>{word.en}</span>
@@ -1662,8 +1762,9 @@ function AssociationView({
                 className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
                 data-selectable="true"
                 type="button"
-                title="单击判定，双击放入垃圾桶，Shift+点击反向"
-                onClick={centerClick}
+                title="单击判定，Shift+点击反向"
+                onPointerDown={centerDrag.handlePointerDown}
+                onClick={centerDrag.handleClick}
               >
                 <span className={styles.targetNote}>TARGET WORD</span>
                 <span className={styles.targetEn}>{word.en}</span>
@@ -1688,52 +1789,94 @@ function AssociationView({
         )}
         </div>
       </div>
+      {centerDrag.dragging &&
+        word &&
+        createPortal(
+          <div
+            className={styles.wordGhost}
+            style={{ left: centerDrag.position.x, top: centerDrag.position.y }}
+            aria-hidden="true"
+          >
+            {word.en}
+          </div>,
+          document.body,
+        )}
+    </>
   )
 }
 
 function WordButton({
   word,
   session,
+  trashed = false,
   onWordClick,
   onTrash,
   style,
 }: {
   word: VocabularyWord
   session: VocabularySession
+  trashed?: boolean
   onWordClick: (id: string, reverse: boolean) => void
   onTrash?: (id: string) => void
   style?: CSSProperties
 }) {
   const mark = session.marks[word.id]
   const previewUnknown = !mark && session.peek && session.mode === 'unknown'
-  const handleClick = useTrashClick(
+  const drag = useWordTrashDrag(
     (event) => onWordClick(word.id, event.shiftKey),
     onTrash ? () => onTrash(word.id) : undefined,
+    trashed,
   )
   const className = [
     styles.word,
     mark ? markClass(mark) : '',
     previewUnknown ? styles.unknownPreview : '',
-  ].join(' ')
+    trashed ? styles.trashedWord : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
   return (
-    <button
-      className={className}
-      data-selectable="true"
-      type="button"
-      style={style}
-      aria-label={`${word.en}, ${mark || (previewUnknown ? '不会预览' : '未判定')}`}
-      title={`普通点击标${session.mode === 'unknown' ? '不会' : '会'}；Shift＋点击反向${onTrash ? '；双击归档' : ''}`}
-      onClick={handleClick}
-      onContextMenu={(event) => {
-        event.preventDefault()
-        onWordClick(word.id, true)
-      }}
-    >
-      <span className={`${styles.zh} ${mark === 'unknown' || previewUnknown ? '' : styles.empty}`}>
-        {mark === 'unknown' || previewUnknown ? word.zh || '暂无释义' : '—'}
-      </span>
-      <span className={styles.en}>{word.en}</span>
-    </button>
+    <>
+      <button
+        className={className}
+        data-selectable={!trashed}
+        type="button"
+        style={style}
+        disabled={trashed}
+        aria-label={
+          trashed
+            ? `${word.en}，已移入垃圾桶`
+            : `${word.en}, ${mark || (previewUnknown ? '不会预览' : '未判定')}`
+        }
+        title={
+          trashed
+            ? '已移入垃圾桶，下一轮起不再推送'
+            : `普通点击标${session.mode === 'unknown' ? '不会' : '会'}；Shift＋点击反向；按住拖到垃圾桶归档`
+        }
+        onPointerDown={drag.handlePointerDown}
+        onClick={drag.handleClick}
+        onContextMenu={(event) => {
+          event.preventDefault()
+          if (!trashed) onWordClick(word.id, true)
+        }}
+      >
+        <span className={`${styles.zh} ${mark === 'unknown' || previewUnknown ? '' : styles.empty}`}>
+          {mark === 'unknown' || previewUnknown ? word.zh || '暂无释义' : '—'}
+        </span>
+        <span className={styles.en}>{word.en}</span>
+      </button>
+      {drag.dragging &&
+        createPortal(
+          <div
+            className={styles.wordGhost}
+            style={{ left: drag.position.x, top: drag.position.y }}
+            aria-hidden="true"
+          >
+            {word.en}
+          </div>,
+          document.body,
+        )}
+    </>
   )
 }
 

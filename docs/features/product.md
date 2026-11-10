@@ -60,7 +60,7 @@
 - R11（REQ-ACCOUNT-004）：词汇白纸提供可见的登录入口；登录或注册成功后回到词汇白纸，退出后回到访客状态。
 - R12（REQ-ACCOUNT-005）：登录用户可以批量提交当前页的会/不会判定；同一账号同一词重复提交时覆盖旧值，其他账号不可见。
 - R13（REQ-ACCOUNT-006）：登录用户点“下一页”时，当前页的判定提交到自己的账号；未登录用户只保存在本机。
-- R14（REQ-ACCOUNT-007）：登录用户点“上一页”时，只回退一页并保留该页已有判定；刷新后判定仍在。
+- R14（REQ-ACCOUNT-007）：登录用户点“上一页”时，可连续回退多页，并逐页保留每一页已有判定；刷新后判定仍在。
 - R15（REQ-ACCOUNT-008）：登录用户的每日轮次、页码和判定按账号保存；清掉本机存储或换标签页后刷新，仍能回到同一轮同一页。
 - R16（REQ-ACCOUNT-009）：词状态按词书和本地日期保存；读取按日期隔离，重置今天只影响今天，历史日期保留。
 - R17（REQ-ACCOUNT-010）：设置里的“重新开始今天”清空当前词书当天的判定和会话，重建完整首轮；其他日期不受影响。
@@ -88,7 +88,7 @@
 - AC-ACCOUNT-004（REQ-ACCOUNT-004）：Given 访客打开词汇白纸，When 点击登录并完成注册，Then 回到 /vocabulary 且显示退出；点击退出后重新显示登录。
 - AC-ACCOUNT-005（REQ-ACCOUNT-005）：Given 登录用户 A 提交 apple=true、tree=false，When 再提交 apple=false，Then 读取只保留 apple=false 和一条 tree=false；账号 B 读取不到 A 的记录。
 - AC-ACCOUNT-006（REQ-ACCOUNT-006）：Given 登录用户在词汇白纸第一页，When 点击“下一页”，Then 当前页判定写入账号，读取状态返回这些词。
-- AC-ACCOUNT-007（REQ-ACCOUNT-007）：Given 登录用户已提交第一页并进入第二页，When 点击“上一页”，Then 页面回到第一页且已有判定保留，账号状态不被删除。
+- AC-ACCOUNT-007（REQ-ACCOUNT-007）：Given 登录用户已提交第一页并进入第二页，When 点击“上一页”，Then 页面逐页回到更早页面且已有判定保留，账号状态不被删除。
 - AC-ACCOUNT-008（REQ-ACCOUNT-008）：Given 登录用户已进入第二页，When 清除本地存储并刷新，Then 仍回到第二页，“上一页”可用。
 - AC-ACCOUNT-009（REQ-ACCOUNT-009）：Given 登录用户在 2026-11-08 提交 apple=true，When 读取 2026-11-09，Then 为空；读取 2026-11-08 返回 apple。
 - AC-ACCOUNT-010（REQ-ACCOUNT-010）：Given 登录用户已提交第一页，When 在设置里点“重新开始今天”并确认，Then 当天判定清空，页面回到第 1 轮。
