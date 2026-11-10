@@ -273,6 +273,33 @@ export function normalizeWords(input: unknown): VocabularyWord[] {
 export const DEMO_WORDS = normalizeWords(demoRows.map(([en, zh]) => ({ en, zh })))
 export const PARALLEL_WORLD_WORDS = normalizeWords(parallelWorld.entries)
 
+/** Resolve stored words against the current book without changing learning-record IDs. */
+export function reconcileStoredWords(input: unknown): VocabularyWord[] {
+  if (!Array.isArray(input)) return []
+  const normalized = normalizeWords(input)
+  if (normalized.length !== input.length) return normalized
+
+  const canonical = new Map(PARALLEL_WORLD_WORDS.map((word) => [word.en.toLowerCase(), word]))
+  return normalized.map((word, index) => {
+    const saved = input[index]
+    const id = saved && typeof saved === 'object' && typeof saved.id === 'string' && saved.id
+      ? saved.id
+      : word.id
+    const original = word.en.toLowerCase().trim()
+    const note = original.match(/[（(]([^()（）]+)[）)]\s*$/)?.[1]?.trim()
+    const cleaned = original.replace(/\s*[（(][^()（）]*[）)]\s*$/, '').split('/')[0].trim().replace(/\.$/, '')
+    const current = canonical.get(original) ?? canonical.get(cleaned) ?? (note ? canonical.get(note) : undefined)
+    if (!current) return { ...word, id }
+    return {
+      ...word,
+      id,
+      en: current.en,
+      zh: current.zh,
+      audio: current.audio,
+    }
+  })
+}
+
 export function normalizeNetworks(input: unknown): AssociationNetwork[] {
   if (!Array.isArray(input)) return []
 

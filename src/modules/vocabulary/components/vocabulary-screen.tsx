@@ -9,6 +9,7 @@ import {
   type ReactNode,
   type Ref,
   type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
 } from 'react'
 import {
   advanceSession,
@@ -23,6 +24,7 @@ import {
   type LearningView,
   normalizeNetworks,
   normalizeWords,
+  reconcileStoredWords,
   pageWords,
   parseImport,
   toggleMark,
@@ -31,7 +33,6 @@ import {
   type VocabularyWord,
 } from '../lib/vocabulary'
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
-import { useClearJudgements } from '../hooks/use-clear-judgements'
 import { useAssociations, usePrefetchAssociations } from '../hooks/use-association'
 import { prefetchSpeech, speakText, warmSpeech } from '../lib/speech'
 import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
@@ -40,6 +41,7 @@ import { useStudyHistory, type StudyHistoryDay } from '../hooks/use-study-histor
 import { SettingsPanel } from './settings-panel'
 import { useSaveJudgements } from '../hooks/use-save-judgements'
 import styles from './vocabulary-screen.module.css'
+import layout from './workspace-layout.module.css'
 
 function useTrashClick(
   onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void,
@@ -78,6 +80,17 @@ function hasTextSelection() {
 
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
 const TRASH_PAGE_SIZE = 24
+const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '下一页'] as const
+type PaperTab = (typeof TAB_NAMES)[number]
+
+function moveItem<T>(items: T[], item: T, targetIndex: number): T[] {
+  const from = items.indexOf(item)
+  if (from < 0) return items
+  const next = [...items]
+  next.splice(from, 1)
+  next.splice(Math.max(0, Math.min(next.length, targetIndex)), 0, item)
+  return next
+}
 
 type ModalName = 'import' | 'settings' | 'history' | null
 type WordbookId = 'parallel-world' | 'starter'
@@ -114,6 +127,14 @@ const WORDBOOKS = [
 ] satisfies readonly WordbookDefinition[]
 
 export function VocabularyScreen() {
+  const [tabOrder, setTabOrder] = useState<PaperTab[]>([...TAB_NAMES])
+  const [hiddenTabs, setHiddenTabs] = useState<PaperTab[]>([])
+  const [dragTab, setDragTab] = useState<PaperTab | null>(null)
+  const [dragTop, setDragTop] = useState(0)
+  const [dragTargetIndex, setDragTargetIndex] = useState<number | null>(null)
+  const [tabHeight, setTabHeight] = useState(100)
+  const tabRail = useRef<HTMLDivElement>(null)
+  const skipTabClick = useRef(false)
   const today = useMemo(() => formatDate(new Date()), [])
   const fileInput = useRef<HTMLInputElement>(null)
   const paperRef = useRef<HTMLElement>(null)
@@ -133,7 +154,6 @@ export function VocabularyScreen() {
   const { data: authSession } = useAuthSession()
   const signOut = useSignOut()
   const saveJudgements = useSaveJudgements()
-  const clearJudgements = useClearJudgements()
   const dailySession = useDailySession(activeBookId, today, Boolean(authSession?.user))
   const saveDailySession = useSaveDailySession()
   const resetTodayMutation = useResetToday()
@@ -157,7 +177,8 @@ export function VocabularyScreen() {
   const state = activeBookId === 'parallel-world' ? parallelState : starterState
 
   useEffect(() => {
-    const loaded = loadState()
+    const restored = loadState()
+    const loaded = restored.state
     const loadedStarter = createStarterState()
     ensureTodaySession(loaded, today)
     ensureTodaySession(loadedStarter, today)
@@ -165,13 +186,58 @@ export function VocabularyScreen() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setParallelState(loaded)
     setStarterState(loadedStarter)
-    saveState(loaded)
+    if (restored.backupFailed) {
+      setNotice('词书更新暂未保存：本地空间不足，请先备份学习数据。')
+    } else {
+      saveState(loaded)
+    }
     setHydrated(true)
 
     const savedBook = window.localStorage.getItem('whitepaper-active-book')
     if (savedBook === 'starter') setActiveBookId('starter')
     setSoundOn(window.localStorage.getItem('whitepaper-sound') !== 'off')
+    try {
+      const saved = JSON.parse(window.localStorage.getItem('whitepaper-tabs') || '{}')
+      if (Array.isArray(saved.order) && Array.isArray(saved.hidden)) {
+        const valid = (value: unknown): value is PaperTab => typeof value === 'string' && TAB_NAMES.some((name) => name === value)
+        setTabOrder([...new Set<PaperTab>([...saved.order.filter(valid), ...TAB_NAMES])])
+        setHiddenTabs(saved.hidden.filter(valid))
+      }
+    } catch { /* Use defaults for invalid local settings. */ }
   }, [today])
+
+  useEffect(() => {
+    const rail = tabRail.current
+    if (!rail) return
+    const observer = new ResizeObserver(([entry]) => setTabHeight(entry.contentRect.height))
+    observer.observe(rail)
+    return () => observer.disconnect()
+  }, [hydrated, zenMode])
+
+  function saveTabs(order: PaperTab[], hidden: PaperTab[]) {
+    setTabOrder(order)
+    setHiddenTabs(hidden)
+    try { window.localStorage.setItem('whitepaper-tabs', JSON.stringify({ order, hidden })) } catch { /* Keep in-memory preferences. */ }
+  }
+
+  function shufflePage() {
+    if (session.view !== 'scan' || session.complete) return
+    updateSession((current) => {
+      const count = current.groups * 9
+      const page = current.ids.slice(current.cursor, current.cursor + count)
+      if (page.length < 2) return current
+      const shuffled = [...page]
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+      }
+      if (shuffled.every((id, i) => id === page[i])) shuffled.push(shuffled.shift()!)
+      const next = { ...current, ids: [...current.ids.slice(0, current.cursor), ...shuffled, ...current.ids.slice(current.cursor + count)] }
+      persistSession(next)
+      return next
+    })
+    setNotice('已打乱本页，判断保持不变')
+  }
 
   useEffect(() => {
     warmSpeech()
@@ -489,28 +555,79 @@ export function VocabularyScreen() {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
-  async function handleUndo() {
+  function handleUndo() {
     if (!undoSession) return
-
-    if (authSession?.user) {
-      const page = pageWords(state.words, undoSession)
-      try {
-        await clearJudgements.mutateAsync({
-          bookId: activeBookId,
-          date: today,
-          words: page.map((word) => word.en),
-        })
-      } catch {
-        setNotice('撤销失败，请重试')
-        return
-      }
-    }
-
-    const next = { ...undoSession, marks: {} }
+    const next = { ...undoSession, marks: { ...undoSession.marks } }
     updateSession(() => next)
     persistSession(next)
     setUndoSession(null)
-    setNotice('已撤销上一页')
+    setNotice('已回到上一页')
+  }
+
+  function startTabDrag(
+    event: ReactPointerEvent<HTMLDivElement>,
+    tab: PaperTab,
+    index: number,
+  ) {
+    if (event.button !== 0) return
+    const start = {
+      y: event.clientY,
+      top: index * tabStep,
+      moved: false,
+      visible: [...visibleTabs],
+    }
+    let targetIndex = index
+    const pointerId = event.pointerId
+
+    const cleanup = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onCancel)
+      setDragTab(null)
+      setDragTargetIndex(null)
+    }
+
+    const onMove = (moveEvent: PointerEvent) => {
+      if (moveEvent.pointerId !== pointerId) return
+      if ((moveEvent.buttons & 1) === 0) {
+        cleanup()
+        return
+      }
+      const delta = moveEvent.clientY - start.y
+      if (!start.moved && Math.abs(delta) < 5) return
+      start.moved = true
+      moveEvent.preventDefault()
+      const step = tabHeight / Math.max(1, start.visible.length)
+      const top = Math.max(0, Math.min((start.visible.length - 1) * step, start.top + delta))
+      targetIndex = Math.max(0, Math.min(start.visible.length - 1, Math.round(top / Math.max(1, step))))
+      setDragTab(tab)
+      setDragTop(top)
+      setDragTargetIndex(targetIndex)
+    }
+
+    const onUp = () => {
+      if (start.moved) {
+        const nextVisible = moveItem(start.visible, tab, targetIndex)
+        saveTabs(
+          [...nextVisible, ...tabOrder.filter((item) => hiddenTabs.includes(item))],
+          hiddenTabs,
+        )
+        skipTabClick.current = true
+        window.setTimeout(() => {
+          skipTabClick.current = false
+        }, 0)
+      }
+      cleanup()
+    }
+
+    const onCancel = () => {
+      skipTabClick.current = true
+      cleanup()
+    }
+
+    window.addEventListener('pointermove', onMove, { passive: false })
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onCancel)
   }
 
   function switchView(view: LearningView) {
@@ -629,10 +746,16 @@ export function VocabularyScreen() {
   const markedUnknown = Object.values(session.marks).filter((mark) => mark === 'unknown').length
   const progress = total ? Math.round((session.cursor * 100) / total) : 100
   const activeWordCount = Math.max(0, state.words.length - state.trashedIds.length)
+  const visibleTabs = tabOrder.filter((tab) => !hiddenTabs.includes(tab))
+  const tabStep = tabHeight / Math.max(1, visibleTabs.length)
+  const displayTabs =
+    dragTab && dragTargetIndex !== null
+      ? moveItem(visibleTabs, dragTab, dragTargetIndex)
+      : visibleTabs
 
   return (
-    <main className={`${styles.layout} ${zenMode ? styles.zenLayout : ''}`}>
-      <header className={styles.top}>
+    <main className={`${styles.layout} ${zenMode ? styles.zenLayout : layout.viewport}`}>
+      <header className={styles.top} data-layout="top">
         <div className={styles.brand}>
           白纸 <small>MEMORY, IN THE OPEN.</small>
         </div>
@@ -674,7 +797,7 @@ export function VocabularyScreen() {
 
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
 
-      <div className={styles.workspaceBody}>
+      <div className={styles.workspaceBody} data-layout="body">
         <div
           className={`${styles.shelfDock} ${shelfOpen ? styles.shelfDockOpen : ''}`}
             onPointerEnter={() => setShelfOpen(true)}
@@ -692,10 +815,10 @@ export function VocabularyScreen() {
             />
             <WordbookShelf activeBookId={activeBookId} onSelect={switchWordbook} />
         </div>
-        <div className={styles.workspaceContent}>
+        <div className={styles.workspaceContent} data-layout="content">
           <>
 
-              <div className={styles.toolbar}>
+              <div className={styles.toolbar} data-layout="modes">
                 <div className={styles.segment} aria-label="本页学习呈现方式">
                   <button
                     className={session.view === 'scan' ? styles.activeSegment : undefined}
@@ -729,7 +852,8 @@ export function VocabularyScreen() {
                   <span>{state.trashedIds.length}</span>
                 </button>
               </div>
-              <div className={styles.paperStage}>
+              <div className={styles.paperStage} data-layout="stage">
+                <div className={styles.paperFrame} data-layout="frame">
                 <PaperSurface
                   key={
                     session.view === 'connect'
@@ -739,7 +863,7 @@ export function VocabularyScreen() {
                   paperRef={paperRef}
                   ariaLabel="一张可交互的 A4 记忆纸"
                 >
-                  <div className={styles.paperHeader}>
+                  <div className={styles.paperHeader} data-layout="paper-header">
                     <div>
                       <div className={styles.kicker}>
                         {WORDBOOKS.find((book) => book.id === activeBookId)?.subtitle} ·{' '}
@@ -791,7 +915,7 @@ export function VocabularyScreen() {
                     />
                   )}
 
-                  <div className={styles.pageFoot}>
+                  <div className={styles.pageFoot} data-layout="paper-footer">
                     <span>
                       {session.complete
                         ? 'DAY COMPLETE'
@@ -799,59 +923,95 @@ export function VocabularyScreen() {
                           ? 'INSTANT RECALL'
                           : 'ASSOCIATIVE RECALL'}
                     </span>
-                    <span>
-                      {session.complete
-                        ? 'ALL CLEAR'
-                        : `${Math.min(session.cursor + 1, total)}—${Math.min(session.cursor + currentWords.length, total)} / ${total}`}
-                    </span>
                   </div>
                 </PaperSurface>
-                <div className={styles.paperAdvance}>
-                  <button
-                    className={styles.peekTab}
-                    type="button"
-                    disabled={session.complete}
-                    onClick={() =>
-                      updateSession((current) => ({ ...current, peek: !current.peek }))
-                    }
-                  >
-                    {session.peek ? '隐藏未释义' : '显示未释义'}
-                  </button>
-                  <button
-                    className={styles.undoTab}
-                    type="button"
-                    disabled={!undoSession}
-                    onClick={handleUndo}
-                  >
-                    撤销上一页
-                  </button>
-                  <button
-                    className={styles.clearPageButton}
-                    type="button"
-                    disabled={session.complete}
-                    onClick={handleClearPage}
-                  >
-                    本页清空
-                  </button>
-                  <button
-                    className={styles.primaryButton}
-                    type="button"
-                    disabled={session.complete}
-                    onClick={handleNext}
-                    aria-label={
-                      session.complete
-                        ? '今日已清零'
-                        : session.view === 'connect'
-                          ? '下一个词'
-                          : '下一页'
-                    }
-                  >
-                    {session.complete ? '已清零' : session.view === 'connect' ? '下一词' : '下一页'}
-                  </button>
+                <div
+                  className={styles.paperAdvance}
+                  data-layout="actions"
+                  ref={tabRail}
+                  onClickCapture={(event) => {
+                    if (!skipTabClick.current) return
+                    event.preventDefault()
+                    event.stopPropagation()
+                    skipTabClick.current = false
+                  }}
+                >
+                  {displayTabs.map((tab, index) => {
+                    const dragging = dragTab === tab
+                    return (
+                      <div
+                        key={tab}
+                        data-dragging={dragging}
+                        style={{
+                          height: Math.max(0, tabStep - Math.min(9, tabStep * 0.075)),
+                          transform: `translateY(${dragging ? dragTop : index * tabStep}px)`,
+                          transition: dragging ? 'none' : undefined,
+                        }}
+                        onPointerDown={(event) => startTabDrag(event, tab, index)}
+                      >
+                        {tab === '全部翻译' ? (
+                          <button
+                            className={styles.peekTab}
+                            type="button"
+                            disabled={session.complete}
+                            onClick={() =>
+                              updateSession((current) => ({ ...current, peek: !current.peek }))
+                            }
+                          >
+                            全部翻译
+                          </button>
+                        ) : tab === '上一页' ? (
+                          <button
+                            className={styles.undoTab}
+                            type="button"
+                            disabled={!undoSession}
+                            onClick={handleUndo}
+                          >
+                            上一页
+                          </button>
+                        ) : tab === '本页清空' ? (
+                          <button
+                            className={styles.clearPageButton}
+                            type="button"
+                            disabled={session.complete}
+                            onClick={handleClearPage}
+                          >
+                            本页清空
+                          </button>
+                        ) : tab === '打乱本页' ? (
+                          <button
+                            className={`${styles.peekTab} ${styles.shuffleTab}`}
+                            type="button"
+                            disabled={session.complete || session.view !== 'scan' || currentWords.length < 2}
+                            onClick={shufflePage}
+                          >
+                            打乱本页
+                          </button>
+                        ) : (
+                          <button
+                            className={styles.primaryButton}
+                            type="button"
+                            disabled={session.complete}
+                            onClick={handleNext}
+                            aria-label={
+                              session.complete
+                                ? '今日已清零'
+                                : session.view === 'connect'
+                                  ? '下一个词'
+                                  : '下一页'
+                            }
+                          >
+                            {session.complete ? '已清零' : session.view === 'connect' ? '下一词' : '下一页'}
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
                 </div>
               </div>
 
-              <div className={styles.controls}>
+              <div className={styles.controls} data-layout="page-info">
                 <div className={styles.pageNumber}>
                   {session.complete
                     ? '今日任务完成'
@@ -862,7 +1022,7 @@ export function VocabularyScreen() {
               </div>
 
               <RoundTrack session={session} onOpen={() => setModal('history')} />
-              <p className={styles.helpLine}>
+              <p className={styles.helpLine} data-layout="help">
                 一张纸、一套轮次。浅绿 = 会，浅红 = 不会。普通点击：标
                 {session.mode === 'unknown' ? '不会' : '会'} · Shift＋点击：反向 · 手动推进。
               </p>
@@ -984,6 +1144,9 @@ export function VocabularyScreen() {
 
       {settingsOpen && (
         <SettingsPanel
+          hiddenTabs={hiddenTabs}
+          tabNames={TAB_NAMES}
+          onToggleTab={(tab) => saveTabs(tabOrder, hiddenTabs.includes(tab) ? hiddenTabs.filter((item) => item !== tab) : [...hiddenTabs, tab])}
           session={session}
           history={studyHistory.data ?? []}
           soundOn={soundOn}
@@ -1299,10 +1462,11 @@ function ScanGrid({
   const groupClass = variant === 'zen' ? styles.zenQuadrant : styles.nine
 
   return (
-    <div className={rootClass}>
+    <div className={rootClass} data-layout="word-grid" data-groups={session.groups}>
       {Array.from({ length: groupCount }, (_, groupIndex) => (
         <div
           className={groupClass}
+          data-layout="word-group"
           key={`grid-${groupIndex}`}
           role={variant === 'zen' ? 'group' : undefined}
           aria-label={
@@ -1318,14 +1482,10 @@ function ScanGrid({
               session={session}
               onWordClick={onWordClick}
               onTrash={onTrash}
-              style={
-                variant === 'zen'
-                  ? {
-                      gridColumn: (groupIndex % 2) * 3 + (wordIndex % 3) + 1,
-                      gridRow: Math.floor(groupIndex / 2) * 3 + Math.floor(wordIndex / 3) + 1,
-                    }
-                  : undefined
-              }
+              style={{
+                gridColumn: (groupIndex % 2) * 3 + (wordIndex % 3) + 1,
+                gridRow: Math.floor(groupIndex / 2) * 3 + Math.floor(wordIndex / 3) + 1,
+              }}
             />
           ))}
         </div>
@@ -1353,6 +1513,7 @@ function PaperSurface({
     <section
       ref={paperRef}
       className={`${styles.paper} ${className ?? ''}`.trim()}
+      data-layout="paper"
       role={role}
       aria-label={ariaLabel}
       style={style}
@@ -1608,7 +1769,7 @@ function RoundTrack({ session, onOpen }: { session: VocabularySession; onOpen: (
       : []),
   ]
   return (
-    <section className={styles.roundTrack}>
+    <section className={styles.roundTrack} data-layout="rounds">
       <div className={styles.roundTrackHeader}>
         <div>
           <strong>今日轮次</strong> ·{' '}
@@ -1810,24 +1971,16 @@ function Modal({
   )
 }
 
-function loadState(): VocabularyState {
+function loadState(): { state: VocabularyState; backupFailed: boolean } {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return createInitialState()
+    if (!raw) return { state: createInitialState(), backupFailed: false }
     const parsed = JSON.parse(raw) as Partial<VocabularyState>
-    if (!Array.isArray(parsed.words) || !parsed.words.length) return createInitialState()
+    if (!Array.isArray(parsed.words) || !parsed.words.length) return { state: createInitialState(), backupFailed: false }
     const defaults = createInitialState()
-    const canonical = new Map(defaults.words.map((word) => [word.en, word]))
-    const words = normalizeWords(parsed.words).map((word) => {
-      const current = canonical.get(word.en)
-      return {
-        ...word,
-        zh: word.zh || current?.zh || '',
-        audio: current?.audio ?? word.audio,
-      }
-    })
-    if (!words.length) return createInitialState()
-    return {
+    const words = reconcileStoredWords(parsed.words)
+    if (!words.length) return { state: createInitialState(), backupFailed: false }
+    const state: VocabularyState = {
       ...defaults,
       ...parsed,
       words,
@@ -1836,8 +1989,16 @@ function loadState(): VocabularyState {
       sessions: parsed.sessions ?? {},
       trashedIds: Array.isArray(parsed.trashedIds) ? parsed.trashedIds : [],
     }
+    if (JSON.stringify(parsed.words) !== JSON.stringify(words)) {
+      try {
+        window.localStorage.setItem(`${STORAGE_KEY}-before-wordbook-migration-${Date.now()}`, raw)
+      } catch {
+        return { state: { ...state, words: parsed.words }, backupFailed: true }
+      }
+    }
+    return { state, backupFailed: false }
   } catch {
-    return createInitialState()
+    return { state: createInitialState(), backupFailed: false }
   }
 }
 

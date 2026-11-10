@@ -52,3 +52,6 @@ blob-report/
 prisma/better-auth.generated.prisma
 
 /generated/prisma
+
+# Local desktop launcher state
+.desktop/

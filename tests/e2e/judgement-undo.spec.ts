@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('[AC-ACCOUNT-007] 撤销上一页清空该页判定', async ({ page }) => {
+test('[AC-ACCOUNT-007] 上一页保留该页判定', async ({ page }) => {
   const email = `undo-${Date.now()}@example.com`
 
   await page.goto('/')
@@ -29,7 +29,7 @@ test('[AC-ACCOUNT-007] 撤销上一页清空该页判定', async ({ page }) => {
       response.url().includes('/api/vocabulary/judgements') &&
       response.request().method() === 'DELETE',
   )
-  await page.getByRole('button', { name: '撤销上一页' }).click()
+  await page.getByRole('button', { name: '上一页' }).click()
   expect((await cleared).status()).toBe(200)
 
   const state = await page.request.get('/api/vocabulary/state')

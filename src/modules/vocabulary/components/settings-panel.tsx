@@ -5,18 +5,23 @@ import type { StudyHistoryDay } from '../hooks/use-study-history'
 import type { VocabularySession } from '../lib/vocabulary'
 import styles from './settings-panel.module.css'
 
-type Category = 'account' | 'history' | 'sound' | 'judgement' | 'data' | 'appearance'
+type PaperTab = '全部翻译' | '上一页' | '本页清空' | '打乱本页' | '下一页'
+type Category = 'account' | 'history' | 'sound' | 'judgement' | 'data' | 'appearance' | 'tabs'
 
 const CATEGORIES: { id: Category; label: string }[] = [
   { id: 'account', label: '账户' },
   { id: 'history', label: '学习记录' },
   { id: 'sound', label: '发音与声音' },
   { id: 'judgement', label: '判定与操作' },
+  { id: 'tabs', label: '常用标签' },
   { id: 'data', label: '词书与数据' },
   { id: 'appearance', label: '外观' },
 ]
 
 export function SettingsPanel({
+  hiddenTabs,
+  tabNames,
+  onToggleTab,
   session,
   history,
   soundOn,
@@ -29,6 +34,9 @@ export function SettingsPanel({
   onLogout,
   onClose,
 }: {
+  hiddenTabs: readonly PaperTab[]
+  tabNames: readonly PaperTab[]
+  onToggleTab: (tab: PaperTab) => void
   session: VocabularySession
   history: StudyHistoryDay[]
   soundOn: boolean
@@ -104,6 +112,11 @@ export function SettingsPanel({
           </header>
 
           <div className={styles.body}>
+            {active === 'tabs' && <section className={styles.section}>
+              <p className={styles.label}>纸张右侧的常用标签</p>
+              <p className={styles.hint}>勾选显示，在纸边上下拖动调整顺序。设置保存在本机。</p>
+              {tabNames.map((tab) => <label className={styles.checkRow} key={tab}><input type="checkbox" checked={!hiddenTabs.includes(tab)} onChange={() => onToggleTab(tab)} />{tab}</label>)}
+            </section>}
             {active === 'account' && (
               <section className={styles.section}>
                 <p className={styles.label}>当前账号</p>

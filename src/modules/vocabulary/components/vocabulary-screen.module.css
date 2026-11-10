@@ -2031,31 +2031,10 @@
   margin: 0 auto;
 }
 
+/* Shadows belong to the paper frame; the stage no longer draws stray lines. */
 .paperStage::before,
 .paperStage::after {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-}
-
-.paperStage::before {
-  z-index: 0;
-  right: 4%;
-  bottom: 4px;
-  left: 4%;
-  height: 24px;
-  border-radius: 50%;
-  background: rgb(49 48 39 / 0.24);
-  filter: blur(16px);
-}
-
-.paperStage::after {
-  z-index: 0;
-  right: 0;
-  bottom: 8px;
-  left: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(65 62 52 / 0.16), transparent);
+  display: none;
 }
 
 .paperStage .gridShell {
@@ -3130,4 +3109,21 @@
   .trashGrid {
     grid-template-columns: 1fr;
   }
+}
+
+
+.paperFrame {
+  position: relative;
+  min-height: 0;
+}
+
+
+/* Shuffle is a separate action from translation; give it its own ink-blue tab. */
+.shuffleTab {
+  background: #4c5b6d !important;
+  color: #fffdf7 !important;
+}
+
+.shuffleTab:hover:not(:disabled) {
+  background: #5a6a7d !important;
 }

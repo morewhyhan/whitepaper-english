@@ -1,0 +1,339 @@
+/* This module owns normal-mode geometry. The screen module owns paper materials and states. */
+.viewport.viewport {
+  --bar-height: clamp(48px, 8dvh, 64px);
+  --sheet-height: max(260px, calc(100dvh - var(--bar-height) - 44px));
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 12px clamp(12px, 2vw, 30px) 48px;
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 16px;
+  overflow: visible;
+}
+
+.viewport.viewport [data-layout='top'] {
+  position: static;
+  box-sizing: border-box;
+  width: min(100%, 1160px);
+  min-height: var(--bar-height);
+  height: var(--bar-height);
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.viewport.viewport [data-layout='top'] > div:last-child {
+  grid-area: auto;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.viewport.viewport [data-layout='top'] button {
+  padding: 9px clamp(4px, 0.7vw, 10px);
+  font-size: 13px;
+}
+
+.viewport.viewport [data-layout='body'] {
+  width: min(100%, 1160px);
+  min-height: 0;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.viewport.viewport [data-layout='content'] {
+  height: auto;
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: var(--sheet-height) auto auto auto;
+  gap: 16px;
+  padding-right: 52px;
+}
+
+.viewport.viewport [data-layout='stage'] {
+  box-sizing: border-box;
+  position: relative;
+  container-type: size;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.viewport.viewport [data-layout='frame'] {
+  --tab-width: clamp(36px, 6.8cqh, 52px);
+  box-sizing: border-box;
+  position: relative;
+  width: min(100%, calc(100cqh * 210 / 297 + var(--tab-width)));
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--tab-width);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.viewport.viewport [data-layout='paper'] {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  max-height: 100%;
+  margin: 0;
+  aspect-ratio: auto;
+  padding: clamp(16px, 3cqh, 32px) clamp(14px, 2.5vw, 36px) clamp(14px, 2.5cqh, 24px);
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+.viewport.viewport [data-layout='paper-header'] {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  min-height: 0;
+  padding-bottom: 14px;
+  gap: 16px;
+}
+
+.viewport.viewport [data-layout='paper-header'] h1 {
+  font-size: clamp(18px, 4cqh, 28px);
+  margin: 7px 0 6px;
+}
+
+.viewport.viewport [data-layout='paper'] > div:has(> [data-layout='word-grid']) {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.viewport.viewport [data-layout='word-grid'] {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  padding: clamp(8px, 2cqh, 18px) 0;
+}
+
+.viewport.viewport [data-layout='word-grid'][data-groups='6'] {
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+}
+
+.viewport.viewport [data-layout='word-group'] {
+  display: contents;
+}
+
+.viewport.viewport [data-layout='word-group'] button {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  padding: 2px 1px;
+  gap: 2px;
+}
+
+.viewport.viewport [data-layout='word-group'] button > span {
+  min-height: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+  font-size: clamp(11px, 1.9cqh, 15px);
+}
+
+.viewport.viewport [data-layout='word-group'] button > span:first-child {
+  font-size: clamp(8px, 1.4cqh, 11px);
+}
+
+.viewport.viewport [data-layout='paper-footer'] {
+  flex: 0 0 auto;
+  margin: 0;
+  padding-top: 14px;
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 0.12em;
+}
+
+.viewport.viewport [data-layout='actions'] {
+  position: relative;
+  inset: auto;
+  width: var(--tab-width);
+  min-height: 0;
+  height: clamp(340px, 51cqh, 440px);
+  max-height: 100%;
+  align-self: end;
+  padding-bottom: 0;
+  display: block;
+}
+
+.viewport.viewport [data-layout='actions'] > div {
+  position: absolute;
+  cursor: grab;
+  user-select: none;
+  will-change: transform;
+  top: 0;
+  right: 0;
+  width: 100%;
+  touch-action: none;
+  transition:
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 180ms ease;
+}
+
+.viewport.viewport [data-layout='actions'] > div[data-dragging='true'] {
+  z-index: 6;
+  cursor: grabbing;
+}
+
+.viewport.viewport [data-layout='actions'] > div[data-dragging='true'] > button {
+  filter: brightness(1.04);
+  transform: scale(1.035);
+}
+
+.viewport.viewport [data-layout='actions'] > div > button {
+  width: 100%;
+  height: 100%;
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.viewport.viewport [data-layout='actions'] button {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  max-height: none;
+  padding: clamp(2px, 0.5cqh, 4px) clamp(3px, 1cqh, 8px);
+  margin: 0;
+  font-size: clamp(11px, 1.55cqh, 12.5px);
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+}
+
+.viewport.viewport [data-layout='modes'] {
+  position: fixed;
+  inset: 50% 0 auto auto;
+  transform: translateY(-50%);
+  width: 44px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.viewport.viewport [data-layout='modes'] > div {
+  box-sizing: border-box;
+  width: 44px;
+  padding: 5px;
+  border-radius: 22px 0 0 22px;
+}
+
+.viewport.viewport [data-layout='modes'] > div button {
+  padding: 15px 7px;
+  font-size: 11px;
+}
+
+.viewport.viewport [data-layout='page-info'],
+.viewport.viewport [data-layout='rounds'],
+.viewport.viewport [data-layout='help'] {
+  box-sizing: border-box;
+  width: min(100%, 844px);
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.viewport.viewport [data-layout='page-info'] {
+  width: min(100%, calc(var(--sheet-height) * 210 / 297));
+  padding: 0;
+  font-size: 12px;
+}
+.viewport.viewport [data-layout='rounds'] {
+  padding-top: 15px;
+}
+.viewport.viewport [data-layout='rounds'] > div:first-child {
+  margin-bottom: 13px;
+}
+.viewport.viewport [data-layout='rounds'] > div:last-child {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+.viewport.viewport [data-layout='rounds'] > div:last-child > div {
+  flex-shrink: 0;
+}
+.viewport.viewport [data-layout='help'] {
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+@media (max-height: 540px) {
+  .viewport.viewport {
+    --bar-height: clamp(44px, 10dvh, 56px);
+    --sheet-height: max(260px, calc(100dvh - var(--bar-height) - 32px));
+    gap: 12px;
+    padding-top: 8px;
+  }
+  .viewport.viewport [data-layout='top'] {
+    height: var(--bar-height);
+    min-height: var(--bar-height);
+  }
+  .viewport.viewport [data-layout='frame'] {
+    width: min(100%, 844px);
+  }
+  .viewport.viewport [data-layout='paper-header'] h1 {
+    font-size: 17px;
+  }
+  .viewport.viewport [data-layout='paper-header'] > div > div:last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .viewport.viewport {
+    padding-inline: 8px;
+  }
+  .viewport.viewport [data-layout='top'] {
+    padding-inline: 8px;
+    gap: 8px;
+  }
+  .viewport.viewport [data-layout='top'] > div:last-child {
+    gap: 2px;
+  }
+  .viewport.viewport [data-layout='content'] {
+    padding-right: 44px;
+  }
+  .viewport.viewport [data-layout='frame'] {
+    grid-template-columns: minmax(0, 1fr) var(--tab-width);
+  }
+  .viewport.viewport [data-layout='actions'],
+  .viewport.viewport [data-layout='actions'] button {
+    width: var(--tab-width);
+  }
+  .viewport.viewport [data-layout='paper'] {
+    padding-inline: 10px;
+  }
+  .viewport.viewport [data-layout='paper-footer'] {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+}

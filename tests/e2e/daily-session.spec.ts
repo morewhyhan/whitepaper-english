@@ -23,10 +23,10 @@ test('[AC-ACCOUNT-008] 刷新后从账号恢复轮次和页码', async ({ page }
   )
   await page.getByRole('button', { name: '下一页' }).click()
   expect((await saved).status()).toBe(200)
-  await expect(page.getByRole('button', { name: '撤销上一页' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: '上一页' })).toBeEnabled()
 
   await page.evaluate(() => window.localStorage.clear())
   await page.reload()
 
-  await expect(page.getByRole('button', { name: '撤销上一页' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: '上一页' })).toBeEnabled()
 })
