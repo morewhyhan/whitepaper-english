@@ -602,6 +602,17 @@ export function VocabularyScreen() {
     setNotice('本页已清空')
   }
 
+  function handleMarkAllUnknown() {
+    const currentPage = pageWords(state.words, session)
+    if (!currentPage.length) return
+    updateSession((current) => {
+      const marks = { ...current.marks }
+      for (const word of currentPage) marks[word.id] = 'unknown'
+      return { ...current, marks, peek: false }
+    })
+    setNotice('本页已全部标记为不会')
+  }
+
   async function handleNext() {
     if (session.complete) return
     if (!(await commitCurrentPage())) return
@@ -610,7 +621,6 @@ export function VocabularyScreen() {
     setUndoStack((stack) => [...stack, session].slice(-80))
     updateSession(() => next)
     persistSession(next)
-    window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
   useEffect(() => {
@@ -638,7 +648,6 @@ export function VocabularyScreen() {
     setUndoStack((stack) => [...stack, session].slice(-80))
     updateSession(() => next)
     persistSession(next)
-    window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
   function handleUndo() {
@@ -1001,8 +1010,7 @@ export function VocabularyScreen() {
                       onWordClick={handleWordClick}
                       onSpeak={speakText}
                       onPrefetch={(text, audio) => prefetchSpeech([{ text, audio }])}
-                                  onFocus={(id) => focusWord(id, session, state, commit, today)}
-                      onTrash={handleTrash}
+                                  onTrash={handleTrash}
                     />
                   )}
 
@@ -1045,9 +1053,7 @@ export function VocabularyScreen() {
                             className={styles.peekTab}
                             type="button"
                             disabled={session.complete}
-                            onClick={() =>
-                              updateSession((current) => ({ ...current, peek: !current.peek }))
-                            }
+                            onClick={handleMarkAllUnknown}
                           >
                             全部翻译
                           </button>
@@ -1628,7 +1634,6 @@ function AssociationView({
   onWordClick,
   onSpeak,
   onPrefetch,
-  onFocus,
   onTrash,
 }: {
   words: VocabularyWord[]
@@ -1638,7 +1643,6 @@ function AssociationView({
   onWordClick: (id: string, reverse: boolean) => void
   onSpeak: (text: string, audio?: string) => void
   onPrefetch: (text: string, audio?: string) => void
-  onFocus: (id: string) => void
   onTrash: (id: string) => void
 }) {
   const word = words[0]
@@ -1689,29 +1693,6 @@ function AssociationView({
     <>
     <div className={styles.paperInner}>
       <div className={styles.assocWrap}>
-        <div className={styles.assocMeta}>
-          <span>ONE TARGET · EIGHT ASSOCIATIONS</span>
-          <div className={styles.assocPicker}>
-            <span>
-              第 {session.cursor + 1} / {session.ids.length} 词
-            </span>
-            <select
-              className={styles.picker}
-              aria-label="换一个本轮待学词"
-              value={word.id}
-              onChange={(event) => onFocus(event.target.value)}
-            >
-              {session.ids.slice(session.cursor, session.cursor + 36).map((id, index) => {
-                const choice = allWords.find((item) => item.id === id)
-                return choice ? (
-                  <option key={id} value={id}>
-                    {session.cursor + index + 1}. {choice.en}
-                  </option>
-                ) : null
-              })}
-            </select>
-          </div>
-        </div>
         {network ? (
           <div className={styles.assocBoard}>
             {network.links.map((link) => (
@@ -2169,22 +2150,6 @@ function saveState(state: VocabularyState) {
 
 function formatDate(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-}
-
-function focusWord(
-  id: string,
-  session: VocabularySession,
-  state: VocabularyState,
-  commit: (next: VocabularyState) => void,
-  today: string,
-) {
-  const index = session.ids.findIndex(
-    (wordId, position) => position >= session.cursor && wordId === id,
-  )
-  if (index < session.cursor) return
-  const ids = [...session.ids]
-  ;[ids[session.cursor], ids[index]] = [ids[index], ids[session.cursor]]
-  commit({ ...state, sessions: { ...state.sessions, [today]: { ...session, ids } } })
 }
 
 function highlight(sentence: string, word: string) {
