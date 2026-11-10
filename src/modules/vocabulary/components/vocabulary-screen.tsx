@@ -557,7 +557,10 @@ export function VocabularyScreen() {
       return
     }
     const key = target.toLowerCase()
-    const custom = state.customAssociations?.[key] ?? []
+    const hiddenCustom = new Set(state.hiddenCustomAssociations ?? [])
+    const custom = (state.customAssociations?.[key] ?? []).filter(
+      (item) => !hiddenCustom.has(item.id),
+    )
     if (custom.length >= 4) {
       setSentenceError('每个目标词最多添加 4 条自定义句。')
       return
@@ -576,12 +579,14 @@ export function VocabularyScreen() {
   function removeAssociation(target: string, sentence: string, custom: boolean) {
     const key = target.toLowerCase()
     if (custom) {
-      const next = (state.customAssociations?.[key] ?? []).filter((item) => item.sentence !== sentence)
-      commit({
-        ...state,
-        customAssociations: { ...(state.customAssociations ?? {}), [key]: next },
-      })
-      setNotice('自定义句已移除')
+      const item = (state.customAssociations?.[key] ?? []).find(
+        (entry) => entry.sentence === sentence,
+      )
+      if (!item) return
+      const hiddenCustom = new Set(state.hiddenCustomAssociations ?? [])
+      hiddenCustom.add(item.id)
+      commit({ ...state, hiddenCustomAssociations: [...hiddenCustom] })
+      setNotice('自定义句已移除，可在造句面板还原')
       return
     }
     const marker = `${key}\u0000${sentence}`
@@ -589,6 +594,33 @@ export function VocabularyScreen() {
     hidden.add(marker)
     commit({ ...state, hiddenAssociationLinks: [...hidden] })
     setNotice('默认关联句已移除')
+  }
+
+  function restoreHiddenAssociation(target: string, sentence: string) {
+    const marker = `${target.toLowerCase()}\u0000${sentence}`
+    commit({
+      ...state,
+      hiddenAssociationLinks: (state.hiddenAssociationLinks ?? []).filter((item) => item !== marker),
+    })
+    setNotice('默认关联句已还原')
+  }
+
+  function restoreHiddenCustom(id: string) {
+    const hidden = new Set(state.hiddenCustomAssociations ?? [])
+    const owner = Object.entries(state.customAssociations ?? {}).find(([, items]) =>
+      items.some((item) => item.id === id),
+    )
+    if (!owner) return
+    const visible = owner[1].filter((item) => !hidden.has(item.id)).length
+    if (visible >= 4) {
+      setNotice('每个目标词最多保留 4 条自定义句；先移除一条再还原')
+      return
+    }
+    commit({
+      ...state,
+      hiddenCustomAssociations: [...hidden].filter((item) => item !== id),
+    })
+    setNotice('自定义句已还原')
   }
 
   function restoreTrash(id: string) {
@@ -1144,6 +1176,7 @@ export function VocabularyScreen() {
                       showDefaultAssociations={state.settings.showDefaultAssociations !== false}
                       customAssociations={state.customAssociations ?? {}}
                       hiddenAssociationLinks={state.hiddenAssociationLinks ?? []}
+                      hiddenCustomAssociations={state.hiddenCustomAssociations ?? []}
                       onRemoveLink={removeAssociation}
                     />
                   )}
@@ -1460,6 +1493,18 @@ export function VocabularyScreen() {
           onConfirm={() => {
             if (currentWords[0]) addCustomAssociation(currentWords[0].en, sentenceText)
           }}
+          removedDefaults={(state.hiddenAssociationLinks ?? [])
+            .filter((item) =>
+              item.startsWith(`${(currentWords[0]?.en ?? '').toLowerCase()}\u0000`),
+            )
+            .map((item) => item.split('\u0000')[1] ?? '')
+            .filter(Boolean)}
+          removedCustoms={(state.customAssociations?.[(currentWords[0]?.en ?? '').toLowerCase()] ?? [])
+            .filter((item) => (state.hiddenCustomAssociations ?? []).includes(item.id))}
+          onRestoreDefault={(sentence) => {
+            if (currentWords[0]) restoreHiddenAssociation(currentWords[0].en, sentence)
+          }}
+          onRestoreCustom={restoreHiddenCustom}
         />
       )}
       {notice && <div className={styles.toast}>{notice}</div>}
@@ -1805,6 +1850,7 @@ function AssociationView({
   showDefaultAssociations,
   customAssociations,
   hiddenAssociationLinks,
+  hiddenCustomAssociations,
   onRemoveLink,
 }: {
   words: VocabularyWord[]
@@ -1818,6 +1864,7 @@ function AssociationView({
   showDefaultAssociations: boolean
   customAssociations: Record<string, Array<{ id: string; sentence: string }>>
   hiddenAssociationLinks: string[]
+  hiddenCustomAssociations: string[]
   onRemoveLink: (target: string, sentence: string, custom: boolean) => void
 }) {
   const word = words[0]
@@ -1848,7 +1895,12 @@ function AssociationView({
     ? (batch.data?.[word.en.toLowerCase()] ?? getAssociation(networks, word))
     : undefined
   const loading = Boolean(word) && batch.isLoading && !network
-  const custom = word ? (customAssociations[word.en.toLowerCase()] ?? []) : []
+  const hiddenCustom = new Set(hiddenCustomAssociations)
+  const custom = word
+    ? (customAssociations[word.en.toLowerCase()] ?? []).filter(
+        (item) => !hiddenCustom.has(item.id),
+      )
+    : []
   const hidden = new Set(hiddenAssociationLinks)
   const defaultLinks =
     word && showDefaultAssociations
@@ -2083,6 +2135,10 @@ function SentenceDialog({
   onChange,
   onClose,
   onConfirm,
+  removedDefaults,
+  removedCustoms,
+  onRestoreDefault,
+  onRestoreCustom,
 }: {
   word: string
   value: string
@@ -2090,6 +2146,10 @@ function SentenceDialog({
   onChange: (value: string) => void
   onClose: () => void
   onConfirm: () => void
+  removedDefaults: string[]
+  removedCustoms: Array<{ id: string; sentence: string }>
+  onRestoreDefault: (sentence: string) => void
+  onRestoreCustom: (id: string) => void
 }) {
   return (
     <div
@@ -2120,6 +2180,27 @@ function SentenceDialog({
           aria-label="新造句"
         />
         {error && <p className={styles.sentenceError}>{error}</p>}
+        {(removedDefaults.length > 0 || removedCustoms.length > 0) && (
+          <div className={styles.sentenceRemoved}>
+            <p>已移除的句子</p>
+            {removedDefaults.map((sentence) => (
+              <div className={styles.sentenceRemovedRow} key={sentence}>
+                <span>{sentence}</span>
+                <button type="button" onClick={() => onRestoreDefault(sentence)}>
+                  还原
+                </button>
+              </div>
+            ))}
+            {removedCustoms.map((item) => (
+              <div className={styles.sentenceRemovedRow} key={item.id}>
+                <span>{item.sentence}</span>
+                <button type="button" onClick={() => onRestoreCustom(item.id)}>
+                  还原
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         <div className={styles.sentenceActions}>
           <button className={styles.ghostButton} type="button" onClick={onClose}>
             取消
@@ -2372,6 +2453,9 @@ function loadState(): { state: VocabularyState; backupFailed: boolean } {
           : {},
       hiddenAssociationLinks: Array.isArray(parsed.hiddenAssociationLinks)
         ? parsed.hiddenAssociationLinks
+        : [],
+      hiddenCustomAssociations: Array.isArray(parsed.hiddenCustomAssociations)
+        ? parsed.hiddenCustomAssociations
         : [],
     }
     if (JSON.stringify(parsed.words) !== JSON.stringify(words)) {

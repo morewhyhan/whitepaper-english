@@ -72,6 +72,7 @@ export type VocabularyState = {
   cycles?: CycleStat[]
   customAssociations?: Record<string, CustomAssociation[]>
   hiddenAssociationLinks?: string[]
+  hiddenCustomAssociations?: string[]
 }
 
 export type ImportedVocabulary = {
@@ -531,6 +532,7 @@ export function exportJson(state: VocabularyState): string {
       cycles: state.cycles ?? [],
       customAssociations: state.customAssociations ?? {},
       hiddenAssociationLinks: state.hiddenAssociationLinks ?? [],
+      hiddenCustomAssociations: state.hiddenCustomAssociations ?? [],
     },
     null,
     2,

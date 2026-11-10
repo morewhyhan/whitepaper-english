@@ -3256,8 +3256,40 @@
 }
 
 .sentenceTab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 0 8px 8px 0;
   background: #6e5d48 !important;
   color: #fffdf7 !important;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.5;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.08em;
+  box-shadow:
+    0 1px 2px rgb(35 53 31 / 0.18),
+    0 7px 14px rgb(35 53 31 / 0.14);
+  transition:
+    background 160ms,
+    transform 160ms,
+    box-shadow 160ms;
+}
+
+.sentenceTab:hover:not(:disabled) {
+  background: #7f6c54 !important;
+}
+
+.sentenceTab:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.sentenceTab:disabled {
+  cursor: default;
+  opacity: 0.45;
 }
 
 .sentenceTab:hover:not(:disabled) {
@@ -3278,6 +3310,8 @@
 
 .sentenceCard {
   width: min(100%, 520px);
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
   padding: 28px;
   border: 1px solid #e6e8df;
   border-radius: 18px;
@@ -3333,6 +3367,53 @@
   margin: 9px 0 0;
   color: #a2463c;
   font-size: 11px;
+}
+
+.sentenceRemoved {
+  margin-top: 16px;
+  padding-top: 13px;
+  border-top: 1px solid #eceee7;
+}
+
+.sentenceRemoved > p {
+  margin: 0 0 8px;
+  color: #959b91;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.sentenceRemovedRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f2f3ee;
+  color: #737b71;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.sentenceRemovedRow span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sentenceRemovedRow button {
+  flex: none;
+  border: 0;
+  border-radius: 5px;
+  padding: 4px 9px;
+  background: #eef2e9;
+  color: #566752;
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.sentenceRemovedRow button:hover {
+  background: #e1e9da;
 }
 
 .sentenceActions {
