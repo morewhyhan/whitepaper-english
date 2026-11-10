@@ -21,6 +21,25 @@ export type SessionHistory = {
   missed: number
 }
 
+export type CycleStat = {
+  id: string
+  date: string
+  cycle: number
+  startedAt: string
+  updatedAt: string
+  completed: boolean
+  totalWords: number
+  reviewed: number
+  known: number
+  unknown: number
+  trashed: number
+  firstReviewed: number
+  firstKnown: number
+  firstUnknown: number
+  firstTrashed: number
+  internalPasses: number
+}
+
 export type VocabularySession = {
   round: number
   ids: string[]
@@ -33,6 +52,7 @@ export type VocabularySession = {
   history: SessionHistory[]
   complete: boolean
   peek: boolean
+  cycleId?: string
 }
 
 export type VocabularyState = {
@@ -44,6 +64,7 @@ export type VocabularyState = {
   }
   sessions: Record<string, VocabularySession>
   trashedIds: string[]
+  cycles?: CycleStat[]
 }
 
 export type ImportedVocabulary = {
@@ -341,6 +362,7 @@ export function createInitialState(): VocabularyState {
     settings: defaultSettings,
     sessions: {},
     trashedIds: [],
+    cycles: [],
   }
 }
 
@@ -362,7 +384,12 @@ export function createSession(
     history: [],
     complete: false,
     peek: false,
+    cycleId: createCycleId(),
   }
+}
+
+function createCycleId() {
+  return `cycle-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 }
 
 export function pageSize(session: VocabularySession): number {
@@ -408,9 +435,16 @@ export function advanceSession(
   const currentPage = pageWords(words, session, options.pageSize)
   if (!currentPage.length) return session
 
+  const trashed = new Set(options.trashedIds ?? [])
+  const activePage = currentPage.filter((word) => !trashed.has(word.id))
+  const hasRed = activePage.some((word) => session.marks[word.id] === 'unknown')
+  const hasGreen = activePage.some((word) => session.marks[word.id] === 'known')
+  // Blank and red pages default unmarked words to known; green pages default to unknown.
+  const fallback: Judgement = hasGreen && !hasRed ? 'unknown' : 'known'
   const missed = [...session.missed]
   for (const word of currentPage) {
-    const judgement = session.marks[word.id] ?? (session.mode === 'known' ? 'unknown' : 'known')
+    if (trashed.has(word.id)) continue
+    const judgement = session.marks[word.id] ?? fallback
     if (judgement === 'unknown' && !missed.includes(word.id)) missed.push(word.id)
   }
 
@@ -422,7 +456,6 @@ export function advanceSession(
     ...session.history,
     { round: session.round, total: session.ids.length, missed: missed.length },
   ]
-  const trashed = new Set(options.trashedIds ?? [])
   const remaining = missed.filter((id) => !trashed.has(id))
   if (remaining.length === 0) return { ...clean, history, complete: true }
 
@@ -487,6 +520,7 @@ export function exportJson(state: VocabularyState): string {
       networks: state.networks,
       settings: state.settings,
       sessions: state.sessions,
+      cycles: state.cycles ?? [],
     },
     null,
     2,

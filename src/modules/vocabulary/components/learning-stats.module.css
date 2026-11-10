@@ -1,0 +1,36 @@
+.stats { display: grid; gap: 18px; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.kicker { margin: 0 0 7px; color: #9a9f94; font-size: 10px; letter-spacing: .18em; }
+.head h3 { margin: 0; font-size: 25px; font-weight: 520; letter-spacing: -.02em; }
+.sub { margin: 8px 0 0; color: #92978e; font-size: 11px; line-height: 1.6; }
+.switch, .range { display: flex; gap: 4px; padding: 3px; border: 1px solid #e3e6dc; border-radius: 9px; background: #f5f6f1; }
+.switch button, .range button { border: 0; border-radius: 6px; padding: 7px 11px; background: transparent; color: #7c8278; font: inherit; font-size: 11px; cursor: pointer; }
+.switch button.active, .range button.active { background: #fff; color: #303830; box-shadow: 0 1px 4px #2d382d14; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.kpis > div { padding: 13px 14px; border: 1px solid #e7e9e1; border-radius: 10px; background: #fbfcf8; }
+.kpis strong { display: block; color: #344132; font-size: 23px; font-weight: 560; font-variant-numeric: tabular-nums; }
+.kpis span { display: block; margin-top: 3px; color: #969c92; font-size: 10px; }
+.range { justify-self: start; }
+.card { padding: 16px; border: 1px solid #e8eae2; border-radius: 11px; background: #fcfdf9; }
+.cardHead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.cardHead strong { font-size: 12px; font-weight: 600; }
+.cardHead span { color: #9ba096; font-size: 10px; }
+.line { display: block; width: 100%; height: 62px; color: #6d8465; overflow: visible; }
+.bars, .cycleBars { height: 150px; display: flex; align-items: flex-end; gap: clamp(4px, 1.5vw, 12px); padding-top: 8px; }
+.cycleBars { gap: 10px; }
+.barColumn { flex: 1; min-width: 10px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 7px; }
+.barStack { width: 100%; max-width: 34px; min-height: 2px; display: flex; flex-direction: column; overflow: hidden; border-radius: 4px 4px 1px 1px; background: #edf0e9; }
+.knownBar { display: block; min-height: 0; background: #a9c0a1; }
+.unknownBar { display: block; min-height: 0; background: #d9a39b; }
+.barColumn small { color: #9ba096; font-size: 9px; white-space: nowrap; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 13px; color: #8b9187; font-size: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 7px; height: 7px; border-radius: 50%; }
+.knownDot { background: #a9c0a1; }
+.unknownDot { background: #d9a39b; }
+.empty { margin: 24px 0; color: #9ca197; font-size: 11px; text-align: center; }
+@media (max-width: 580px) {
+  .head { flex-direction: column; }
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .bars { gap: 4px; }
+}

@@ -27,6 +27,7 @@ import {
   normalizeWords,
   reconcileStoredWords,
   pageWords,
+  pageSize,
   parseImport,
   toggleMark,
   type VocabularySession,
@@ -499,16 +500,24 @@ export function VocabularyScreen() {
     commit(nextState)
   }
 
-  function handleWordClick(id: string, reverse: boolean) {
-    if (hasTextSelection()) return
+  function handleWordClick(id: string, green: boolean) {
+    if (hasTextSelection() || state.trashedIds.includes(id)) return
+    const currentPage = pageWords(state.words, session).filter(
+      (word) => !state.trashedIds.includes(word.id),
+    )
+    const hasRed = currentPage.some((word) => session.marks[word.id] === 'unknown')
+    const hasGreen = currentPage.some((word) => session.marks[word.id] === 'known')
+    if (green && hasRed) {
+      setNotice('本页已标红，先取消红色才能标绿')
+      return
+    }
+    if (!green && hasGreen) {
+      setNotice('本页已标绿，先取消绿色才能标红')
+      return
+    }
     const spoken = state.words.find((word) => word.id === id)
     if (soundOn && spoken) speakText(spoken.en, spoken.audio)
-    const mark: Judgement = reverse
-      ? session.mode === 'known'
-        ? 'unknown'
-        : 'known'
-      : session.mode
-    updateSession((current) => toggleMark(current, id, mark))
+    updateSession((current) => toggleMark(current, id, green ? 'known' : 'unknown'))
   }
 
 
@@ -615,6 +624,14 @@ export function VocabularyScreen() {
   function handleMarkAllUnknown() {
     const currentPage = pageWords(state.words, session)
     if (!currentPage.length) return
+    const hasGreen = currentPage.some(
+      (word) =>
+        !state.trashedIds.includes(word.id) && session.marks[word.id] === 'known',
+    )
+    if (hasGreen) {
+      setNotice('本页已标绿，先取消绿色才能全部翻译')
+      return
+    }
     updateSession((current) => {
       const marks = { ...current.marks }
       for (const word of currentPage) {
@@ -625,14 +642,65 @@ export function VocabularyScreen() {
     setNotice('本页已全部标记为不会')
   }
 
+  function advanceWithStats(next: VocabularySession, size = pageSize(session)) {
+    const page = pageWords(state.words, session, size)
+    const trashed = new Set(state.trashedIds)
+    const active = page.filter((word) => !trashed.has(word.id))
+    const hasRed = active.some((word) => session.marks[word.id] === 'unknown')
+    const hasGreen = active.some((word) => session.marks[word.id] === 'known')
+    const fallback: Judgement = hasGreen && !hasRed ? 'unknown' : 'known'
+    let known = 0
+    let unknown = 0
+    let archived = 0
+    for (const word of page) {
+      if (trashed.has(word.id)) {
+        archived += 1
+        continue
+      }
+      const judgement = session.marks[word.id] ?? fallback
+      if (judgement === 'known') known += 1
+      else unknown += 1
+    }
+
+    const isFirstPass = session.round === 1
+    const now = new Date().toISOString()
+    const cycleId = session.cycleId ?? `legacy-${today}`
+    const existing = (state.cycles ?? []).find((cycle) => cycle.id === cycleId)
+    const cycleNumber =
+      existing?.cycle ?? Math.max(0, ...(state.cycles ?? []).map((cycle) => cycle.cycle)) + 1
+    const stat = {
+      id: cycleId,
+      date: existing?.date ?? today,
+      cycle: cycleNumber,
+      startedAt: existing?.startedAt ?? now,
+      updatedAt: now,
+      completed: next.complete,
+      totalWords: existing?.totalWords ?? session.ids.length,
+      reviewed: (existing?.reviewed ?? 0) + page.length,
+      known: (existing?.known ?? 0) + known,
+      unknown: (existing?.unknown ?? 0) + unknown,
+      trashed: (existing?.trashed ?? 0) + archived,
+      firstReviewed: (existing?.firstReviewed ?? 0) + (isFirstPass ? page.length : 0),
+      firstKnown: (existing?.firstKnown ?? 0) + (isFirstPass ? known : 0),
+      firstUnknown: (existing?.firstUnknown ?? 0) + (isFirstPass ? unknown : 0),
+      firstTrashed: (existing?.firstTrashed ?? 0) + (isFirstPass ? archived : 0),
+      internalPasses: Math.max(existing?.internalPasses ?? 1, session.round),
+    }
+    const cycles = existing
+      ? (state.cycles ?? []).map((cycle) => (cycle.id === cycleId ? stat : cycle))
+      : [...(state.cycles ?? []), stat]
+    const nextSession = { ...next, cycleId }
+    commit({ ...state, sessions: { ...state.sessions, [today]: nextSession }, cycles })
+    persistSession(nextSession)
+  }
+
   async function handleNext() {
     if (session.complete) return
     if (!(await commitCurrentPage())) return
 
     const next = advanceSession(session, state.words, { trashedIds: state.trashedIds })
     setUndoStack((stack) => [...stack, session].slice(-80))
-    updateSession(() => next)
-    persistSession(next)
+    advanceWithStats(next)
   }
 
   useEffect(() => {
@@ -658,8 +726,7 @@ export function VocabularyScreen() {
 
     const next = advanceSession(session, state.words, { pageSize, trashedIds: state.trashedIds })
     setUndoStack((stack) => [...stack, session].slice(-80))
-    updateSession(() => next)
-    persistSession(next)
+    advanceWithStats(next, pageSize)
   }
 
   function handleUndo() {
@@ -1132,8 +1199,7 @@ export function VocabularyScreen() {
 
               <RoundTrack session={session} onOpen={() => setModal('history')} />
               <p className={styles.helpLine} data-layout="help">
-                一张纸、一套轮次。浅绿 = 会，浅红 = 不会。普通点击：标
-                {session.mode === 'unknown' ? '不会' : '会'} · Shift＋点击：反向 · 手动推进。
+                一张纸、一套轮次。浅绿 = 会，浅红 = 不会。左键标红 · 右键标绿 · 拖入垃圾桶归档。
               </p>
             </>
         </div>
@@ -1258,6 +1324,7 @@ export function VocabularyScreen() {
           onToggleTab={(tab) => saveTabs(tabOrder, hiddenTabs.includes(tab) ? hiddenTabs.filter((item) => item !== tab) : [...hiddenTabs, tab])}
           session={session}
           history={studyHistory.data ?? []}
+          cycles={state.cycles ?? []}
           soundOn={soundOn}
           email={authSession?.user.email}
           bookTitle={WORDBOOKS.find((book) => book.id === activeBookId)?.title ?? '平行世界'}
@@ -1266,7 +1333,6 @@ export function VocabularyScreen() {
             setSoundOn(next)
             window.localStorage.setItem('whitepaper-sound', next ? 'on' : 'off')
           }}
-          onModeChange={(mode) => updateSettings({ ...state.settings, mode })}
           onReset={resetToday}
           onLogin={() => {
             setSettingsOpen(false)
@@ -1296,7 +1362,6 @@ export function VocabularyScreen() {
           }
           onRestore={() => replaceWordlist(createInitialState().words, DEMO_NETWORKS)}
           onReset={resetToday}
-          onModeChange={(mode) => updateSettings({ ...state.settings, mode })}
           onGroupsChange={(groups) => updateSettings({ ...state.settings, groups })}
         />
       )}
@@ -1730,7 +1795,7 @@ function AssociationView({
                 className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
                 data-selectable="true"
                 type="button"
-                title="单击判定，Shift+点击反向"
+                title="左键标红，右键标绿；按住可拖到垃圾桶"
                 onPointerDown={centerDrag.handlePointerDown}
                 onClick={centerDrag.handleClick}
               >
@@ -1755,7 +1820,7 @@ function AssociationView({
                 className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
                 data-selectable="true"
                 type="button"
-                title="单击判定，Shift+点击反向"
+                title="左键标红，右键标绿；按住可拖到垃圾桶"
                 onPointerDown={centerDrag.handlePointerDown}
                 onClick={centerDrag.handleClick}
               >
@@ -1844,7 +1909,7 @@ function WordButton({
         title={
           trashed
             ? '已移入垃圾桶，下一轮起不再推送'
-            : `普通点击标${session.mode === 'unknown' ? '不会' : '会'}；Shift＋点击反向；按住拖到垃圾桶归档`
+            : `左键标红（不会），右键标绿（会）；按住拖到垃圾桶归档`
         }
         onPointerDown={drag.handlePointerDown}
         onClick={drag.handleClick}
@@ -1948,7 +2013,6 @@ function Modal({
   onExportMarkdown,
   onRestore,
   onReset,
-  onModeChange,
   onGroupsChange,
 }: {
   name: Exclude<ModalName, null>
@@ -1964,7 +2028,6 @@ function Modal({
   onExportMarkdown: () => void
   onRestore: () => void
   onReset: () => void
-  onModeChange: (mode: 'known' | 'unknown') => void
   onGroupsChange: (groups: 4 | 6) => void
 }) {
   return (
@@ -2024,26 +2087,8 @@ function Modal({
         )}
         {name === 'settings' && (
           <>
-            <div className={styles.fieldTitle}>普通点击的判定</div>
-            <label>
-              <input
-                name="clickMode"
-                type="radio"
-                checked={session.mode === 'unknown'}
-                onChange={() => onModeChange('unknown')}
-              />{' '}
-              点击 = 不会（熟词比较多时）
-            </label>
-            <label>
-              <input
-                name="clickMode"
-                type="radio"
-                checked={session.mode === 'known'}
-                onChange={() => onModeChange('known')}
-              />{' '}
-              点击 = 会（生词比较多时）
-            </label>
-            <p>Shift + 点击始终执行相反判定。未标记词在翻页时按当前点击模式的默认值计算。</p>
+            <div className={styles.fieldTitle}>鼠标标记</div>
+            <p>左键标红（不会），右键标绿（会）。一页只能用一种颜色，取消最后一条同色标记后才能换色。</p>
             <div className={styles.divider} />
             <div className={styles.fieldTitle}>每页词数</div>
             <label>
@@ -2124,6 +2169,7 @@ function loadState(): { state: VocabularyState; backupFailed: boolean } {
       networks: Array.isArray(parsed.networks) ? normalizeNetworks(parsed.networks) : DEMO_NETWORKS,
       sessions: parsed.sessions ?? {},
       trashedIds: Array.isArray(parsed.trashedIds) ? parsed.trashedIds : [],
+      cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
     }
     if (JSON.stringify(parsed.words) !== JSON.stringify(words)) {
       try {

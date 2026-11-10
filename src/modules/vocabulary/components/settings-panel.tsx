@@ -2,15 +2,17 @@
 
 import { useMemo, useState } from 'react'
 import type { StudyHistoryDay } from '../hooks/use-study-history'
-import type { VocabularySession } from '../lib/vocabulary'
+import type { CycleStat, VocabularySession } from '../lib/vocabulary'
 import styles from './settings-panel.module.css'
+import { LearningStats } from './learning-stats'
 
 type PaperTab = '全部翻译' | '上一页' | '本页清空' | '打乱本页' | '下一页'
-type Category = 'account' | 'history' | 'sound' | 'judgement' | 'data' | 'appearance' | 'tabs'
+type Category = 'account' | 'history' | 'stats' | 'sound' | 'judgement' | 'data' | 'appearance' | 'tabs'
 
 const CATEGORIES: { id: Category; label: string }[] = [
   { id: 'account', label: '账户' },
   { id: 'history', label: '学习记录' },
+  { id: 'stats', label: '学习统计' },
   { id: 'sound', label: '发音与声音' },
   { id: 'judgement', label: '判定与操作' },
   { id: 'tabs', label: '常用标签' },
@@ -24,11 +26,11 @@ export function SettingsPanel({
   onToggleTab,
   session,
   history,
+  cycles,
   soundOn,
   email,
   bookTitle,
   onToggleSound,
-  onModeChange,
   onReset,
   onLogin,
   onLogout,
@@ -39,11 +41,11 @@ export function SettingsPanel({
   onToggleTab: (tab: PaperTab) => void
   session: VocabularySession
   history: StudyHistoryDay[]
+  cycles: CycleStat[]
   soundOn: boolean
   email?: string
   bookTitle: string
   onToggleSound: () => void
-  onModeChange: (mode: 'known' | 'unknown') => void
   onReset: () => void
   onLogin: () => void
   onLogout: () => void
@@ -134,6 +136,8 @@ export function SettingsPanel({
               </section>
             )}
 
+            {active === 'stats' && <LearningStats cycles={cycles} bookTitle={bookTitle} />}
+
             {active === 'history' && (
               <section className={styles.section}>
                 <p className={styles.hint}>当前词书每天首轮识别率。每一行是当天词数和判定。</p>
@@ -179,29 +183,13 @@ export function SettingsPanel({
 
             {active === 'judgement' && (
               <section className={styles.section}>
-                <p className={styles.label}>普通点击的判定</p>
-                <label className={styles.checkRow}>
-                  <input
-                    type="radio"
-                    name="panel-mode"
-                    checked={session.mode === 'unknown'}
-                    onChange={() => onModeChange('unknown')}
-                  />
-                  点击 = 不会
-                </label>
-                <label className={styles.checkRow}>
-                  <input
-                    type="radio"
-                    name="panel-mode"
-                    checked={session.mode === 'known'}
-                    onChange={() => onModeChange('known')}
-                  />
-                  点击 = 会
-                </label>
+                <p className={styles.label}>鼠标标记</p>
+                <p className={styles.value}>左键标红：不会</p>
+                <p className={styles.value}>右键标绿：会</p>
                 <p className={styles.hint}>
-                  Shift + 点击始终执行相反判定。未点击词按当前模式默认提交。
+                  一页只能用一种颜色。红页未标词默认会，绿页未标词默认不会；取消本页最后一条颜色后可重新选择。
                 </p>
-                <p className={styles.hint}>每页固定 4 组九宫格，共 36 词。</p>
+                <p className={styles.hint}>把词拖进垃圾桶等于标绿；垃圾桶词以浅灰色保留在原位。</p>
               </section>
             )}
 
