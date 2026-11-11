@@ -58,6 +58,7 @@ export type VocabularySession = {
   peek: boolean
   cycleId?: string
   pageMarks?: Record<string, Record<string, Judgement>>
+  roundIds?: Record<number, string[]>
 }
 
 export type VocabularyState = {
@@ -459,7 +460,8 @@ export function advanceSession(
   }
 
   const nextCursor = session.cursor + currentPage.length
-  const clean = { ...session, cursor: nextCursor, missed, marks: {}, peek: false }
+  const roundIds = { ...(session.roundIds ?? {}), [session.round]: session.ids }
+  const clean = { ...session, cursor: nextCursor, missed, marks: {}, peek: false, roundIds }
   if (nextCursor < session.ids.length) return clean
 
   const history = [
@@ -469,10 +471,16 @@ export function advanceSession(
   const remaining = missed.filter((id) => !trashed.has(id))
   if (remaining.length === 0) return { ...clean, history, complete: true }
 
+  const existingNextIds = roundIds[session.round + 1]
+  const canReuseNextIds =
+    existingNextIds?.length === remaining.length &&
+    remaining.every((id) => existingNextIds.includes(id))
+  const nextIds = canReuseNextIds ? existingNextIds : shuffle(remaining)
   return {
     ...clean,
     round: session.round + 1,
-    ids: shuffle(remaining),
+    ids: nextIds,
+    roundIds: { ...roundIds, [session.round + 1]: nextIds },
     cursor: 0,
     missed: [],
     history,
