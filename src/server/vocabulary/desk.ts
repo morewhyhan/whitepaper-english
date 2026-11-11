@@ -5,6 +5,7 @@ import { prisma } from '@/server/database/client'
 type DeskPayload = {
   state?: Record<string, unknown>
   undoStack?: unknown[]
+  redoStack?: unknown[]
 }
 
 function parsePayload(raw: string): DeskPayload {
@@ -54,6 +55,10 @@ function mergePayload(keep: DeskPayload, incoming: DeskPayload): DeskPayload {
     undoStack: [
       ...((keep.undoStack as unknown[]) ?? []),
       ...((incoming.undoStack as unknown[]) ?? []),
+    ].slice(-120),
+    redoStack: [
+      ...((keep.redoStack as unknown[]) ?? []),
+      ...((incoming.redoStack as unknown[]) ?? []),
     ].slice(-120),
   }
 }

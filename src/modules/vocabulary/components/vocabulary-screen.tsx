@@ -58,11 +58,9 @@ function useWordTrashDrag(
   const drag = useRef<{ x: number; y: number; pointerId: number; active: boolean } | null>(null)
   const over = useRef(false)
   const suppressClick = useRef(false)
-  const clickTimer = useRef<number | null>(null)
 
   useEffect(() => {
     return () => {
-      if (clickTimer.current) window.clearTimeout(clickTimer.current)
       delete document.body.dataset.wordDrag
       delete document.body.dataset.trashOver
     }
@@ -151,12 +149,7 @@ function useWordTrashDrag(
         return
       }
       if (disabled) return
-      if (clickTimer.current) window.clearTimeout(clickTimer.current)
-      if (event.detail >= 2) return
-      clickTimer.current = window.setTimeout(() => {
-        clickTimer.current = null
-        onClick(event)
-      }, 180)
+      onClick(event)
     },
   }
 }
@@ -234,7 +227,10 @@ export function VocabularyScreen() {
   const [hydrated, setHydrated] = useState(false)
   const anonymousStarted = useRef(false)
   const deskHydrated = useRef(new Set<string>())
+  const deskSaveKey = useRef('')
   const [undoStack, setUndoStack] = useState<VocabularySession[]>([])
+  const [redoStack, setRedoStack] = useState<VocabularySession[]>([])
+  const redoBaseline = useRef<VocabularySession | null>(null)
   const undoHydrated = useRef(false)
   const [modal, setModal] = useState<ModalName>(null)
   const [trashOpen, setTrashOpen] = useState(false)
@@ -309,9 +305,9 @@ export function VocabularyScreen() {
   }, [today])
 
   useEffect(() => {
-    if (!undoHydrated.current || !hydrated) return
+    if (!undoHydrated.current || !hydrated || authSession?.user) return
     saveUndoStack(activeBookId, today, undoStack)
-  }, [undoStack, activeBookId, today, hydrated])
+  }, [undoStack, activeBookId, today, hydrated, authSession])
 
   useEffect(() => {
     if (!hydrated || authPending || authSession?.user || anonymousStarted.current) return
@@ -336,26 +332,39 @@ export function VocabularyScreen() {
       if (activeBookId === 'parallel-world') setParallelState(serverState)
       else setStarterState(serverState)
       setUndoStack(desk.data.undoDate === today ? (desk.data.undoStack ?? []) : [])
+      setRedoStack(desk.data.undoDate === today ? (desk.data.redoStack ?? []) : [])
+      redoBaseline.current = desk.data.state.sessions[today] ?? null
       saveState(serverState)
     } else {
       saveDesk.mutate({
         bookId: activeBookId,
-        payload: { state: local, undoStack, undoDate: today },
+        payload: { state: local, undoStack, redoStack, undoDate: today },
       })
     }
   }, [authSession, hydrated, desk.isSuccess, desk.data, activeBookId, parallelState, starterState, today, saveDesk, undoStack])
 
   useEffect(() => {
     if (!authSession?.user || !hydrated || !deskHydrated.current.has(activeBookId)) return
+    const currentState = activeBookId === 'parallel-world' ? parallelState : starterState
+    const currentSession = currentState.sessions[today]
+    const saveKey = [
+      activeBookId,
+      currentSession?.cursor,
+      currentSession?.round,
+      currentSession?.complete,
+      undoStack.length,
+      redoStack.length,
+    ].join(':')
+    if (deskSaveKey.current === saveKey) return
+    deskSaveKey.current = saveKey
     const timer = window.setTimeout(() => {
-      const currentState = activeBookId === 'parallel-world' ? parallelState : starterState
       saveDesk.mutate({
         bookId: activeBookId,
-        payload: { state: currentState, undoStack, undoDate: today },
+        payload: { state: currentState, undoStack, redoStack, undoDate: today },
       })
-    }, 350)
+    }, 250)
     return () => window.clearTimeout(timer)
-  }, [authSession, hydrated, activeBookId, parallelState, starterState, undoStack, saveDesk])
+  }, [authSession, hydrated, activeBookId, parallelState, starterState, undoStack, redoStack, saveDesk, today])
 
   function saveTabs(order: PaperTab[], hidden: PaperTab[]) {
     setTabOrder(order)
@@ -529,9 +538,10 @@ export function VocabularyScreen() {
   function commit(next: VocabularyState) {
     if (activeBookId === 'parallel-world') {
       setParallelState(next)
-      saveState(next)
+      if (!authSession?.user) saveState(next)
     } else {
       setStarterState(next)
+      if (!authSession?.user) saveState(next)
     }
   }
 
@@ -856,26 +866,34 @@ export function VocabularyScreen() {
     const nextState = { ...state, sessions: { ...state.sessions, [today]: nextSession }, cycles }
     commit(nextState)
     persistSession(nextSession)
-    const nextUndo = next.complete ? [] : [...undoStack, session]
-    if (authSession?.user) {
-      saveDesk.mutate({
-        bookId: activeBookId,
-        payload: { state: nextState, undoStack: nextUndo, undoDate: today },
-      })
-    }
     if (next.complete) {
       setUndoStack([])
+      setRedoStack([])
+      redoBaseline.current = null
       removeUndoStack(activeBookId, today)
     }
   }
 
   async function handleNext() {
     if (session.complete) return
+    if (redoStack.length) {
+      if (session === redoBaseline.current) {
+        const next = redoStack[redoStack.length - 1]
+        setRedoStack((stack) => stack.slice(0, -1))
+        setUndoStack((stack) => [...stack, session])
+        updateSession(() => next)
+        persistSession(next)
+        redoBaseline.current = null
+        return
+      }
+      setRedoStack([])
+      redoBaseline.current = null
+    }
     if (!(await commitCurrentPage())) return
 
     const next = advanceSession(session, state.words, { trashedIds: state.trashedIds })
     setUndoStack((stack) => [...stack, session])
-    advanceWithStats(next)
+    advanceWithStats(next, pageSize(session))
   }
 
   useEffect(() => {
@@ -896,6 +914,21 @@ export function VocabularyScreen() {
 
   async function handleZenNext() {
     if (session.complete) return
+    let redoInvalidated = false
+    if (redoStack.length) {
+      if (session === redoBaseline.current) {
+        const next = redoStack[redoStack.length - 1]
+        setRedoStack((stack) => stack.slice(0, -1))
+        setUndoStack((stack) => [...stack, session])
+        updateSession(() => next)
+        persistSession(next)
+        redoBaseline.current = null
+        return
+      }
+      setRedoStack([])
+      redoBaseline.current = null
+      redoInvalidated = true
+    }
     const pageSize = Math.max(1, zenLayout.count) * ZEN_WORDS_PER_SHEET
     if (!(await commitCurrentPage(pageSize))) return
 
@@ -904,15 +937,17 @@ export function VocabularyScreen() {
     advanceWithStats(next, pageSize)
   }
 
-  function handleUndo() {
+  async function handleUndo() {
     const previous = undoStack[undoStack.length - 1]
     if (!previous) return
     const next = { ...previous, marks: { ...previous.marks } }
+    setRedoStack((stack) => [...stack, session])
+    redoBaseline.current = next
     updateSession(() => next)
     persistSession(next)
     setUndoStack((stack) => stack.slice(0, -1))
     setNotice(
-      undoStack.length > 1 ? `已回到上一页，还可退回 ${undoStack.length - 1} 页` : '已回到上一页',
+      undoStack.length > 1 ? `已回到上一页，还可前进 ${redoStack.length + 1} 页` : '已回到上一页',
     )
   }
 
@@ -1007,6 +1042,8 @@ export function VocabularyScreen() {
     }
     setActiveBookId(id)
     setUndoStack([])
+      setRedoStack([])
+      redoBaseline.current = null
     const wordbook = WORDBOOKS.find((item) => item.id === id)
     setNotice(`已打开${wordbook?.title ?? '词书'}纸摞`)
   }
@@ -1034,6 +1071,8 @@ export function VocabularyScreen() {
       sessions: { [today]: createSession(words, state.settings, state.trashedIds) },
     }
     setUndoStack([])
+      setRedoStack([])
+      redoBaseline.current = null
     commit(nextState)
     setModal(null)
     setPaste('')
@@ -1076,6 +1115,8 @@ export function VocabularyScreen() {
 
     updateSession(() => createSession(state.words, state.settings, state.trashedIds))
     setUndoStack([])
+      setRedoStack([])
+      redoBaseline.current = null
     setSettingsOpen(false)
     setModal(null)
     setNotice('今日进度已清零，从第 1 页重新开始')

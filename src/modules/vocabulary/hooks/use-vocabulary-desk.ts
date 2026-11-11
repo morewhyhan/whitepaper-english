@@ -5,6 +5,7 @@ import type { VocabularySession, VocabularyState } from '../lib/vocabulary'
 export type DeskPayload = {
   state: VocabularyState
   undoStack: VocabularySession[]
+  redoStack?: VocabularySession[]
   undoDate?: string
 }
 
