@@ -1117,7 +1117,6 @@ export function VocabularyScreen() {
 
     const nextState = {
       ...state,
-      greenStreaks: {},
       sessions: {
         ...state.sessions,
         [today]: createSession(state.words, state.settings, state.trashedIds),
