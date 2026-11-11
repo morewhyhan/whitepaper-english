@@ -31,6 +31,7 @@ model user {
   emailVerified Boolean   @default(false)
   name          String
   image         String?
+  isAnonymous   Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -39,6 +40,7 @@ model user {
   tasks   task[]
   wordStates word_state[]
   dailySessions daily_session[]
+  vocabularyDesks vocabulary_desk[]
 }
 
 model session {
@@ -122,4 +124,18 @@ model daily_session {
 
   @@unique([userId, bookId, localDate])
   @@index([userId, localDate])
+}
+
+model vocabulary_desk {
+  id        String   @id @default(uuid())
+  userId    String
+  bookId    String
+  payload   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@index([userId, updatedAt])
 }

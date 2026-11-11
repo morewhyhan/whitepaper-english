@@ -35,6 +35,7 @@ import {
   type VocabularyWord,
 } from '../lib/vocabulary'
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
+import { signIn } from '@/modules/auth/lib/auth-client'
 import { useAssociations, usePrefetchAssociations } from '../hooks/use-association'
 import { prefetchSpeech, speakText, warmSpeech } from '../lib/speech'
 import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
@@ -42,6 +43,7 @@ import { useResetToday } from '../hooks/use-reset-today'
 import { useStudyHistory, type StudyHistoryDay } from '../hooks/use-study-history'
 import { SettingsPanel } from './settings-panel'
 import { useSaveJudgements } from '../hooks/use-save-judgements'
+import { useSaveVocabularyDesk, useVocabularyDesk } from '../hooks/use-vocabulary-desk'
 import styles from './vocabulary-screen.module.css'
 import layout from './workspace-layout.module.css'
 
@@ -230,6 +232,8 @@ export function VocabularyScreen() {
   const [starterState, setStarterState] = useState<VocabularyState>(createStarterState)
   const [activeBookId, setActiveBookId] = useState<WordbookId>('parallel-world')
   const [hydrated, setHydrated] = useState(false)
+  const anonymousStarted = useRef(false)
+  const deskHydrated = useRef(new Set<string>())
   const [undoStack, setUndoStack] = useState<VocabularySession[]>([])
   const undoHydrated = useRef(false)
   const [modal, setModal] = useState<ModalName>(null)
@@ -242,10 +246,12 @@ export function VocabularyScreen() {
   const [sentenceOpen, setSentenceOpen] = useState(false)
   const [sentenceText, setSentenceText] = useState('')
   const [sentenceError, setSentenceError] = useState<string | null>(null)
-  const { data: authSession } = useAuthSession()
+  const { data: authSession, isPending: authPending } = useAuthSession()
   const signOut = useSignOut()
   const saveJudgements = useSaveJudgements()
-  const dailySession = useDailySession(activeBookId, today, Boolean(authSession?.user))
+  const saveDesk = useSaveVocabularyDesk()
+  const desk = useVocabularyDesk(activeBookId, authSession?.user?.id)
+  const dailySession = useDailySession(activeBookId, today, false)
   const saveDailySession = useSaveDailySession()
   const resetTodayMutation = useResetToday()
   const studyHistory = useStudyHistory(
@@ -306,6 +312,50 @@ export function VocabularyScreen() {
     if (!undoHydrated.current || !hydrated) return
     saveUndoStack(activeBookId, today, undoStack)
   }, [undoStack, activeBookId, today, hydrated])
+
+  useEffect(() => {
+    if (!hydrated || authPending || authSession?.user || anonymousStarted.current) return
+    anonymousStarted.current = true
+    void signIn.anonymous().catch(() => {
+      // Keep local fallback if anonymous session creation is unavailable.
+    })
+  }, [hydrated, authPending, authSession])
+
+  useEffect(() => {
+    deskHydrated.current.clear()
+  }, [authSession?.user?.id])
+
+  useEffect(() => {
+    if (!authSession?.user || !hydrated || !desk.isSuccess) return
+    if (deskHydrated.current.has(activeBookId)) return
+    deskHydrated.current.add(activeBookId)
+    const local = activeBookId === 'parallel-world' ? parallelState : starterState
+    if (desk.data?.state) {
+      const serverState = desk.data.state
+      ensureTodaySession(serverState, today)
+      if (activeBookId === 'parallel-world') setParallelState(serverState)
+      else setStarterState(serverState)
+      setUndoStack(desk.data.undoDate === today ? (desk.data.undoStack ?? []) : [])
+      saveState(serverState)
+    } else {
+      saveDesk.mutate({
+        bookId: activeBookId,
+        payload: { state: local, undoStack, undoDate: today },
+      })
+    }
+  }, [authSession, hydrated, desk.isSuccess, desk.data, activeBookId, parallelState, starterState, today, saveDesk, undoStack])
+
+  useEffect(() => {
+    if (!authSession?.user || !hydrated || !deskHydrated.current.has(activeBookId)) return
+    const timer = window.setTimeout(() => {
+      const currentState = activeBookId === 'parallel-world' ? parallelState : starterState
+      saveDesk.mutate({
+        bookId: activeBookId,
+        payload: { state: currentState, undoStack, undoDate: today },
+      })
+    }, 350)
+    return () => window.clearTimeout(timer)
+  }, [authSession, hydrated, activeBookId, parallelState, starterState, undoStack, saveDesk])
 
   function saveTabs(order: PaperTab[], hidden: PaperTab[]) {
     setTabOrder(order)
@@ -803,8 +853,16 @@ export function VocabularyScreen() {
       ? (state.cycles ?? []).map((cycle) => (cycle.id === cycleId ? stat : cycle))
       : [...(state.cycles ?? []), stat]
     const nextSession = { ...next, cycleId }
-    commit({ ...state, sessions: { ...state.sessions, [today]: nextSession }, cycles })
+    const nextState = { ...state, sessions: { ...state.sessions, [today]: nextSession }, cycles }
+    commit(nextState)
     persistSession(nextSession)
+    const nextUndo = next.complete ? [] : [...undoStack, session]
+    if (authSession?.user) {
+      saveDesk.mutate({
+        bookId: activeBookId,
+        payload: { state: nextState, undoStack: nextUndo, undoDate: today },
+      })
+    }
     if (next.complete) {
       setUndoStack([])
       removeUndoStack(activeBookId, today)
@@ -1068,7 +1126,7 @@ export function VocabularyScreen() {
           >
             禅模式
           </button>
-          {authSession?.user ? (
+          {authSession?.user && !(authSession.user as { isAnonymous?: boolean }).isAnonymous ? (
             <button
               className={styles.quiet}
               type="button"
@@ -1486,7 +1544,11 @@ export function VocabularyScreen() {
             })
           }
           soundOn={soundOn}
-          email={authSession?.user.email}
+          email={
+            authSession?.user && !(authSession.user as { isAnonymous?: boolean }).isAnonymous
+              ? authSession.user.email
+              : undefined
+          }
           bookTitle={WORDBOOKS.find((book) => book.id === activeBookId)?.title ?? '平行世界'}
           onToggleSound={() => {
             const next = !soundOn

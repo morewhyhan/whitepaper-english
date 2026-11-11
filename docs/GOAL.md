@@ -340,3 +340,34 @@ flowchart LR
 - 标签整体仍然贴纸张右下角，顺序和拖动排序保持。
 - 统计页只保留图表，不显示无法解释的汇总数字卡片。
 - 统计图表按当前词书变化。
+
+
+## 2026-11-11 SQLite 主存储与匿名账号
+
+### 决策
+
+- 浏览器 localStorage 不再作为学习主数据源，只保留迁移种子和临时回退。
+- 匿名用户由 Better Auth anonymous 插件创建，服务端 SQLite 保存数据。
+- 匿名用户注册/登录真实账号时，onLinkAccount 将匿名 desk 合并到新账号。
+- 当前轮数据保存到 vocabulary_desk，每个词书一行；payload 包含当前完整状态和撤销快照。
+- 每页提交后立即写入 SQLite；词级点击使用短延迟同步。
+- 整轮完成后清空撤销快照，只保留 cycles 汇总；下一轮/重置重新累计。
+- 浏览器第一次以匿名身份打开时，如果服务端还没有 desk，会把现有 localStorage 状态导入 SQLite。
+- 真实账号已存在 desk 时，匿名 desk 与账号 desk 合并：轮次按 id 去重，当前会话以匿名最新状态覆盖，词书/统计/自定义关联保留。
+
+### 涉及数据
+
+- user.isAnonymous
+- vocabulary_desk：userId + bookId 唯一，payload 保存当前状态和撤销栈
+- Prisma migration：20261111064646_anonymous_desk
+- 迁移前数据库备份：prisma/dev.db.before-anonymous-*
+
+### 状态
+
+- [x] 匿名服务端账号
+- [x] 登录合并匿名数据
+- [x] SQLite 主存储
+- [x] 现有 localStorage 导入
+- [x] 每页即时保存
+- [ ] 多设备冲突策略（当前为同一 desk 覆盖）
+- [ ] 登录后统计账号级汇总的独立查询接口

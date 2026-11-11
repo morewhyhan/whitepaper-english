@@ -90,6 +90,17 @@ const sessionQuerySchema = z
   })
   .strict()
 
+const deskQuerySchema = z.object({
+  bookId: z.string().trim().min(1).max(64),
+})
+
+const deskSchema = z
+  .object({
+    bookId: z.string().trim().min(1).max(64),
+    payload: z.string().min(2).max(20_000_000),
+  })
+  .strict()
+
 const sessionSchema = z
   .object({
     bookId: z.string().trim().min(1).max(64),
@@ -190,6 +201,33 @@ const vocabulary = new Hono()
     const wordStates = await listWordStates(prisma, userId, bookId, date)
 
     return c.json({ data: { activeBook: null, wordStates } })
+  })
+  .get('/desk', zValidator('query', deskQuerySchema), async (c) => {
+    const userId = await requireUserId(c.req.raw.headers)
+    const { bookId } = c.req.valid('query')
+    const desk = await prisma.vocabulary_desk.findUnique({
+      where: { userId_bookId: { userId, bookId } },
+    })
+
+    return c.json({ data: { payload: desk?.payload ?? null, updatedAt: desk?.updatedAt ?? null } })
+  })
+  .put('/desk', zValidator('json', deskSchema), async (c) => {
+    const userId = await requireUserId(c.req.raw.headers)
+    const { bookId, payload } = c.req.valid('json')
+
+    try {
+      JSON.parse(payload)
+    } catch {
+      return c.json({ code: 400, message: 'payload 不是合法 JSON' }, 400)
+    }
+
+    const desk = await prisma.vocabulary_desk.upsert({
+      where: { userId_bookId: { userId, bookId } },
+      create: { userId, bookId, payload },
+      update: { payload },
+    })
+
+    return c.json({ data: { updatedAt: desk.updatedAt } })
   })
   .get('/session', zValidator('query', sessionQuerySchema), async (c) => {
     const userId = await requireUserId(c.req.raw.headers)

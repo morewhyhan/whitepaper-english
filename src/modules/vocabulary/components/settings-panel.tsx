@@ -127,7 +127,7 @@ export function SettingsPanel({
             {active === 'account' && (
               <section className={styles.section}>
                 <p className={styles.label}>当前账号</p>
-                <p className={styles.value}>{email ?? '访客（进度只在本机）'}</p>
+                <p className={styles.value}>{email ?? '匿名账号（已保存到本机数据库）'}</p>
                 {email ? (
                   <button className={styles.ghostButton} type="button" onClick={onLogout}>
                     退出登录
