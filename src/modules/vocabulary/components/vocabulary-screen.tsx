@@ -286,7 +286,10 @@ export function VocabularyScreen() {
 
     const savedBook = window.localStorage.getItem('whitepaper-active-book')
     if (savedBook === 'starter') setActiveBookId('starter')
-    setUndoStack(loadUndoStack(savedBook === 'starter' ? 'starter' : 'parallel-world', today))
+    const initialBook = savedBook === 'starter' ? 'starter' : 'parallel-world'
+    const initialComplete = loaded.sessions[today]?.complete
+    if (initialComplete) removeUndoStack(initialBook, today)
+    setUndoStack(initialComplete ? [] : loadUndoStack(initialBook, today))
     undoHydrated.current = true
     setSoundOn(window.localStorage.getItem('whitepaper-sound') !== 'off')
     try {
@@ -802,6 +805,10 @@ export function VocabularyScreen() {
     const nextSession = { ...next, cycleId }
     commit({ ...state, sessions: { ...state.sessions, [today]: nextSession }, cycles })
     persistSession(nextSession)
+    if (next.complete) {
+      setUndoStack([])
+      removeUndoStack(activeBookId, today)
+    }
   }
 
   async function handleNext() {
@@ -809,7 +816,7 @@ export function VocabularyScreen() {
     if (!(await commitCurrentPage())) return
 
     const next = advanceSession(session, state.words, { trashedIds: state.trashedIds })
-    setUndoStack((stack) => [...stack, session].slice(-80))
+    setUndoStack((stack) => [...stack, session])
     advanceWithStats(next)
   }
 
@@ -835,7 +842,7 @@ export function VocabularyScreen() {
     if (!(await commitCurrentPage(pageSize))) return
 
     const next = advanceSession(session, state.words, { pageSize, trashedIds: state.trashedIds })
-    setUndoStack((stack) => [...stack, session].slice(-80))
+    setUndoStack((stack) => [...stack, session])
     advanceWithStats(next, pageSize)
   }
 
@@ -2485,16 +2492,26 @@ function readUndoStore(): Record<string, VocabularySession[]> {
 
 function loadUndoStack(bookId: string, date: string): VocabularySession[] {
   const saved = readUndoStore()[`${bookId}:${date}`]
-  return Array.isArray(saved) ? saved.slice(-80) : []
+  return Array.isArray(saved) ? saved : []
 }
 
 function saveUndoStack(bookId: string, date: string, stack: VocabularySession[]) {
   try {
     const store = readUndoStore()
-    store[`${bookId}:${date}`] = stack.slice(-80)
+    store[`${bookId}:${date}`] = stack
     window.localStorage.setItem(UNDO_STORAGE_KEY, JSON.stringify(store))
   } catch {
     // Keep the in-memory stack when storage is unavailable.
+  }
+}
+
+function removeUndoStack(bookId: string, date: string) {
+  try {
+    const store = readUndoStore()
+    delete store[`${bookId}:${date}`]
+    window.localStorage.setItem(UNDO_STORAGE_KEY, JSON.stringify(store))
+  } catch {
+    // Ignore unavailable storage.
   }
 }
 
