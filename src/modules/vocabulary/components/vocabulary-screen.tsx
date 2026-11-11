@@ -38,11 +38,9 @@ import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import { signIn } from '@/modules/auth/lib/auth-client'
 import { useAssociations, usePrefetchAssociations } from '../hooks/use-association'
 import { prefetchSpeech, speakText, warmSpeech } from '../lib/speech'
-import { useDailySession, useSaveDailySession } from '../hooks/use-daily-session'
 import { useResetToday } from '../hooks/use-reset-today'
 import { useStudyHistory, type StudyHistoryDay } from '../hooks/use-study-history'
 import { SettingsPanel } from './settings-panel'
-import { useSaveJudgements } from '../hooks/use-save-judgements'
 import { useSaveVocabularyDesk, useVocabularyDesk } from '../hooks/use-vocabulary-desk'
 import styles from './vocabulary-screen.module.css'
 import layout from './workspace-layout.module.css'
@@ -264,18 +262,14 @@ export function VocabularyScreen() {
   const [sentenceError, setSentenceError] = useState<string | null>(null)
   const { data: authSession, isPending: authPending } = useAuthSession()
   const signOut = useSignOut()
-  const saveJudgements = useSaveJudgements()
   const saveDesk = useSaveVocabularyDesk()
   const desk = useVocabularyDesk(activeBookId, authSession?.user?.id)
-  const dailySession = useDailySession(activeBookId, today, false)
-  const saveDailySession = useSaveDailySession()
   const resetTodayMutation = useResetToday()
   const studyHistory = useStudyHistory(
     activeBookId,
     30,
     Boolean(authSession?.user) && (modal === 'history' || settingsOpen),
   )
-  const restoredSession = useRef<string | null>(null)
   const [paste, setPaste] = useState('')
   const [notice, setNotice] = useState<string | null>(null)
   const [shelfOpen, setShelfOpen] = useState(false)
@@ -383,7 +377,7 @@ export function VocabularyScreen() {
         bookId: activeBookId,
         payload: { state: currentState, undoStack, redoStack, undoDate: today },
       })
-    }, 250)
+    }, 900)
     return () => window.clearTimeout(timer)
   }, [authSession, hydrated, activeBookId, parallelState, starterState, undoStack, redoStack, saveDesk, today])
 
@@ -406,7 +400,6 @@ export function VocabularyScreen() {
       }
       if (shuffled.every((id, i) => id === page[i])) shuffled.push(shuffled.shift()!)
       const next = { ...current, ids: [...current.ids.slice(0, current.cursor), ...shuffled, ...current.ids.slice(current.cursor + count)] }
-      persistSession(next)
       return next
     })
     setNotice('已打乱本页，判断保持不变')
@@ -427,59 +420,6 @@ export function VocabularyScreen() {
     document.addEventListener('pointerdown', clearSelectionOutsidePaper, true)
     return () => document.removeEventListener('pointerdown', clearSelectionOutsidePaper, true)
   }, [])
-
-  useEffect(() => {
-    const remote = dailySession.data?.session
-    if (!remote || !hydrated || !authSession?.user) return
-
-    const key = `${activeBookId}:${today}`
-    if (restoredSession.current === key) return
-    restoredSession.current = key
-
-    if (remote.cursor > 0 && loadUndoStack(activeBookId, today).length === 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUndoStack([{
-        round: remote.round,
-        ids: remote.ids,
-        cursor: Math.max(0, remote.cursor - 36),
-        missed: remote.missed,
-        marks: {},
-        mode: state.settings.mode,
-        groups: state.settings.groups,
-        view: 'scan',
-        history: remote.history,
-        complete: false,
-        peek: false,
-      }])
-    }
-
-    const apply = (current: VocabularyState): VocabularyState => {
-      const local = current.sessions[today] ?? createSession(current.words, current.settings, current.trashedIds)
-      const sameRound = local.round === remote.round
-      const cursor = sameRound ? Math.max(local.cursor, remote.cursor) : remote.cursor
-      if (local.cursor === cursor && local.round === remote.round) return current
-
-      return {
-        ...current,
-        sessions: {
-          ...current.sessions,
-          [today]: {
-            ...local,
-            round: remote.round,
-            cursor,
-            ids: remote.ids.filter((id) => !current.trashedIds.includes(id)),
-            missed: remote.missed,
-            history: remote.history,
-            complete: remote.complete,
-            marks: {},
-          },
-        },
-      }
-    }
-
-    if (activeBookId === 'parallel-world') setParallelState(apply)
-    else setStarterState(apply)
-  }, [dailySession.data, hydrated, authSession?.user, activeBookId, today])
 
   useEffect(() => {
     if (!trashOpen) return
@@ -520,9 +460,14 @@ export function VocabularyScreen() {
     setTrashPage((page) => Math.min(page, trashPageCount - 1))
   }, [trashPageCount])
   useEffect(() => {
-    prefetchSpeech(
-      pageWords(state.words, session).map((word) => ({ text: word.en, audio: word.audio })),
-    )
+    const timer = window.setTimeout(() => {
+      prefetchSpeech(
+        pageWords(state.words, session)
+          .slice(0, 12)
+          .map((word) => ({ text: word.en, audio: word.audio })),
+      )
+    }, 350)
+    return () => window.clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.words, session.cursor, session.round, session.view, session.groups])
   const zenPages = useMemo(() => buildZenPages(state.words, session), [state.words, session])
@@ -744,7 +689,6 @@ export function VocabularyScreen() {
       sessions: nextSession ? { ...state.sessions, [today]: nextSession } : state.sessions,
     }
     commit(nextState)
-    if (nextSession && authSession?.user) persistSession(nextSession)
     setNotice(message)
   }
 
@@ -772,46 +716,8 @@ export function VocabularyScreen() {
       trashedIds: [],
       sessions: { ...state.sessions, [today]: nextSession },
     })
-    if (nextSession && authSession?.user) persistSession(nextSession)
     setTrashPage(0)
     setNotice(`已全部放回 ${ids.length} 个词`)
-  }
-
-  async function commitCurrentPage(size?: number) {
-    if (!authSession?.user) return true
-
-    const currentPage = pageWords(state.words, session, size)
-    const judgements = currentPage.map((word) => ({
-      word: word.en,
-      known:
-        (session.marks[word.id] ?? (session.mode === 'known' ? 'unknown' : 'known')) === 'known',
-    }))
-    if (!judgements.length) return true
-
-    try {
-      await saveJudgements.mutateAsync({ bookId: activeBookId, date: today, judgements })
-      return true
-    } catch {
-      setNotice('判定提交失败，请重试')
-      return false
-    }
-  }
-
-  function persistSession(next: VocabularySession) {
-    if (!authSession?.user) return
-
-    void saveDailySession.mutate({
-      bookId: activeBookId,
-      date: today,
-      session: {
-        round: next.round,
-        cursor: next.cursor,
-        ids: next.ids,
-        missed: next.missed,
-        history: next.history,
-        complete: next.complete,
-      },
-    })
   }
 
   function handleClearPage() {
@@ -898,7 +804,6 @@ export function VocabularyScreen() {
     const nextSession = { ...next, cycleId }
     const nextState = { ...state, sessions: { ...state.sessions, [today]: nextSession }, cycles }
     commit(nextState)
-    persistSession(nextSession)
     if (next.complete) {
       setUndoStack([])
       setRedoStack([])
@@ -919,14 +824,12 @@ export function VocabularyScreen() {
         setRedoStack((stack) => stack.slice(0, -1))
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
-        persistSession(next)
-        redoBaseline.current = next
+            redoBaseline.current = next
         return
       }
       setRedoStack([])
       redoBaseline.current = null
     }
-    if (!(await commitCurrentPage())) return
 
     const currentWithCache = withCurrentPageMarks(session)
     const nextRaw = advanceSession(currentWithCache, state.words, {
@@ -965,15 +868,13 @@ export function VocabularyScreen() {
         setRedoStack((stack) => stack.slice(0, -1))
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
-        persistSession(next)
-        redoBaseline.current = next
+            redoBaseline.current = next
         return
       }
       setRedoStack([])
       redoBaseline.current = null
     }
     const pageSize = Math.max(1, zenLayout.count) * ZEN_WORDS_PER_SHEET
-    if (!(await commitCurrentPage(pageSize))) return
 
     const currentWithCache = withCurrentPageMarks(session)
     const nextRaw = advanceSession(currentWithCache, state.words, {
@@ -997,7 +898,6 @@ export function VocabularyScreen() {
     setRedoStack((stack) => [...stack, withCurrentPageMarks(session)])
     redoBaseline.current = next
     updateSession(() => next)
-    persistSession(next)
     setUndoStack((stack) => stack.slice(0, -1))
     setNotice(
       undoStack.length > 1 ? `已回到上一页，还可前进 ${redoStack.length + 1} 页` : '已回到上一页',
