@@ -883,7 +883,7 @@ export function VocabularyScreen() {
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
         persistSession(next)
-        redoBaseline.current = null
+        redoBaseline.current = next
         return
       }
       setRedoStack([])
@@ -922,7 +922,7 @@ export function VocabularyScreen() {
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
         persistSession(next)
-        redoBaseline.current = null
+        redoBaseline.current = next
         return
       }
       setRedoStack([])
