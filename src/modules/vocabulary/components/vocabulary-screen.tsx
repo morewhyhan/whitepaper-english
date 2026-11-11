@@ -166,6 +166,7 @@ function hasTextSelection() {
 }
 
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
+const UNDO_STORAGE_KEY = 'whitepaper-undo-stack-v1'
 const TRASH_PAGE_SIZE = 24
 const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '造句', '下一页'] as const
 type PaperTab = (typeof TAB_NAMES)[number]
@@ -230,6 +231,7 @@ export function VocabularyScreen() {
   const [activeBookId, setActiveBookId] = useState<WordbookId>('parallel-world')
   const [hydrated, setHydrated] = useState(false)
   const [undoStack, setUndoStack] = useState<VocabularySession[]>([])
+  const undoHydrated = useRef(false)
   const [modal, setModal] = useState<ModalName>(null)
   const [trashOpen, setTrashOpen] = useState(false)
   const [trashQuery, setTrashQuery] = useState('')
@@ -284,6 +286,8 @@ export function VocabularyScreen() {
 
     const savedBook = window.localStorage.getItem('whitepaper-active-book')
     if (savedBook === 'starter') setActiveBookId('starter')
+    setUndoStack(loadUndoStack(savedBook === 'starter' ? 'starter' : 'parallel-world', today))
+    undoHydrated.current = true
     setSoundOn(window.localStorage.getItem('whitepaper-sound') !== 'off')
     try {
       const saved = JSON.parse(window.localStorage.getItem('whitepaper-tabs') || '{}')
@@ -294,6 +298,11 @@ export function VocabularyScreen() {
       }
     } catch { /* Use defaults for invalid local settings. */ }
   }, [today])
+
+  useEffect(() => {
+    if (!undoHydrated.current || !hydrated) return
+    saveUndoStack(activeBookId, today, undoStack)
+  }, [undoStack, activeBookId, today, hydrated])
 
   function saveTabs(order: PaperTab[], hidden: PaperTab[]) {
     setTabOrder(order)
@@ -344,7 +353,7 @@ export function VocabularyScreen() {
     if (restoredSession.current === key) return
     restoredSession.current = key
 
-    if (remote.cursor > 0) {
+    if (remote.cursor > 0 && loadUndoStack(activeBookId, today).length === 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setUndoStack([{
         round: remote.round,
@@ -2463,6 +2472,30 @@ function Modal({
       </div>
     </div>
   )
+}
+
+function readUndoStore(): Record<string, VocabularySession[]> {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(UNDO_STORAGE_KEY) ?? '{}')
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+function loadUndoStack(bookId: string, date: string): VocabularySession[] {
+  const saved = readUndoStore()[`${bookId}:${date}`]
+  return Array.isArray(saved) ? saved.slice(-80) : []
+}
+
+function saveUndoStack(bookId: string, date: string, stack: VocabularySession[]) {
+  try {
+    const store = readUndoStore()
+    store[`${bookId}:${date}`] = stack.slice(-80)
+    window.localStorage.setItem(UNDO_STORAGE_KEY, JSON.stringify(store))
+  } catch {
+    // Keep the in-memory stack when storage is unavailable.
+  }
 }
 
 function loadState(): { state: VocabularyState; backupFailed: boolean } {
