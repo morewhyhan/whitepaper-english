@@ -3434,7 +3434,7 @@
 }
 
 
-/* Tabs size to their own labels instead of sharing equal rail slots. */
+/* Tabs all use the height of a four-character label, with extra vertical breathing room. */
 .paperAdvance {
   height: auto !important;
   max-height: 100%;
@@ -3444,12 +3444,12 @@
   position: relative !important;
   top: auto !important;
   right: auto !important;
-  height: auto !important;
+  height: clamp(76px, 12cqh, 104px) !important;
   width: 100%;
 }
 
 .paperAdvance > div > button {
-  height: auto !important;
+  height: 100% !important;
   min-height: 0 !important;
-  padding: clamp(9px, 1.7cqh, 16px) clamp(3px, 1cqh, 8px) !important;
+  padding: clamp(14px, 2.2cqh, 22px) clamp(3px, 1cqh, 8px) !important;
 }
