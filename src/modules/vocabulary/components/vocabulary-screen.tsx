@@ -218,8 +218,6 @@ export function VocabularyScreen() {
   const [hiddenTabs, setHiddenTabs] = useState<PaperTab[]>([])
   const [dragTab, setDragTab] = useState<PaperTab | null>(null)
   const [dragTop, setDragTop] = useState(0)
-  const [dragTargetIndex, setDragTargetIndex] = useState<number | null>(null)
-  const [tabHeight, setTabHeight] = useState(100)
   const tabRail = useRef<HTMLDivElement>(null)
   const skipTabClick = useRef(false)
   const today = useMemo(() => formatDate(new Date()), [])
@@ -295,14 +293,6 @@ export function VocabularyScreen() {
       }
     } catch { /* Use defaults for invalid local settings. */ }
   }, [today])
-
-  useEffect(() => {
-    const rail = tabRail.current
-    if (!rail) return
-    const observer = new ResizeObserver(([entry]) => setTabHeight(entry.contentRect.height))
-    observer.observe(rail)
-    return () => observer.disconnect()
-  }, [hydrated, zenMode])
 
   function saveTabs(order: PaperTab[], hidden: PaperTab[]) {
     setTabOrder(order)
@@ -828,12 +818,7 @@ export function VocabularyScreen() {
     index: number,
   ) {
     if (event.button !== 0) return
-    const start = {
-      y: event.clientY,
-      top: index * tabStep,
-      moved: false,
-      visible: [...visibleTabs],
-    }
+    const start = { y: event.clientY, moved: false, visible: [...visibleTabs] }
     let targetIndex = index
     const pointerId = event.pointerId
 
@@ -842,7 +827,6 @@ export function VocabularyScreen() {
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onCancel)
       setDragTab(null)
-      setDragTargetIndex(null)
     }
 
     const onMove = (moveEvent: PointerEvent) => {
@@ -855,12 +839,16 @@ export function VocabularyScreen() {
       if (!start.moved && Math.abs(delta) < 5) return
       start.moved = true
       moveEvent.preventDefault()
-      const step = tabHeight / Math.max(1, start.visible.length)
-      const top = Math.max(0, Math.min((start.visible.length - 1) * step, start.top + delta))
-      targetIndex = Math.max(0, Math.min(start.visible.length - 1, Math.round(top / Math.max(1, step))))
       setDragTab(tab)
-      setDragTop(top)
-      setDragTargetIndex(targetIndex)
+      setDragTop(delta)
+      const rail = tabRail.current
+      const nodes = rail ? Array.from(rail.children).filter((node): node is HTMLElement => node instanceof HTMLElement) : []
+      const pointerY = start.y + delta
+      targetIndex = 0
+      nodes.forEach((node, nodeIndex) => {
+        const rect = node.getBoundingClientRect()
+        if (pointerY > rect.top + rect.height / 2) targetIndex = Math.min(nodeIndex, start.visible.length - 1)
+      })
     }
 
     const onUp = () => {
@@ -1007,11 +995,6 @@ export function VocabularyScreen() {
   const visibleTabs = tabOrder.filter(
     (tab) => !hiddenTabs.includes(tab) && (tab !== '造句' || session.view === 'connect'),
   )
-  const tabStep = tabHeight / Math.max(1, visibleTabs.length)
-  const displayTabs =
-    dragTab && dragTargetIndex !== null
-      ? moveItem(visibleTabs, dragTab, dragTargetIndex)
-      : visibleTabs
 
   return (
     <main className={`${styles.layout} ${zenMode ? styles.zenLayout : layout.viewport}`}>
@@ -1202,15 +1185,14 @@ export function VocabularyScreen() {
                     skipTabClick.current = false
                   }}
                 >
-                  {displayTabs.map((tab, index) => {
+                  {visibleTabs.map((tab, index) => {
                     const dragging = dragTab === tab
                     return (
                       <div
                         key={tab}
                         data-dragging={dragging}
                         style={{
-                          height: Math.max(0, tabStep - Math.min(9, tabStep * 0.075)),
-                          transform: `translateY(${dragging ? dragTop : index * tabStep}px)`,
+                          transform: dragging ? `translateY(${dragTop}px)` : undefined,
                           transition: dragging ? 'none' : undefined,
                         }}
                         onPointerDown={(event) => startTabDrag(event, tab, index)}

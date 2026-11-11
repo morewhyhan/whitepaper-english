@@ -65,14 +65,11 @@ export function LearningStats({ cycles, bookTitle }: { cycles: CycleStat[]; book
     () => [...filtered].sort((a, b) => a.cycle - b.cycle).slice(-12),
     [filtered],
   )
-  const totalReviewed = filtered.reduce((sum, cycle) => sum + cycle.reviewed, 0)
-  const totalKnown = filtered.reduce((sum, cycle) => sum + cycle.known + cycle.trashed, 0)
   const firstReviewed = filtered.reduce((sum, cycle) => sum + cycle.firstReviewed, 0)
   const firstKnown = filtered.reduce(
     (sum, cycle) => sum + cycle.firstKnown + cycle.firstTrashed,
     0,
   )
-  const archived = filtered.reduce((sum, cycle) => sum + cycle.trashed, 0)
 
   const maxDay = Math.max(1, ...days.map((day) => day.reviewed))
   const maxCycle = Math.max(1, ...shownCycles.map((cycle) => cycle.reviewed))
@@ -115,13 +112,6 @@ export function LearningStats({ cycles, bookTitle }: { cycles: CycleStat[]; book
             按轮次
           </button>
         </div>
-      </div>
-
-      <div className={styles.kpis}>
-        <div><strong>{filtered.length}</strong><span>轮</span></div>
-        <div><strong>{totalReviewed}</strong><span>复习词次</span></div>
-        <div><strong>{Math.round(rate(totalKnown, totalReviewed) * 100)}%</strong><span>通过率</span></div>
-        <div><strong>{archived}</strong><span>归档</span></div>
       </div>
 
       {view === 'date' ? (
