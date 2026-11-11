@@ -256,7 +256,6 @@ export function VocabularyScreen() {
   const [trashPage, setTrashPage] = useState(0)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [autoTrashPrompt, setAutoTrashPrompt] = useState<{ ids: string[]; words: string[] } | null>(null)
   const [soundOn, setSoundOn] = useState(true)
   const [sentenceOpen, setSentenceOpen] = useState(false)
   const [sentenceText, setSentenceText] = useState('')
@@ -568,39 +567,6 @@ export function VocabularyScreen() {
 
 
 
-  function confirmAutoTrash() {
-    if (!autoTrashPrompt) return
-    const ids = autoTrashPrompt.ids
-    const nextState: VocabularyState = {
-      ...state,
-      trashedIds: [...new Set([...state.trashedIds, ...ids])],
-      greenStreaks: {
-        ...(state.greenStreaks ?? {}),
-        ...Object.fromEntries(ids.map((id) => [id, 0])),
-      },
-      sessions: {
-        ...state.sessions,
-        [today]: {
-          ...session,
-          marks: { ...session.marks, ...Object.fromEntries(ids.map((id) => [id, 'known' as Judgement])) },
-        },
-      },
-    }
-    commit(nextState)
-    setAutoTrashPrompt(null)
-    setNotice(`已把 ${ids.length} 个连续三轮标绿的词移入垃圾桶`)
-  }
-
-  function dismissAutoTrash() {
-    if (!autoTrashPrompt) return
-    const reset = Object.fromEntries(autoTrashPrompt.ids.map((id) => [id, 0]))
-    commit({
-      ...state,
-      greenStreaks: { ...(state.greenStreaks ?? {}), ...reset },
-    })
-    setAutoTrashPrompt(null)
-  }
-
   function handleTrash(id: string) {
     const word = state.words.find((item) => item.id === id)
     if (!word || state.trashedIds.includes(id)) return
@@ -853,27 +819,32 @@ export function VocabularyScreen() {
           greenStreaks[word.id] = 0
           continue
         }
-        if (session.marks[word.id] === 'known') {
+        const judgement = session.marks[word.id] ?? fallback
+        if (judgement === 'known') {
           const streak = (greenStreaks[word.id] ?? 0) + 1
           greenStreaks[word.id] = streak
-          if (streak >= 3) autoTrashWords.push({ id: word.id, en: word.en })
+          if (streak >= 3 && state.settings.autoTrashThreeGreens !== false) {
+            autoTrashWords.push({ id: word.id, en: word.en })
+          }
         } else {
           greenStreaks[word.id] = 0
         }
       }
     }
+    const autoTrashIds = autoTrashWords.map((word) => word.id)
     const nextState = {
       ...state,
+      trashedIds: [...new Set([...state.trashedIds, ...autoTrashIds])],
       sessions: { ...state.sessions, [today]: nextSession },
       cycles,
-      greenStreaks,
+      greenStreaks: {
+        ...greenStreaks,
+        ...Object.fromEntries(autoTrashIds.map((id) => [id, 0])),
+      },
     }
     commit(nextState)
-    if (autoTrashWords.length && state.settings.autoTrashThreeGreens !== false) {
-      setAutoTrashPrompt({
-        ids: autoTrashWords.map((word) => word.id),
-        words: autoTrashWords.map((word) => word.en),
-      })
+    if (autoTrashWords.length) {
+      setNotice(`${autoTrashWords.length} 个连续三圈第一轮筛过的词已自动移入垃圾桶`)
     }
     if (next.complete) {
       setUndoStack([])
@@ -1654,26 +1625,6 @@ export function VocabularyScreen() {
           onLogout={() => signOut.mutate()}
           onClose={() => setSettingsOpen(false)}
         />
-      )}
-
-      {autoTrashPrompt && (
-        <div className={styles.dialogBackdrop} role="presentation">
-          <section className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="auto-trash-title">
-            <h2 id="auto-trash-title">连续三次第一轮标绿</h2>
-            <p>
-              {autoTrashPrompt.words.join('、')} 已经连续三次在本书第一轮标为绿色。
-              是否现在移入垃圾桶？移入后按会处理，下一轮起不再推送。
-            </p>
-            <div className={styles.autoTrashActions}>
-              <button className={styles.quiet} type="button" onClick={dismissAutoTrash}>
-                暂不移入
-              </button>
-              <button className={styles.primaryButton} type="button" onClick={confirmAutoTrash}>
-                确认移入垃圾桶
-              </button>
-            </div>
-          </section>
-        </div>
       )}
 
       {modal && (

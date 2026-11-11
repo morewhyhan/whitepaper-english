@@ -246,10 +246,10 @@ export function SettingsPanel({
                     checked={autoTrashThreeGreens}
                     onChange={onToggleAutoTrashThreeGreens}
                   />
-                  <span>连续三次第一轮标绿后询问是否移入垃圾桶</span>
+                  <span>连续三圈第一轮筛过后自动移入垃圾桶</span>
                 </label>
                 <p className={styles.hint}>
-                  默认开启。第三次达到时不会自动移入，会先弹窗确认；取消后重新累计。
+                  默认开启。第一轮最终判为绿即算筛过，包括未标记但默认绿的词；达到三次自动归档，不再询问。
                 </p>
                 <p className={styles.hint}>把词拖进垃圾桶等于标绿；垃圾桶词以浅灰色保留在原位。</p>
               </section>
