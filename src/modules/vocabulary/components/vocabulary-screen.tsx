@@ -643,6 +643,35 @@ export function VocabularyScreen() {
     setNotice(message)
   }
 
+  function restoreAllTrash() {
+    const ids = [...state.trashedIds]
+    if (!ids.length) return
+    const current = state.sessions[today]
+    let nextSession = current
+    if (current) {
+      const missing = ids.filter((id) => !current.ids.includes(id))
+      if (missing.length) {
+        nextSession = {
+          ...current,
+          ids: [...current.ids, ...missing],
+          cursor: current.complete ? current.ids.length : current.cursor,
+          complete: false,
+        }
+      }
+    } else {
+      nextSession = createSession(state.words, state.settings, [])
+    }
+    if (!nextSession) return
+    commit({
+      ...state,
+      trashedIds: [],
+      sessions: { ...state.sessions, [today]: nextSession },
+    })
+    if (nextSession && authSession?.user) persistSession(nextSession)
+    setTrashPage(0)
+    setNotice(`已全部放回 ${ids.length} 个词`)
+  }
+
   async function commitCurrentPage(size?: number) {
     if (!authSession?.user) return true
 
@@ -1329,6 +1358,15 @@ export function VocabularyScreen() {
                     ? `${filteredTrashedWords.length} / ${trashedWords.length} 词`
                     : `${trashedWords.length} 词`}
                 </span>
+                {trashedWords.length > 0 && (
+                  <button
+                    className={styles.trashRestoreAll}
+                    type="button"
+                    onClick={restoreAllTrash}
+                  >
+                    全部放回
+                  </button>
+                )}
                 <button
                   className={styles.trashClose}
                   type="button"
@@ -1983,7 +2021,7 @@ function AssociationView({
                 <span className={styles.targetNote}>TARGET WORD</span>
                 <span className={styles.targetEn}>{word.en}</span>
                 <span className={styles.targetZh}>
-                  {mark === 'unknown' ? word.zh || '暂无释义' : '\u00a0'}
+                  {mark ? word.zh || '暂无释义' : '\u00a0'}
                 </span>
               </button>
             </div>
@@ -2011,7 +2049,7 @@ function AssociationView({
                 <span className={styles.targetNote}>TARGET WORD</span>
                 <span className={styles.targetEn}>{word.en}</span>
                 <span className={styles.targetZh}>
-                  {mark === 'unknown' ? word.zh || '暂无释义' : '\u00a0'}
+                  {mark ? word.zh || '暂无释义' : '\u00a0'}
                 </span>
               </button>
             </div>
@@ -2102,8 +2140,8 @@ function WordButton({
           if (!trashed) onWordClick(word.id, true)
         }}
       >
-        <span className={`${styles.zh} ${mark === 'unknown' || previewUnknown ? '' : styles.empty}`}>
-          {mark === 'unknown' || previewUnknown ? word.zh || '暂无释义' : '—'}
+        <span className={`${styles.zh} ${mark || previewUnknown ? '' : styles.empty}`}>
+          {mark || previewUnknown ? word.zh || '暂无释义' : '—'}
         </span>
         <span className={styles.en}>{word.en}</span>
       </button>

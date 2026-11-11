@@ -3479,3 +3479,21 @@
     box-shadow 220ms ease,
     background 160ms ease;
 }
+
+
+.trashRestoreAll {
+  border: 1px solid #dce4d6;
+  border-radius: 7px;
+  padding: 6px 10px;
+  background: #f3f7ef;
+  color: #526b4c;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.trashRestoreAll:hover {
+  background: #e8f0e2;
+  border-color: #c6d5bd;
+}
