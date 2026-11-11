@@ -428,3 +428,12 @@ flowchart LR
 - 实测：种子 streak=2 的未标词，在第一轮红页中按默认绿结算后自动归档，无确认弹窗。
 
 - 修正：重置这本书只清当前轮次，保留 greenStreaks，三圈累计不会被重置打断；导入新词书才清空。
+
+
+## 2026-11-12 生命周期检查
+
+- 首次打开：本地 hydration -> 匿名登录 -> SQLite desk 加载完成前显示加载页，禁止提前操作。
+- 登录切换、切换词书：重新建立 desk 闸门，避免旧状态覆盖。
+- 关闭/切后台：visibilitychange/pagehide 触发一次 desk flush。
+- 重置同一本书：保留 greenStreaks 与历史 cycles，只重置当前轮次。
+- 实测：首次可操作约 875ms；标红后刷新标记仍在。

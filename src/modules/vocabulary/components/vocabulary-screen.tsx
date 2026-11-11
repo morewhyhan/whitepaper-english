@@ -243,6 +243,8 @@ export function VocabularyScreen() {
   const [starterState, setStarterState] = useState<VocabularyState>(createStarterState)
   const [activeBookId, setActiveBookId] = useState<WordbookId>('parallel-world')
   const [hydrated, setHydrated] = useState(false)
+  const [deskReady, setDeskReady] = useState(false)
+  const [anonymousResolved, setAnonymousResolved] = useState(false)
   const anonymousStarted = useRef(false)
   const deskHydrated = useRef(new Set<string>())
   const deskSaveKey = useRef('')
@@ -326,14 +328,31 @@ export function VocabularyScreen() {
   useEffect(() => {
     if (!hydrated || authPending || authSession?.user || anonymousStarted.current) return
     anonymousStarted.current = true
-    void signIn.anonymous().catch(() => {
-      // Keep local fallback if anonymous session creation is unavailable.
-    })
+    void signIn
+      .anonymous()
+      .then(() => setAnonymousResolved(true))
+      .catch(() => {
+        setAnonymousResolved(true)
+        // Keep local fallback if anonymous session creation is unavailable.
+      })
   }, [hydrated, authPending, authSession])
 
   useEffect(() => {
     deskHydrated.current.clear()
-  }, [authSession?.user?.id])
+    setDeskReady(false)
+  }, [authSession?.user?.id, activeBookId])
+
+  useEffect(() => {
+    if (authPending) {
+      setDeskReady(false)
+      return
+    }
+    if (authSession?.user) {
+      if (desk.isSuccess || desk.isError) setDeskReady(true)
+      return
+    }
+    if (anonymousResolved) setDeskReady(true)
+  }, [authPending, authSession, desk.isSuccess, desk.isError, anonymousResolved])
 
   useEffect(() => {
     if (!authSession?.user || !hydrated || !desk.isSuccess) return
@@ -380,6 +399,24 @@ export function VocabularyScreen() {
     }, 900)
     return () => window.clearTimeout(timer)
   }, [authSession, hydrated, activeBookId, parallelState, starterState, undoStack, redoStack, saveDesk, today])
+
+  useEffect(() => {
+    const flushDesk = () => {
+      if (!authSession?.user || document.visibilityState !== 'hidden') return
+      if (!deskHydrated.current.has(activeBookId)) return
+      const currentState = activeBookId === 'parallel-world' ? parallelState : starterState
+      saveDesk.mutate({
+        bookId: activeBookId,
+        payload: { state: currentState, undoStack, redoStack, undoDate: today },
+      })
+    }
+    document.addEventListener('visibilitychange', flushDesk)
+    window.addEventListener('pagehide', flushDesk)
+    return () => {
+      document.removeEventListener('visibilitychange', flushDesk)
+      window.removeEventListener('pagehide', flushDesk)
+    }
+  }, [authSession, activeBookId, parallelState, starterState, undoStack, redoStack, today, saveDesk])
 
   function saveTabs(order: PaperTab[], hidden: PaperTab[]) {
     setTabOrder(order)
@@ -1140,7 +1177,7 @@ export function VocabularyScreen() {
     URL.revokeObjectURL(url)
   }
 
-  if (!hydrated) {
+  if (!hydrated || !deskReady) {
     return <main className={styles.loading}>正在打开你的白纸……</main>
   }
 
