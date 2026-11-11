@@ -218,6 +218,7 @@ export function VocabularyScreen() {
   const [hiddenTabs, setHiddenTabs] = useState<PaperTab[]>([])
   const [dragTab, setDragTab] = useState<PaperTab | null>(null)
   const [dragTop, setDragTop] = useState(0)
+  const [dragTargetIndex, setDragTargetIndex] = useState<number | null>(null)
   const tabRail = useRef<HTMLDivElement>(null)
   const skipTabClick = useRef(false)
   const today = useMemo(() => formatDate(new Date()), [])
@@ -827,6 +828,7 @@ export function VocabularyScreen() {
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onCancel)
       setDragTab(null)
+      setDragTargetIndex(null)
     }
 
     const onMove = (moveEvent: PointerEvent) => {
@@ -849,6 +851,7 @@ export function VocabularyScreen() {
         const rect = node.getBoundingClientRect()
         if (pointerY > rect.top + rect.height / 2) targetIndex = Math.min(nodeIndex, start.visible.length - 1)
       })
+      setDragTargetIndex(targetIndex)
     }
 
     const onUp = () => {
@@ -995,6 +998,8 @@ export function VocabularyScreen() {
   const visibleTabs = tabOrder.filter(
     (tab) => !hiddenTabs.includes(tab) && (tab !== '造句' || session.view === 'connect'),
   )
+  const dragFrom = dragTab ? visibleTabs.indexOf(dragTab) : -1
+  const dragTo = dragTargetIndex ?? dragFrom
 
   return (
     <main className={`${styles.layout} ${zenMode ? styles.zenLayout : layout.viewport}`}>
@@ -1187,12 +1192,23 @@ export function VocabularyScreen() {
                 >
                   {visibleTabs.map((tab, index) => {
                     const dragging = dragTab === tab
+                    const previewIndex =
+                      dragFrom < dragTo && index > dragFrom && index <= dragTo
+                        ? index - 1
+                        : dragFrom > dragTo && index >= dragTo && index < dragFrom
+                          ? index + 1
+                          : index
+                    const shift = dragging ? 0 : previewIndex - index
                     return (
                       <div
                         key={tab}
                         data-dragging={dragging}
                         style={{
-                          transform: dragging ? `translateY(${dragTop}px)` : undefined,
+                          transform: dragging
+                            ? `translateY(${dragTop}px)`
+                            : shift
+                              ? `translateY(calc(${shift} * (clamp(76px, 12cqh, 104px) + 9px)))`
+                              : undefined,
                           transition: dragging ? 'none' : undefined,
                         }}
                         onPointerDown={(event) => startTabDrag(event, tab, index)}
