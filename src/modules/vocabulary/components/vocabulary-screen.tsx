@@ -548,6 +548,36 @@ export function VocabularyScreen() {
     }
   }
 
+  function pageContribution(target: VocabularySession) {
+    const page = pageWords(state.words, target)
+    const trashed = new Set(state.trashedIds)
+    const active = page.filter((word) => !trashed.has(word.id))
+    const hasRed = active.some((word) => target.marks[word.id] === 'unknown')
+    const hasGreen = active.some((word) => target.marks[word.id] === 'known')
+    const hasTrash = page.some((word) => trashed.has(word.id))
+    const fallback: Judgement =
+      hasRed && !hasGreen
+        ? 'known'
+        : hasGreen && !hasRed
+          ? 'unknown'
+          : hasTrash
+            ? 'unknown'
+            : (state.settings.blankPageDefault ?? 'unknown')
+    let known = 0
+    let unknown = 0
+    let archived = 0
+    for (const word of page) {
+      if (trashed.has(word.id)) {
+        archived += 1
+        continue
+      }
+      const judgement = target.marks[word.id] ?? fallback
+      if (judgement === 'known') known += 1
+      else unknown += 1
+    }
+    return { known, unknown, trashed: archived, first: target.round === 1 }
+  }
+
   function updateSession(updater: (current: VocabularySession) => VocabularySession) {
     const current = state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
     const next = updater(current)
@@ -559,12 +589,41 @@ export function VocabularyScreen() {
       pageMarks[pageKey(current)] = { ...next.marks }
     }
     const roundIds = { ...(next.roundIds ?? {}), ...(current.roundIds ?? {}) }
-    const withCache = { ...next, pageMarks, roundIds }
+    const pageStats = { ...(next.pageStats ?? {}), ...(current.pageStats ?? {}) }
+    const withCache = { ...next, pageMarks, roundIds, pageStats }
     const finalSession =
       pageKey(next) === pageKey(current)
         ? withCache
         : withStoredPageMarks(next, pageMarks)
-    commit({ ...state, sessions: { ...state.sessions, [today]: finalSession } })
+    let cycles = state.cycles
+    if (pageKey(next) === pageKey(current) && current.pageStats?.[pageKey(current)]) {
+      const old = current.pageStats[pageKey(current)]
+      const fresh = pageContribution(next)
+      const deltaKnown = fresh.known - old.known
+      const deltaUnknown = fresh.unknown - old.unknown
+      const deltaTrashed = fresh.trashed - old.trashed
+      const cycleId = next.cycleId
+      if (cycleId && (deltaKnown || deltaUnknown || deltaTrashed)) {
+        cycles = (state.cycles ?? []).map((cycle) =>
+          cycle.id === cycleId
+            ? {
+                ...cycle,
+                known: Math.max(0, cycle.known + deltaKnown),
+                unknown: Math.max(0, cycle.unknown + deltaUnknown),
+                trashed: Math.max(0, cycle.trashed + deltaTrashed),
+                firstKnown: Math.max(0, cycle.firstKnown + (fresh.first ? deltaKnown : 0)),
+                firstUnknown: Math.max(0, cycle.firstUnknown + (fresh.first ? deltaUnknown : 0)),
+                firstTrashed: Math.max(0, cycle.firstTrashed + (fresh.first ? deltaTrashed : 0)),
+              }
+            : cycle,
+        )
+      }
+      finalSession.pageStats = {
+        ...(current.pageStats ?? {}),
+        [pageKey(current)]: fresh,
+      }
+    }
+    commit({ ...state, cycles, sessions: { ...state.sessions, [today]: finalSession } })
   }
 
   function updateSettings(nextSettings: VocabularyState['settings']) {
@@ -847,7 +906,14 @@ export function VocabularyScreen() {
     const cycles = existing
       ? (state.cycles ?? []).map((cycle) => (cycle.id === cycleId ? stat : cycle))
       : [...(state.cycles ?? []), stat]
-    const nextSession = { ...next, cycleId }
+    const nextSession = {
+      ...next,
+      cycleId,
+      pageStats: {
+        ...(next.pageStats ?? {}),
+        [pageKey(session)]: { known, unknown, trashed: archived, first: isFirstPass },
+      },
+    }
     const greenStreaks = { ...(state.greenStreaks ?? {}) }
     const autoTrashWords: { id: string; en: string }[] = []
     if (isFirstPass) {
@@ -979,7 +1045,14 @@ export function VocabularyScreen() {
       ...(previous.roundIds ?? {}),
       ...(session.roundIds ?? {}),
     }
-    const next = withStoredPageMarks({ ...previous, pageMarks, roundIds }, pageMarks)
+    const pageStats = {
+      ...(previous.pageStats ?? {}),
+      ...(session.pageStats ?? {}),
+    }
+    const next = withStoredPageMarks(
+      { ...previous, pageMarks, roundIds, pageStats },
+      pageMarks,
+    )
     setRedoStack((stack) => [...stack, withCurrentPageMarks(session)])
     redoBaseline.current = next
     updateSession(() => next)
