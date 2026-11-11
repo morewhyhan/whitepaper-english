@@ -482,6 +482,15 @@
   color: var(--red-fg);
 }
 
+.known .zh {
+  color: var(--green-fg);
+}
+
+.unknown .zh,
+.unknownPreview .zh {
+  color: var(--red-fg);
+}
+
 .zh {
   min-height: 15px;
   max-width: 100%;
@@ -808,6 +817,14 @@
 }
 
 .centerChip.unknown .targetEn {
+  color: var(--red-fg);
+}
+
+.centerChip.known .targetZh {
+  color: var(--green-fg);
+}
+
+.centerChip.unknown .targetZh {
   color: var(--red-fg);
 }
 
