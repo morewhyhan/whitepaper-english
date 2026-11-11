@@ -31,6 +31,10 @@ export function SettingsPanel({
   soundOn,
   showDefaultAssociations,
   onToggleDefaultAssociations,
+  blankPageDefault,
+  onChangeBlankPageDefault,
+  autoTrashThreeGreens,
+  onToggleAutoTrashThreeGreens,
   email,
   bookTitle,
   onToggleSound,
@@ -48,6 +52,10 @@ export function SettingsPanel({
   soundOn: boolean
   showDefaultAssociations: boolean
   onToggleDefaultAssociations: () => void
+  blankPageDefault: 'known' | 'unknown'
+  onChangeBlankPageDefault: (value: 'known' | 'unknown') => void
+  autoTrashThreeGreens: boolean
+  onToggleAutoTrashThreeGreens: () => void
   email?: string
   bookTitle: string
   onToggleSound: () => void
@@ -209,7 +217,39 @@ export function SettingsPanel({
                 <p className={styles.value}>左键标红：不会</p>
                 <p className={styles.value}>右键标绿：会</p>
                 <p className={styles.hint}>
-                  一页只能用一种颜色。红页未标词默认会，绿页未标词默认不会；取消本页最后一条颜色后可重新选择。
+                  红页未标词默认会；绿页未标词默认不会；只有灰色垃圾桶词的页面，未标词默认不会。
+                </p>
+                <label className={styles.checkRow}>
+                  <input
+                    type="radio"
+                    name="blank-page-default"
+                    checked={blankPageDefault === 'unknown'}
+                    onChange={() => onChangeBlankPageDefault('unknown')}
+                  />
+                  <span>空白页默认全部不会（红色）</span>
+                </label>
+                <label className={styles.checkRow}>
+                  <input
+                    type="radio"
+                    name="blank-page-default"
+                    checked={blankPageDefault === 'known'}
+                    onChange={() => onChangeBlankPageDefault('known')}
+                  />
+                  <span>空白页默认全部会（绿色）</span>
+                </label>
+                <p className={styles.hint}>
+                  这是“整页什么都没标、也没有拖垃圾桶”时的默认值。默认选择全部不会。
+                </p>
+                <label className={styles.checkRow}>
+                  <input
+                    type="checkbox"
+                    checked={autoTrashThreeGreens}
+                    onChange={onToggleAutoTrashThreeGreens}
+                  />
+                  <span>连续三次第一轮标绿后询问是否移入垃圾桶</span>
+                </label>
+                <p className={styles.hint}>
+                  默认开启。第三次达到时不会自动移入，会先弹窗确认；取消后重新累计。
                 </p>
                 <p className={styles.hint}>把词拖进垃圾桶等于标绿；垃圾桶词以浅灰色保留在原位。</p>
               </section>

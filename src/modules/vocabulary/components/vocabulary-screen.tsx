@@ -256,6 +256,7 @@ export function VocabularyScreen() {
   const [trashPage, setTrashPage] = useState(0)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [autoTrashPrompt, setAutoTrashPrompt] = useState<{ ids: string[]; words: string[] } | null>(null)
   const [soundOn, setSoundOn] = useState(true)
   const [sentenceOpen, setSentenceOpen] = useState(false)
   const [sentenceText, setSentenceText] = useState('')
@@ -567,6 +568,39 @@ export function VocabularyScreen() {
 
 
 
+  function confirmAutoTrash() {
+    if (!autoTrashPrompt) return
+    const ids = autoTrashPrompt.ids
+    const nextState: VocabularyState = {
+      ...state,
+      trashedIds: [...new Set([...state.trashedIds, ...ids])],
+      greenStreaks: {
+        ...(state.greenStreaks ?? {}),
+        ...Object.fromEntries(ids.map((id) => [id, 0])),
+      },
+      sessions: {
+        ...state.sessions,
+        [today]: {
+          ...session,
+          marks: { ...session.marks, ...Object.fromEntries(ids.map((id) => [id, 'known' as Judgement])) },
+        },
+      },
+    }
+    commit(nextState)
+    setAutoTrashPrompt(null)
+    setNotice(`已把 ${ids.length} 个连续三轮标绿的词移入垃圾桶`)
+  }
+
+  function dismissAutoTrash() {
+    if (!autoTrashPrompt) return
+    const reset = Object.fromEntries(autoTrashPrompt.ids.map((id) => [id, 0]))
+    commit({
+      ...state,
+      greenStreaks: { ...(state.greenStreaks ?? {}), ...reset },
+    })
+    setAutoTrashPrompt(null)
+  }
+
   function handleTrash(id: string) {
     const word = state.words.find((item) => item.id === id)
     if (!word || state.trashedIds.includes(id)) return
@@ -761,7 +795,15 @@ export function VocabularyScreen() {
     const active = page.filter((word) => !trashed.has(word.id))
     const hasRed = active.some((word) => session.marks[word.id] === 'unknown')
     const hasGreen = active.some((word) => session.marks[word.id] === 'known')
-    const fallback: Judgement = hasGreen && !hasRed ? 'unknown' : 'known'
+    const hasTrash = page.some((word) => trashed.has(word.id))
+    const fallback: Judgement =
+      hasRed && !hasGreen
+        ? 'known'
+        : hasGreen && !hasRed
+          ? 'unknown'
+          : hasTrash
+            ? 'unknown'
+            : (state.settings.blankPageDefault ?? 'unknown')
     let known = 0
     let unknown = 0
     let archived = 0
@@ -803,8 +845,36 @@ export function VocabularyScreen() {
       ? (state.cycles ?? []).map((cycle) => (cycle.id === cycleId ? stat : cycle))
       : [...(state.cycles ?? []), stat]
     const nextSession = { ...next, cycleId }
-    const nextState = { ...state, sessions: { ...state.sessions, [today]: nextSession }, cycles }
+    const greenStreaks = { ...(state.greenStreaks ?? {}) }
+    const autoTrashWords: { id: string; en: string }[] = []
+    if (isFirstPass) {
+      for (const word of page) {
+        if (trashed.has(word.id)) {
+          greenStreaks[word.id] = 0
+          continue
+        }
+        if (session.marks[word.id] === 'known') {
+          const streak = (greenStreaks[word.id] ?? 0) + 1
+          greenStreaks[word.id] = streak
+          if (streak >= 3) autoTrashWords.push({ id: word.id, en: word.en })
+        } else {
+          greenStreaks[word.id] = 0
+        }
+      }
+    }
+    const nextState = {
+      ...state,
+      sessions: { ...state.sessions, [today]: nextSession },
+      cycles,
+      greenStreaks,
+    }
     commit(nextState)
+    if (autoTrashWords.length && state.settings.autoTrashThreeGreens !== false) {
+      setAutoTrashPrompt({
+        ids: autoTrashWords.map((word) => word.id),
+        words: autoTrashWords.map((word) => word.en),
+      })
+    }
     if (next.complete) {
       setUndoStack([])
       setRedoStack([])
@@ -835,6 +905,7 @@ export function VocabularyScreen() {
     const currentWithCache = withCurrentPageMarks(session)
     const nextRaw = advanceSession(currentWithCache, state.words, {
       trashedIds: state.trashedIds,
+      blankPageDefault: state.settings.blankPageDefault ?? 'unknown',
     })
     const next = withStoredPageMarks(nextRaw, currentWithCache.pageMarks ?? {})
     setUndoStack((stack) => [...stack, currentWithCache])
@@ -881,6 +952,7 @@ export function VocabularyScreen() {
     const nextRaw = advanceSession(currentWithCache, state.words, {
       pageSize,
       trashedIds: state.trashedIds,
+      blankPageDefault: state.settings.blankPageDefault ?? 'unknown',
     })
     const next = withStoredPageMarks(nextRaw, currentWithCache.pageMarks ?? {})
     setUndoStack((stack) => [...stack, currentWithCache])
@@ -1026,6 +1098,7 @@ export function VocabularyScreen() {
       ...state,
       words,
       networks,
+      greenStreaks: {},
       sessions: { [today]: createSession(words, state.settings, state.trashedIds) },
     }
     setUndoStack([])
@@ -1071,7 +1144,15 @@ export function VocabularyScreen() {
       }
     }
 
-    updateSession(() => createSession(state.words, state.settings, state.trashedIds))
+    const nextState = {
+      ...state,
+      greenStreaks: {},
+      sessions: {
+        ...state.sessions,
+        [today]: createSession(state.words, state.settings, state.trashedIds),
+      },
+    }
+    commit(nextState)
     setUndoStack([])
       setRedoStack([])
       redoBaseline.current = null
@@ -1542,6 +1623,17 @@ export function VocabularyScreen() {
               showDefaultAssociations: state.settings.showDefaultAssociations === false,
             })
           }
+          blankPageDefault={state.settings.blankPageDefault ?? 'unknown'}
+          onChangeBlankPageDefault={(value) =>
+            updateSettings({ ...state.settings, blankPageDefault: value })
+          }
+          autoTrashThreeGreens={state.settings.autoTrashThreeGreens !== false}
+          onToggleAutoTrashThreeGreens={() =>
+            updateSettings({
+              ...state.settings,
+              autoTrashThreeGreens: state.settings.autoTrashThreeGreens === false,
+            })
+          }
           soundOn={soundOn}
           email={
             authSession?.user && !(authSession.user as { isAnonymous?: boolean }).isAnonymous
@@ -1562,6 +1654,26 @@ export function VocabularyScreen() {
           onLogout={() => signOut.mutate()}
           onClose={() => setSettingsOpen(false)}
         />
+      )}
+
+      {autoTrashPrompt && (
+        <div className={styles.dialogBackdrop} role="presentation">
+          <section className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="auto-trash-title">
+            <h2 id="auto-trash-title">连续三次第一轮标绿</h2>
+            <p>
+              {autoTrashPrompt.words.join('、')} 已经连续三次在本书第一轮标为绿色。
+              是否现在移入垃圾桶？移入后按会处理，下一轮起不再推送。
+            </p>
+            <div className={styles.autoTrashActions}>
+              <button className={styles.quiet} type="button" onClick={dismissAutoTrash}>
+                暂不移入
+              </button>
+              <button className={styles.primaryButton} type="button" onClick={confirmAutoTrash}>
+                确认移入垃圾桶
+              </button>
+            </div>
+          </section>
+        </div>
       )}
 
       {modal && (

@@ -68,6 +68,8 @@ export type VocabularyState = {
     mode: 'known' | 'unknown'
     groups: 4 | 6
     showDefaultAssociations?: boolean
+    blankPageDefault?: 'known' | 'unknown'
+    autoTrashThreeGreens?: boolean
   }
   sessions: Record<string, VocabularySession>
   trashedIds: string[]
@@ -75,6 +77,7 @@ export type VocabularyState = {
   customAssociations?: Record<string, CustomAssociation[]>
   hiddenAssociationLinks?: string[]
   hiddenCustomAssociations?: string[]
+  greenStreaks?: Record<string, number>
 }
 
 export type ImportedVocabulary = {
@@ -281,6 +284,8 @@ export const defaultSettings: VocabularyState['settings'] = {
   mode: 'unknown',
   groups: 4,
   showDefaultAssociations: true,
+  blankPageDefault: 'unknown',
+  autoTrashThreeGreens: true,
 }
 
 export function normalizeWords(input: unknown): VocabularyWord[] {
@@ -440,7 +445,11 @@ export function toggleMark(
 export function advanceSession(
   session: VocabularySession,
   words: VocabularyWord[],
-  options: { pageSize?: number; trashedIds?: string[] } = {},
+  options: {
+    pageSize?: number
+    trashedIds?: string[]
+    blankPageDefault?: Judgement
+  } = {},
 ): VocabularySession {
   if (session.complete) return session
   const currentPage = pageWords(words, session, options.pageSize)
@@ -450,8 +459,17 @@ export function advanceSession(
   const activePage = currentPage.filter((word) => !trashed.has(word.id))
   const hasRed = activePage.some((word) => session.marks[word.id] === 'unknown')
   const hasGreen = activePage.some((word) => session.marks[word.id] === 'known')
-  // Blank and red pages default unmarked words to known; green pages default to unknown.
-  const fallback: Judgement = hasGreen && !hasRed ? 'unknown' : 'known'
+  const hasTrash = currentPage.some((word) => trashed.has(word.id))
+  // Red page -> unmarked known. Green page -> unmarked unknown.
+  // Gray-only page -> unmarked unknown. Completely blank page -> setting, default unknown.
+  const fallback: Judgement =
+    hasRed && !hasGreen
+      ? 'known'
+      : hasGreen && !hasRed
+        ? 'unknown'
+        : hasTrash
+          ? 'unknown'
+          : (options.blankPageDefault ?? 'unknown')
   const missed = [...session.missed]
   for (const word of currentPage) {
     if (trashed.has(word.id)) continue

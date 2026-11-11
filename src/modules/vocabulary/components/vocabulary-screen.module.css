@@ -3514,3 +3514,10 @@
   background: #e8f0e2;
   border-color: #c6d5bd;
 }
+
+.autoTrashActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
