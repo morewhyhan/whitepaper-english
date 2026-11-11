@@ -166,6 +166,26 @@ const TRASH_PAGE_SIZE = 24
 const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '造句', '下一页'] as const
 type PaperTab = (typeof TAB_NAMES)[number]
 
+function pageKey(session: VocabularySession) {
+  return `${session.round}:${session.cursor}`
+}
+
+function withCurrentPageMarks(session: VocabularySession): VocabularySession {
+  return {
+    ...session,
+    pageMarks: { ...(session.pageMarks ?? {}), [pageKey(session)]: { ...session.marks } },
+  }
+}
+
+function withStoredPageMarks(session: VocabularySession, pageMarks: Record<string, Record<string, Judgement>>) {
+  const key = pageKey(session)
+  return {
+    ...session,
+    pageMarks,
+    marks: { ...(pageMarks[key] ?? session.marks) },
+  }
+}
+
 function moveItem<T>(items: T[], item: T, targetIndex: number): T[] {
   const from = items.indexOf(item)
   if (from < 0) return items
@@ -352,12 +372,13 @@ export function VocabularyScreen() {
       currentSession?.cursor,
       currentSession?.round,
       currentSession?.complete,
+      Object.keys(currentSession?.marks ?? {}).length,
       undoStack.length,
       redoStack.length,
     ].join(':')
     if (deskSaveKey.current === saveKey) return
-    deskSaveKey.current = saveKey
     const timer = window.setTimeout(() => {
+      deskSaveKey.current = saveKey
       saveDesk.mutate({
         bookId: activeBookId,
         payload: { state: currentState, undoStack, redoStack, undoDate: today },
@@ -548,7 +569,19 @@ export function VocabularyScreen() {
   function updateSession(updater: (current: VocabularySession) => VocabularySession) {
     const current = state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
     const next = updater(current)
-    commit({ ...state, sessions: { ...state.sessions, [today]: next } })
+    const pageMarks = {
+      ...(next.pageMarks ?? {}),
+      ...(current.pageMarks ?? {}),
+    }
+    if (pageKey(next) === pageKey(current)) {
+      pageMarks[pageKey(current)] = { ...next.marks }
+    }
+    const withCache = { ...next, pageMarks }
+    const finalSession =
+      pageKey(next) === pageKey(current)
+        ? withCache
+        : withStoredPageMarks(next, pageMarks)
+    commit({ ...state, sessions: { ...state.sessions, [today]: finalSession } })
   }
 
   function updateSettings(nextSettings: VocabularyState['settings']) {
@@ -878,7 +911,11 @@ export function VocabularyScreen() {
     if (session.complete) return
     if (redoStack.length) {
       if (session === redoBaseline.current) {
-        const next = redoStack[redoStack.length - 1]
+        const pageMarks = {
+          ...(session.pageMarks ?? {}),
+          [pageKey(session)]: { ...session.marks },
+        }
+        const next = withStoredPageMarks(redoStack[redoStack.length - 1], pageMarks)
         setRedoStack((stack) => stack.slice(0, -1))
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
@@ -891,8 +928,12 @@ export function VocabularyScreen() {
     }
     if (!(await commitCurrentPage())) return
 
-    const next = advanceSession(session, state.words, { trashedIds: state.trashedIds })
-    setUndoStack((stack) => [...stack, session])
+    const currentWithCache = withCurrentPageMarks(session)
+    const nextRaw = advanceSession(currentWithCache, state.words, {
+      trashedIds: state.trashedIds,
+    })
+    const next = withStoredPageMarks(nextRaw, currentWithCache.pageMarks ?? {})
+    setUndoStack((stack) => [...stack, currentWithCache])
     advanceWithStats(next, pageSize(session))
   }
 
@@ -914,10 +955,13 @@ export function VocabularyScreen() {
 
   async function handleZenNext() {
     if (session.complete) return
-    let redoInvalidated = false
     if (redoStack.length) {
       if (session === redoBaseline.current) {
-        const next = redoStack[redoStack.length - 1]
+        const pageMarks = {
+          ...(session.pageMarks ?? {}),
+          [pageKey(session)]: { ...session.marks },
+        }
+        const next = withStoredPageMarks(redoStack[redoStack.length - 1], pageMarks)
         setRedoStack((stack) => stack.slice(0, -1))
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
@@ -927,21 +971,30 @@ export function VocabularyScreen() {
       }
       setRedoStack([])
       redoBaseline.current = null
-      redoInvalidated = true
     }
     const pageSize = Math.max(1, zenLayout.count) * ZEN_WORDS_PER_SHEET
     if (!(await commitCurrentPage(pageSize))) return
 
-    const next = advanceSession(session, state.words, { pageSize, trashedIds: state.trashedIds })
-    setUndoStack((stack) => [...stack, session])
+    const currentWithCache = withCurrentPageMarks(session)
+    const nextRaw = advanceSession(currentWithCache, state.words, {
+      pageSize,
+      trashedIds: state.trashedIds,
+    })
+    const next = withStoredPageMarks(nextRaw, currentWithCache.pageMarks ?? {})
+    setUndoStack((stack) => [...stack, currentWithCache])
     advanceWithStats(next, pageSize)
   }
 
   async function handleUndo() {
     const previous = undoStack[undoStack.length - 1]
     if (!previous) return
-    const next = { ...previous, marks: { ...previous.marks } }
-    setRedoStack((stack) => [...stack, session])
+    const pageMarks = {
+      ...(previous.pageMarks ?? {}),
+      ...(session.pageMarks ?? {}),
+      [pageKey(session)]: { ...session.marks },
+    }
+    const next = withStoredPageMarks({ ...previous, pageMarks }, pageMarks)
+    setRedoStack((stack) => [...stack, withCurrentPageMarks(session)])
     redoBaseline.current = next
     updateSession(() => next)
     persistSession(next)

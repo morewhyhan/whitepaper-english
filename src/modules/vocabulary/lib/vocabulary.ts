@@ -57,6 +57,7 @@ export type VocabularySession = {
   complete: boolean
   peek: boolean
   cycleId?: string
+  pageMarks?: Record<string, Record<string, Judgement>>
 }
 
 export type VocabularyState = {
