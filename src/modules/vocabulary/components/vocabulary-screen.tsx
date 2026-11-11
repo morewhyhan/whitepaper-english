@@ -521,7 +521,8 @@ export function VocabularyScreen() {
     if (pageKey(next) === pageKey(current)) {
       pageMarks[pageKey(current)] = { ...next.marks }
     }
-    const withCache = { ...next, pageMarks }
+    const roundIds = { ...(next.roundIds ?? {}), ...(current.roundIds ?? {}) }
+    const withCache = { ...next, pageMarks, roundIds }
     const finalSession =
       pageKey(next) === pageKey(current)
         ? withCache
@@ -894,7 +895,11 @@ export function VocabularyScreen() {
       ...(session.pageMarks ?? {}),
       [pageKey(session)]: { ...session.marks },
     }
-    const next = withStoredPageMarks({ ...previous, pageMarks }, pageMarks)
+    const roundIds = {
+      ...(previous.roundIds ?? {}),
+      ...(session.roundIds ?? {}),
+    }
+    const next = withStoredPageMarks({ ...previous, pageMarks, roundIds }, pageMarks)
     setRedoStack((stack) => [...stack, withCurrentPageMarks(session)])
     redoBaseline.current = next
     updateSession(() => next)
