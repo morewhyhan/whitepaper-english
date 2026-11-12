@@ -410,7 +410,11 @@ function createCycleId() {
 }
 
 export function pageSize(session: VocabularySession): number {
-  return session.view === 'connect' ? 1 : session.groups * 9
+  return session.groups * 9
+}
+
+export function pageStart(session: VocabularySession, size = pageSize(session)): number {
+  return Math.floor(session.cursor / size) * size
 }
 
 export function pageWords(
@@ -419,10 +423,19 @@ export function pageWords(
   size = pageSize(session),
 ): VocabularyWord[] {
   const byId = new Map(words.map((word) => [word.id, word]))
+  const start = pageStart(session, size)
   return session.ids
-    .slice(session.cursor, session.cursor + size)
+    .slice(start, start + size)
     .map((id) => byId.get(id))
     .filter((word): word is VocabularyWord => Boolean(word))
+}
+
+export function wordAtCursor(
+  words: VocabularyWord[],
+  session: VocabularySession,
+): VocabularyWord | undefined {
+  const byId = new Map(words.map((word) => [word.id, word]))
+  return byId.get(session.ids[session.cursor] ?? '')
 }
 
 export function getAssociation(

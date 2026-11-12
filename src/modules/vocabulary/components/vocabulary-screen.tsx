@@ -28,6 +28,8 @@ import {
   reconcileStoredWords,
   pageWords,
   pageSize,
+  pageStart,
+  wordAtCursor,
   parseImport,
   toggleMark,
   type VocabularySession,
@@ -165,7 +167,7 @@ const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', 
 type PaperTab = (typeof TAB_NAMES)[number]
 
 function pageKey(session: VocabularySession) {
-  return `${session.round}:${session.cursor}`
+  return `${session.round}:${pageStart(session)}`
 }
 
 function withCurrentPageMarks(session: VocabularySession): VocabularySession {
@@ -474,7 +476,10 @@ export function VocabularyScreen() {
   }, [notice])
 
   const session = hydrated ? state.sessions[today] : createSession(state.words, state.settings, state.trashedIds)
-  const currentWords = pageWords(state.words, session)
+  const currentWords =
+    session.view === 'connect'
+      ? [wordAtCursor(state.words, session)].filter((word): word is VocabularyWord => Boolean(word))
+      : pageWords(state.words, session)
   const trashedWords = state.words.filter((word) => state.trashedIds.includes(word.id))
   const normalizedTrashQuery = trashQuery.trim().toLowerCase()
   const filteredTrashedWords = normalizedTrashQuery
@@ -977,13 +982,22 @@ export function VocabularyScreen() {
     }
 
     const currentWithCache = withCurrentPageMarks(session)
-    const nextRaw = advanceSession(currentWithCache, state.words, {
+    const size = pageSize(session)
+    if (session.view === 'connect' && session.cursor % size !== size - 1) {
+      const next = { ...currentWithCache, cursor: currentWithCache.cursor + 1, peek: false }
+      setUndoStack((stack) => [...stack, currentWithCache])
+      updateSession(() => next)
+      return
+    }
+    const pageSession = { ...currentWithCache, cursor: pageStart(session, size) }
+    const nextRaw = advanceSession(pageSession, state.words, {
+      pageSize: size,
       trashedIds: state.trashedIds,
       blankPageDefault: state.settings.blankPageDefault ?? 'unknown',
     })
     const next = withStoredPageMarks(nextRaw, currentWithCache.pageMarks ?? {})
     setUndoStack((stack) => [...stack, currentWithCache])
-    advanceWithStats(next, pageSize(session))
+    advanceWithStats(next, size)
   }
 
   useEffect(() => {
@@ -1023,11 +1037,15 @@ export function VocabularyScreen() {
     const pageSize = Math.max(1, zenLayout.count) * ZEN_WORDS_PER_SHEET
 
     const currentWithCache = withCurrentPageMarks(session)
-    const nextRaw = advanceSession(currentWithCache, state.words, {
-      pageSize,
-      trashedIds: state.trashedIds,
-      blankPageDefault: state.settings.blankPageDefault ?? 'unknown',
-    })
+    const nextRaw = advanceSession(
+      { ...currentWithCache, cursor: pageStart(session, pageSize) },
+      state.words,
+      {
+        pageSize,
+        trashedIds: state.trashedIds,
+        blankPageDefault: state.settings.blankPageDefault ?? 'unknown',
+      },
+    )
     const next = withStoredPageMarks(nextRaw, currentWithCache.pageMarks ?? {})
     setUndoStack((stack) => [...stack, currentWithCache])
     advanceWithStats(next, pageSize)
@@ -1555,7 +1573,7 @@ export function VocabularyScreen() {
                     ? '今日任务完成'
                     : session.view === 'connect'
                       ? `本词 ${Math.min(session.cursor + 1, total)} / ${total}`
-                      : `本页 ${Math.min(session.cursor + 1, total)}—${Math.min(session.cursor + currentWords.length, total)} / ${total}`}
+                      : `本页 ${Math.min(pageStart(session) + 1, total)}—${Math.min(pageStart(session) + currentWords.length, total)} / ${total}`}
                 </div>
               </div>
 
@@ -2153,11 +2171,12 @@ function AssociationView({
   onRemoveLink: (target: string, sentence: string, custom: boolean) => void
 }) {
   const word = words[0]
-  const chunkStart = Math.floor(session.cursor / 36) * 36
+  const chunkSize = pageSize(session)
+  const chunkStart = pageStart(session, chunkSize)
   const chunkWords = useMemo(
     () =>
       session.ids
-        .slice(chunkStart, chunkStart + 36)
+        .slice(chunkStart, chunkStart + chunkSize)
         .map((id) => allWords.find((item) => item.id === id)?.en)
         .filter((item): item is string => Boolean(item)),
     [allWords, session.ids, chunkStart],
@@ -2165,7 +2184,7 @@ function AssociationView({
   const nextWords = useMemo(
     () =>
       session.ids
-        .slice(chunkStart + 36, chunkStart + 72)
+        .slice(chunkStart + chunkSize, chunkStart + chunkSize * 2)
         .map((id) => allWords.find((item) => item.id === id)?.en)
         .filter((item): item is string => Boolean(item)),
     [allWords, session.ids, chunkStart],
@@ -2174,7 +2193,7 @@ function AssociationView({
   const batch = useAssociations(chunkWords, chunkKey)
   usePrefetchAssociations(
     nextWords,
-    `${session.round}:${chunkStart + 36}:${session.ids[chunkStart + 36] ?? ''}`,
+    `${session.round}:${chunkStart + chunkSize}:${session.ids[chunkStart + chunkSize] ?? ''}`,
   )
   const network = word
     ? (batch.data?.[word.en.toLowerCase()] ?? getAssociation(networks, word))
