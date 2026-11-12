@@ -600,3 +600,7 @@ pageStart = floor(wordCursor / pageSize) * pageSize
 - 进入关联辅助后直接看词、看句、看翻译，不发生额外练习流程。
 - AssociationLink 支持可选 zh 字段；关联卡片显示例句中文。
 - 当前 associations.json 仍是英文数据；例句中文翻译尚未批量补入，这是唯一未完成的数据项。
+
+- 关联辅助初始不显示中文；点击中心词后，中心释义、外围词释义、例句翻译同时出现。
+- 中文翻译与对应英文一样，对中心词/关联词对应的中文词加粗。
+- 当前 UI 已完成；例句中文仍依赖 associations.json 的 zh 字段，现有数据尚未批量补入。

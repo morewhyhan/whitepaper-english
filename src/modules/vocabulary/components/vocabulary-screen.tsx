@@ -2235,8 +2235,15 @@ function AssociationView({
     if (!network) return
     prefetchSpeech(network.links.map((link) => ({ text: link.sentence, audio: link.audio })))
   }, [network])
+  const [showTranslations, setShowTranslations] = useState(false)
+
+  useEffect(() => {
+    setShowTranslations(false)
+  }, [word?.id])
+
   const centerDrag = useWordTrashDrag(
     (event) => {
+      setShowTranslations(true)
       if (word) onWordClick(word.id, false)
     },
     () => {
@@ -2246,7 +2253,6 @@ function AssociationView({
   )
   if (!word) return <div className={styles.paperInner} />
   const mark = session.marks[word.id]
-
 
   return (
     <>
@@ -2272,7 +2278,17 @@ function AssociationView({
                   <span className={styles.assocSentence}>
                     {highlight(link.sentence, [link.custom ? word.en : link.word, word.en])}
                   </span>
-                  {link.zh && <span className={styles.assocTranslation}>{link.zh}</span>}
+                  {showTranslations && link.zh && (
+                    <span className={styles.assocTranslation}>
+                      {highlightChinese(
+                        link.zh,
+                        [
+                          word.zh,
+                          allWords.find((item) => item.en.toLowerCase() === link.word.toLowerCase())?.zh,
+                        ].filter((value): value is string => Boolean(value)),
+                      )}
+                    </span>
+                  )}
                 </button>
                 <button
                   className={styles.assocRemove}
@@ -2298,9 +2314,9 @@ function AssociationView({
               >
                 <span className={styles.targetNote}>TARGET WORD</span>
                 <span className={styles.targetEn}>{word.en}</span>
-                <span className={styles.targetZh}>
-                  {word.zh || '暂无释义'}
-                </span>
+                {showTranslations && (
+                  <span className={styles.targetZh}>{word.zh || '暂无释义'}</span>
+                )}
               </button>
             </div>
             {!links.length && (
@@ -2854,6 +2870,20 @@ function highlight(sentence: string, words: string[]) {
   return parts.map((part, index) =>
     normalized.has(part.toLowerCase()) ? <strong key={index}>{part}</strong> : part,
   )
+}
+
+function highlightChinese(text: string, terms: string[]) {
+  const parts = terms
+    .flatMap((term) => term.split(/[；;、，,\s]+/))
+    .map((term) => term.trim())
+    .filter((term) => term.length > 0)
+  if (!parts.length) return text
+  const unique = [...new Set(parts)].sort((a, b) => b.length - a.length)
+  const pattern = unique.map(escapeRegExp).join('|')
+  const matched = new Set(unique)
+  return text
+    .split(new RegExp(`(${pattern})`, 'g'))
+    .map((part, index) => (matched.has(part) ? <strong key={index}>{part}</strong> : part))
 }
 
 function escapeRegExp(value: string) {
