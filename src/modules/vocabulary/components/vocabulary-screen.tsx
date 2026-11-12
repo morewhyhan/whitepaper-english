@@ -1022,7 +1022,10 @@ export function VocabularyScreen() {
           ...(session.pageMarks ?? {}),
           [pageKey(session)]: { ...session.marks },
         }
-        const next = withStoredPageMarks(redoStack[redoStack.length - 1], pageMarks)
+        const next = withStoredPageMarks(
+          { ...redoStack[redoStack.length - 1], view: session.view },
+          pageMarks,
+        )
         setRedoStack((stack) => stack.slice(0, -1))
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
@@ -1079,7 +1082,10 @@ export function VocabularyScreen() {
           ...(session.pageMarks ?? {}),
           [pageKey(session)]: { ...session.marks },
         }
-        const next = withStoredPageMarks(redoStack[redoStack.length - 1], pageMarks)
+        const next = withStoredPageMarks(
+          { ...redoStack[redoStack.length - 1], view: session.view },
+          pageMarks,
+        )
         setRedoStack((stack) => stack.slice(0, -1))
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
@@ -1122,7 +1128,10 @@ export function VocabularyScreen() {
       ...(previous.pageStats ?? {}),
       ...(session.pageStats ?? {}),
     }
-    const next = withStoredPageMarks({ ...previous, pageMarks, roundIds, pageStats }, pageMarks)
+    const next = withStoredPageMarks(
+      { ...previous, pageMarks, roundIds, pageStats, view: session.view },
+      pageMarks,
+    )
     setRedoStack((stack) => [...stack, withCurrentPageMarks(session)])
     redoBaseline.current = next
     updateSession(() => next)
