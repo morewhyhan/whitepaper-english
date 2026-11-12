@@ -3,6 +3,7 @@
 const CACHE_LIMIT = 100
 const cache = new Map<string, HTMLAudioElement>()
 let current: HTMLAudioElement | null = null
+let generation = 0
 
 function urlFor(text: string, audio?: string) {
   return audio || '/api/vocabulary/tts?text=' + encodeURIComponent(text)
@@ -32,6 +33,13 @@ function audioFor(text: string, audioUrl?: string) {
 }
 
 export function stopSpeech() {
+  generation += 1
+  for (const audio of cache.values()) {
+    if (!audio.paused) {
+      audio.pause()
+      audio.currentTime = 0
+    }
+  }
   if (current) {
     current.pause()
     current.currentTime = 0
@@ -96,12 +104,18 @@ export async function speakText(text: string, audioUrl?: string) {
   const clean = text.trim()
   if (!clean) return
   stopSpeech()
+  const token = generation
   const audio = audioFor(clean, audioUrl)
   current = audio
   audio.currentTime = 0
   try {
     await audio.play()
+    if (token !== generation) {
+      audio.pause()
+      audio.currentTime = 0
+    }
   } catch {
+    if (token !== generation) return
     if (current === audio) current = null
     speakSystem(clean)
   }

@@ -16,6 +16,7 @@ export type AssociationLink = {
   audio?: string
   wordZh?: string
   sentenceZh?: string
+  targetZhInSentence?: string
   zh?: string
 }
 

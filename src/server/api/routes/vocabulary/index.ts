@@ -24,6 +24,7 @@ const associationLinkSchema = z.object({
   audio: z.string().optional(),
   wordZh: z.string().trim().min(1).optional(),
   sentenceZh: z.string().trim().min(1).optional(),
+  targetZhInSentence: z.string().trim().min(1).optional(),
   zh: z.string().optional(),
 })
 

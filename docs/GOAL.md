@@ -614,3 +614,12 @@ pageStart = floor(wordCursor / pageSize) * pageSize
 - 英文例句、音频、目标词数量、链接数量保持不变。
 - 已知剩余：723 条中心词中文无法与词书 targetZh 精确对齐（句子义项未收入词表）；译文保留自然表达，不硬塞病句。后续需补 parallel-world.json 对应义项。
 - 实测：点击前中文 0；点击后中心 1、外围 8、例句 8；再点全部为 0。
+
+
+## 八、关联翻译与发音修复（2026-11-12）
+
+- 30,936 条例句全部有 wordZh / sentenceZh。
+- 723 条词书义项缺口中的 717 条新增 targetZhInSentence 精确高亮；剩余 6 条为 than/the/are/that/fellow/low 的功能词/结构词，中文无独立对应。
+- 例句中文颜色加深为 #536154。
+- 发音增加 generation token：连续点击时旧音频 play 结果会被停止，不再朗读上一个词。
+- 中心词显示/隐藏翻译连续切换、快速三次点击实测状态正确。
