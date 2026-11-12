@@ -10,7 +10,7 @@ export type VocabularyWord = {
 export type Judgement = 'known' | 'unknown'
 export type LearningView = 'scan' | 'connect'
 
-export type AssociationLink = { word: string; sentence: string; audio?: string }
+export type AssociationLink = { word: string; sentence: string; audio?: string; zh?: string }
 
 export type CustomAssociation = { id: string; sentence: string }
 
@@ -71,6 +71,7 @@ export type VocabularyState = {
     showDefaultAssociations?: boolean
     blankPageDefault?: 'known' | 'unknown'
     autoTrashThreeGreens?: boolean
+    spellingMode?: boolean
   }
   sessions: Record<string, VocabularySession>
   trashedIds: string[]
