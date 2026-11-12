@@ -464,7 +464,8 @@
 }
 
 .en {
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: keep-all;
   color: #303630;
   font-size: 15px;
   font-weight: 550;
@@ -3534,4 +3535,25 @@
   color: #536154;
   font-size: 12px;
   line-height: 1.6;
+}
+
+.longWord .en {
+  max-width: 100%;
+  white-space: nowrap;
+  font-size: clamp(10.5px, 1.05vw, 13px);
+  letter-spacing: -0.055em;
+}
+
+body[data-word-drag='true'] .word,
+body[data-word-drag='true'] .word * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.assocDropTarget {
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+body[data-assoc-over='true'] .assocDropTarget {
+  box-shadow: 0 0 0 3px rgba(97, 124, 101, 0.22), 0 0 20px rgba(97, 124, 101, 0.18);
 }

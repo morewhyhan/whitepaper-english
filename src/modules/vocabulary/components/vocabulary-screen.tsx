@@ -65,6 +65,7 @@ function useWordTrashDrag(
     return () => {
       delete document.body.dataset.wordDrag
       delete document.body.dataset.trashOver
+      delete document.body.dataset.assocOver
     }
   }, [])
 
@@ -76,6 +77,7 @@ function useWordTrashDrag(
     overAssoc.current = false
     delete document.body.dataset.wordDrag
     delete document.body.dataset.trashOver
+    delete document.body.dataset.assocOver
   }
 
   function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
@@ -95,6 +97,7 @@ function useWordTrashDrag(
         state.active = true
         setDragging(true)
         document.body.dataset.wordDrag = 'true'
+        window.getSelection()?.removeAllRanges()
       }
       moveEvent.preventDefault()
       setPosition({ x: moveEvent.clientX + 14, y: moveEvent.clientY - 16 })
@@ -117,6 +120,8 @@ function useWordTrashDrag(
       setOverTrash(isOverTrash)
       if (isOverTrash) document.body.dataset.trashOver = 'true'
       else delete document.body.dataset.trashOver
+      if (isOverAssoc) document.body.dataset.assocOver = 'true'
+      else delete document.body.dataset.assocOver
     }
 
     const up = () => {
@@ -1453,7 +1458,7 @@ export function VocabularyScreen() {
                   九宫格扫词
                 </button>
                 <button
-                  className={session.view === 'connect' ? styles.activeSegment : undefined}
+                  className={`${session.view === 'connect' ? styles.activeSegment : ''} ${styles.assocDropTarget}`}
                   type="button"
                   aria-pressed={session.view === 'connect'}
                   data-assoc-drop="true"
@@ -2528,8 +2533,10 @@ function WordButton({
     trashed,
     onAssociate ? () => onAssociate(word.id) : undefined,
   )
+  const longSingleWord = word.en.length > 11 && !/\s/.test(word.en)
   const className = [
     styles.word,
+    longSingleWord ? styles.longWord : '',
     mark ? markClass(mark) : '',
     previewUnknown ? styles.unknownPreview : '',
     trashed ? styles.trashedWord : '',
