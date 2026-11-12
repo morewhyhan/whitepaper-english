@@ -75,16 +75,16 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
           </div>
 
           <div className={styles.quote}>
-            <p className={styles.quoteKicker}>ONE SHEET A DAY</p>
+            <p className={styles.quoteKicker}>A QUIETER WAY TO REMEMBER</p>
             <h2>
-              一天一张纸，
+              把词放回
               <br />
-              把词放回句子里。
+              它真正出现的地方。
             </h2>
-            <p>扫词、判定、关联，都在同一张纸上完成。登录只是让这张纸跨设备留下来。</p>
+            <p>不是多背一张表，而是在一个句子里，重新认出一个词。</p>
           </div>
 
-          <p className={styles.asideFoot}>会与不会，都只是今天的痕迹。</p>
+          <p className={styles.asideFoot}>Less noise. More words.</p>
         </aside>
 
         <section className={styles.formSide}>

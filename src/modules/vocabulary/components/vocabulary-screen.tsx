@@ -538,7 +538,11 @@ export function VocabularyScreen() {
   }, [])
 
   useEffect(() => {
-    if (!trashOpen) return
+    if (!trashOpen) {
+      setTrashQuery('')
+      setTrashPage(0)
+      return
+    }
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setTrashOpen(false)
     }
@@ -878,6 +882,7 @@ export function VocabularyScreen() {
   }
 
   function restoreAllTrash() {
+    if (!window.confirm('确定把垃圾桶里的全部单词放回吗？')) return
     const ids = [...state.trashedIds]
     if (!ids.length) return
     const current = state.sessions[today]
@@ -1708,9 +1713,22 @@ export function VocabularyScreen() {
             aria-label="垃圾桶"
           >
             <div className={styles.trashDialogHead}>
-              <div>
-                <div className={styles.trashKicker}>NOT IN ROTATION</div>
-                <h2 className={styles.trashTitle}>不再推送</h2>
+              <div className={styles.trashHeadLead}>
+                <div>
+                  <div className={styles.trashKicker}>NOT IN ROTATION</div>
+                  <h2 className={styles.trashTitle}>不再推送</h2>
+                </div>
+                <div className={styles.trashSearch}>
+                  <input
+                    id="trash-search"
+                    type="search"
+                    value={trashQuery}
+                    placeholder="搜索英文或中文"
+                    aria-label="搜索垃圾桶"
+                    autoComplete="off"
+                    onChange={(event) => setTrashQuery(event.target.value)}
+                  />
+                </div>
               </div>
               <div className={styles.trashDialogActions}>
                 <span className={styles.trashCount}>
@@ -1740,17 +1758,6 @@ export function VocabularyScreen() {
             <p className={styles.trashHint}>
               把九宫格里的词按住拖到这个垃圾桶会放进这里；放回后会在之后的轮次继续出现。
             </p>
-            <div className={styles.trashSearch}>
-              <label htmlFor="trash-search">搜索垃圾桶</label>
-              <input
-                id="trash-search"
-                type="search"
-                value={trashQuery}
-                placeholder="输入英文或中文"
-                autoComplete="off"
-                onChange={(event) => setTrashQuery(event.target.value)}
-              />
-            </div>
             {trashedWords.length ? (
               filteredTrashedWords.length ? (
                 <>

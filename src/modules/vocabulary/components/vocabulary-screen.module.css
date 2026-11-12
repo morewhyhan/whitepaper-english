@@ -831,7 +831,7 @@
 
 .targetZh {
   min-height: 20px;
-  color: var(--red-fg);
+  color: #6d786c;
   font-size: 15px;
 }
 
@@ -2901,6 +2901,7 @@
   display: flex;
   flex-direction: column;
   width: min(860px, 100%);
+  height: min(78vh, 720px);
   max-height: min(78vh, 720px);
   padding: 30px 32px 20px;
   border: 1px solid #e1e0d4;
@@ -2912,7 +2913,7 @@
 
 .trashDialogHead {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
 }
@@ -2929,6 +2930,14 @@
   font-family: Georgia, 'Songti SC', 'SimSun', serif;
   font-size: 27px;
   font-weight: 400;
+}
+
+.trashHeadLead {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+  min-width: 0;
 }
 
 .trashDialogActions {
@@ -2961,28 +2970,18 @@
 }
 
 .trashSearch {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: -2px 0 14px;
-}
-
-.trashSearch label {
-  flex: none;
-  color: #95988a;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  flex: 1;
+  max-width: 300px;
+  margin: 0 auto;
 }
 
 .trashSearch input {
   width: 100%;
-  border: 0;
-  border-bottom: 1px solid #dcded4;
-  border-radius: 0;
-  background: transparent;
+  border: 1px solid #dcded4;
+  border-radius: 999px;
+  background: #fffefa;
   color: #303a2e;
-  padding: 6px 0;
+  padding: 8px 15px;
   font: inherit;
   font-size: 12px;
   outline: none;
@@ -2993,14 +2992,18 @@
 }
 
 .trashSearch input:focus {
-  border-bottom-color: #7e936e;
+  border-color: #7e936e;
+  box-shadow: 0 0 0 3px rgb(126 147 110 / 0.1);
 }
 
 .trashGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2px 24px;
-  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
   padding-right: 4px;
 }
 
@@ -3093,7 +3096,8 @@
 }
 
 .trashDialogFoot {
-  margin-top: 18px;
+  margin-top: auto;
+  padding-top: 18px;
   padding-top: 12px;
   border-top: 1px solid #e7e7dd;
   color: #a0a295;
@@ -3117,7 +3121,16 @@
   }
 
   .trashDialog {
+    height: min(86vh, 720px);
     padding: 22px 20px 16px;
+  }
+
+  .trashHeadLead {
+    gap: 12px;
+  }
+
+  .trashSearch {
+    max-width: none;
   }
 
   .trashTitle {

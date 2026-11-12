@@ -11,6 +11,7 @@
 
 .shell {
   width: min(920px, 94vw);
+  height: min(620px, 90vh);
   max-height: 90vh;
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
@@ -259,7 +260,8 @@
 }
 
 .footNote {
-  margin: 20px 0 0;
+  margin: auto 0 0;
+  padding-top: 20px;
   color: #9aa190;
   font-size: 10px;
   line-height: 1.7;
@@ -267,6 +269,7 @@
 
 @media (max-width: 760px) {
   .shell {
+    height: auto;
     grid-template-columns: 1fr;
     max-height: 92vh;
   }
