@@ -181,6 +181,9 @@ const TRASH_PAGE_SIZE = 24
 const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '造句', '下一页'] as const
 type PaperTab = (typeof TAB_NAMES)[number]
 
+const DESIGN_WIDTH = 1428
+const DESIGN_HEIGHT = 1210
+
 function normalizeHistoryStack(stack: VocabularySession[]): VocabularySession[] {
   return stack.map((entry) =>
     entry.historyKind
@@ -278,12 +281,29 @@ export function VocabularyScreen() {
   const tabRail = useRef<HTMLDivElement>(null)
   const skipTabClick = useRef(false)
   const today = useMemo(() => formatDate(new Date()), [])
+
+  useEffect(() => {
+    const updateScale = () => {
+      const desktop = window.innerWidth >= 1101
+      setDesktopCanvas(desktop)
+      setUiScale(
+        desktop
+          ? Math.min(window.innerWidth / DESIGN_WIDTH, window.innerHeight / DESIGN_HEIGHT, 1)
+          : 1,
+      )
+    }
+    updateScale()
+    window.addEventListener('resize', updateScale)
+    return () => window.removeEventListener('resize', updateScale)
+  }, [])
   const fileInput = useRef<HTMLInputElement>(null)
   const paperRef = useRef<HTMLElement>(null)
   const paperMotion = useRef<Animation | null>(null)
   const [parallelState, setParallelState] = useState<VocabularyState>(createInitialState)
   const [starterState, setStarterState] = useState<VocabularyState>(createStarterState)
   const [activeBookId, setActiveBookId] = useState<WordbookId>('parallel-world')
+  const [desktopCanvas, setDesktopCanvas] = useState(false)
+  const [uiScale, setUiScale] = useState(1)
   const [hydrated, setHydrated] = useState(false)
   const [deskReady, setDeskReady] = useState(false)
   const [anonymousResolved, setAnonymousResolved] = useState(false)
@@ -1422,7 +1442,31 @@ export function VocabularyScreen() {
   const dragTo = dragTargetIndex ?? dragFrom
 
   return (
-    <main className={`${styles.layout} ${zenMode ? styles.zenLayout : layout.viewport}`}>
+    <div
+      className={desktopCanvas ? styles.uiScaler : undefined}
+      style={desktopCanvas ? { height: DESIGN_HEIGHT * uiScale } : undefined}
+    >
+    <main
+      className={[
+        styles.layout,
+        zenMode ? styles.zenLayout : layout.viewport,
+        desktopCanvas ? styles.designCanvas : '',
+      ].filter(Boolean).join(' ')}
+      style={
+        desktopCanvas
+          ? {
+              width: DESIGN_WIDTH,
+              height: DESIGN_HEIGHT,
+              minHeight: DESIGN_HEIGHT,
+              position: 'absolute',
+              left: '50%',
+              top: 0,
+              transform: `translateX(-50%) scale(${uiScale})`,
+              transformOrigin: 'top center',
+            }
+          : undefined
+      }
+    >
       <header className={styles.top} data-layout="top">
         <div className={styles.brand}>
           白纸 <small>MEMORY, IN THE OPEN.</small>
@@ -1517,7 +1561,11 @@ export function VocabularyScreen() {
                 <span>{state.trashedIds.length}</span>
               </button>
             </div>
-            <div className={styles.paperStage} data-layout="stage">
+            <div
+              className={styles.paperStage}
+              data-layout="stage"
+              style={desktopCanvas ? { height: 1102 } : undefined}
+            >
               <div className={styles.paperFrame} data-layout="frame">
                 <PaperSurface
                   key={
@@ -1981,6 +2029,7 @@ export function VocabularyScreen() {
       )}
       {notice && <div className={styles.toast}>{notice}</div>}
     </main>
+    </div>
   )
 }
 

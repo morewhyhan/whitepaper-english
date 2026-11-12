@@ -3626,3 +3626,20 @@ body[data-assoc-over='true'] .assocDropTarget {
   gap: 9px;
   margin-top: 22px;
 }
+
+
+/* One fixed reference canvas: every label, panel and gap scales as a unit. */
+.uiScaler {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #eceeec;
+}
+
+.designCanvas {
+  overflow: hidden;
+}
+
+.designCanvas .paperStage {
+  height: 1102px;
+}
