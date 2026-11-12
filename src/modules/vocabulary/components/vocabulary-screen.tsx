@@ -2243,7 +2243,7 @@ function AssociationView({
 
   const centerDrag = useWordTrashDrag(
     (event) => {
-      setShowTranslations(true)
+      setShowTranslations((visible) => !visible)
       if (word) onWordClick(word.id, false)
     },
     () => {
@@ -2274,7 +2274,14 @@ function AssociationView({
                     onSpeak(link.sentence, link.audio)
                   }}
                 >
-                  <span className={styles.assocWord}>{link.word}</span>
+                  <span className={styles.assocWord}>
+                    {link.word}
+                    {showTranslations && (
+                      <small className={styles.assocWordZh}>
+                        {allWords.find((item) => item.en.toLowerCase() === link.word.toLowerCase())?.zh ?? ''}
+                      </small>
+                    )}
+                  </span>
                   <span className={styles.assocSentence}>
                     {highlight(link.sentence, [link.custom ? word.en : link.word, word.en])}
                   </span>
