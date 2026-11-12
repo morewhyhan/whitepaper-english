@@ -71,7 +71,6 @@ export type VocabularyState = {
     showDefaultAssociations?: boolean
     blankPageDefault?: 'known' | 'unknown'
     autoTrashThreeGreens?: boolean
-    spellingMode?: boolean
   }
   sessions: Record<string, VocabularySession>
   trashedIds: string[]

@@ -6,7 +6,7 @@ import type { CycleStat, VocabularySession } from '../lib/vocabulary'
 import styles from './settings-panel.module.css'
 import { LearningStats } from './learning-stats'
 
-type PaperTab = '全部翻译' | '上一页' | '本页清空' | '打乱本页' | '造句' | '拼写练习' | '下一页'
+type PaperTab = '全部翻译' | '上一页' | '本页清空' | '打乱本页' | '造句' | '下一页'
 type Category = 'account' | 'history' | 'stats' | 'sound' | 'association' | 'judgement' | 'data' | 'appearance' | 'tabs'
 
 const CATEGORIES: { id: Category; label: string }[] = [

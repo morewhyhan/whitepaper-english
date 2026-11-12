@@ -163,7 +163,7 @@ function hasTextSelection() {
 const STORAGE_KEY = 'whitepaper-vocabulary-v2'
 const UNDO_STORAGE_KEY = 'whitepaper-undo-stack-v1'
 const TRASH_PAGE_SIZE = 24
-const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '造句', '拼写练习', '下一页'] as const
+const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '造句', '下一页'] as const
 type PaperTab = (typeof TAB_NAMES)[number]
 
 function pageKey(session: VocabularySession) {
@@ -393,7 +393,6 @@ export function VocabularyScreen() {
       JSON.stringify({
         blankPageDefault: currentState.settings.blankPageDefault,
         autoTrashThreeGreens: currentState.settings.autoTrashThreeGreens,
-        spellingMode: currentState.settings.spellingMode,
       }),
     ].join(':')
     if (deskSaveKey.current === saveKey) return
@@ -1284,8 +1283,7 @@ export function VocabularyScreen() {
   const visibleTabs = tabOrder.filter(
     (tab) =>
       !hiddenTabs.includes(tab) &&
-      (tab !== '造句' || session.view === 'connect') &&
-      (tab !== '拼写练习' || session.view === 'connect'),
+      (tab !== '造句' || session.view === 'connect'),
   )
   const dragFrom = dragTab ? visibleTabs.indexOf(dragTab) : -1
   const dragTo = dragTargetIndex ?? dragFrom
@@ -1455,8 +1453,6 @@ export function VocabularyScreen() {
                       hiddenAssociationLinks={state.hiddenAssociationLinks ?? []}
                       hiddenCustomAssociations={state.hiddenCustomAssociations ?? []}
                       onRemoveLink={removeAssociation}
-                      spellingMode={state.settings.spellingMode === true}
-                      onPracticeNext={() => void handleNext()}
                     />
                   )}
 
@@ -1539,20 +1535,6 @@ export function VocabularyScreen() {
                             onClick={shufflePage}
                           >
                             打乱本页
-                          </button>
-                        ) : tab === '拼写练习' ? (
-                          <button
-                            className={`${styles.sentenceTab} ${state.settings.spellingMode ? styles.activeSegment : ''}`}
-                            type="button"
-                            aria-pressed={state.settings.spellingMode === true}
-                            disabled={session.complete}
-                            onClick={() => {
-                              const next = !state.settings.spellingMode
-                              if (next) switchView('connect')
-                              updateSettings({ ...state.settings, spellingMode: next })
-                            }}
-                          >
-                            拼写练习
                           </button>
                         ) : tab === '造句' ? (
                           <button
@@ -2166,189 +2148,6 @@ function PaperSurface({
 }
 
 
-type AssociationCard = {
-  word: string
-  sentence: string
-  audio?: string
-  custom: boolean
-  key: string
-  zh?: string
-}
-
-function SpellingText({
-  text,
-  sequence,
-  status,
-  active,
-  cursor,
-}: {
-  text: string
-  sequence: number
-  status: Record<string, 'correct' | 'wrong'>
-  active: boolean
-  cursor: number
-}) {
-  const parts: ReactNode[] = []
-  let letterIndex = 0
-  for (let index = 0; index < text.length; index += 1) {
-    const char = text[index]
-    if (!/[A-Za-z]/.test(char)) {
-      parts.push(<span key={`p-${index}`}>{char}</span>)
-      continue
-    }
-    const position = letterIndex
-    const state = status[`${sequence}:${position}`]
-    const classes = [
-      styles.spellingChar,
-      state === 'correct' ? styles.spellingCorrect : '',
-      state === 'wrong' ? styles.spellingWrong : '',
-      active && position === cursor ? styles.spellingCurrent : '',
-    ]
-      .filter(Boolean)
-      .join(' ')
-    parts.push(
-      <span key={`c-${index}`} className={classes}>
-        {char}
-      </span>,
-    )
-    letterIndex += 1
-  }
-  return <span className={styles.spellingText}>{parts}</span>
-}
-
-function SpellingPractice({
-  word,
-  links,
-  allWords,
-  onNext,
-}: {
-  word: VocabularyWord
-  links: AssociationCard[]
-  allWords: VocabularyWord[]
-  onNext: () => void
-}) {
-  const sequences = useMemo(
-    () => [word.en, ...links.map((link) => link.sentence)].map((text) => ({
-      text,
-      letters: text.toLowerCase().replace(/[^a-z]/g, ''),
-    })),
-    [word.en, links],
-  )
-  const [sequence, setSequence] = useState(0)
-  const [cursor, setCursor] = useState(0)
-  const [status, setStatus] = useState<Record<string, 'correct' | 'wrong'>>({})
-
-  useEffect(() => {
-    setSequence(0)
-    setCursor(0)
-    setStatus({})
-  }, [word.id])
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target
-      if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')) return
-      if (event.ctrlKey || event.metaKey || event.altKey) return
-      if (event.key === 'Backspace') {
-        event.preventDefault()
-        setStatus((previous) => {
-          const next = { ...previous }
-          if (cursor > 0) {
-            delete next[`${sequence}:${cursor - 1}`]
-            setCursor(cursor - 1)
-          } else if (sequence > 0) {
-            const previousLength = sequences[sequence - 1]?.letters.length ?? 0
-            delete next[`${sequence - 1}:${previousLength - 1}`]
-            setSequence(sequence - 1)
-            setCursor(Math.max(0, previousLength - 1))
-          }
-          return next
-        })
-        return
-      }
-      if (!/^[a-zA-Z]$/.test(event.key)) return
-      event.preventDefault()
-      const current = sequences[sequence]
-      if (!current) return
-      const expected = current.letters[cursor]
-      if (!expected) return
-      const result = event.key.toLowerCase() === expected ? 'correct' : 'wrong'
-      setStatus((previous) => ({ ...previous, [`${sequence}:${cursor}`]: result }))
-      if (cursor + 1 < current.letters.length) {
-        setCursor(cursor + 1)
-        return
-      }
-      if (sequence + 1 < sequences.length) {
-        setSequence(sequence + 1)
-        setCursor(0)
-        return
-      }
-      onNext()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [cursor, sequence, sequences, onNext])
-
-  return (
-    <div className={styles.paperInner}>
-      <div className={styles.spellingHeader}>
-        <div>
-          <span className={styles.kicker}>SPELLING PRACTICE</span>
-          <h2>跟着敲完整圈例句</h2>
-        </div>
-        <p>
-          先敲中心词，再从左上角顺时针敲所有例句。空格、标点和大小写自动跳过；打错会留下红色，允许继续或回退。
-        </p>
-      </div>
-      <div className={`${styles.assocBoard} ${links.length > 8 ? styles.assocBoardMany : ''}`}>
-        <div className={styles.assocCenter}>
-          <div className={`${styles.centerChip} ${styles.spellingCenter}`}>
-            <span className={styles.targetNote}>TARGET WORD</span>
-            <span className={styles.targetEn}>
-              <SpellingText
-                text={word.en}
-                sequence={0}
-                status={status}
-                active={sequence === 0}
-                cursor={cursor}
-              />
-            </span>
-            <span className={styles.targetZh}>{word.zh || '暂无释义'}</span>
-          </div>
-        </div>
-        {links.map((link, index) => (
-          <div
-            className={`${styles.assocNodeWrap} ${sequence === index + 1 ? styles.spellingCardActive : ''}`}
-            key={link.key}
-          >
-            <div className={styles.assocNode}>
-              <span className={styles.assocWord}>
-                {link.word}
-                <small className={styles.assocWordZh}>
-                  {allWords.find((item) => item.en.toLowerCase() === link.word.toLowerCase())?.zh ?? ''}
-                </small>
-              </span>
-              <span className={styles.assocSentence}>
-                <SpellingText
-                  text={link.sentence}
-                  sequence={index + 1}
-                  status={status}
-                  active={sequence === index + 1}
-                  cursor={cursor}
-                />
-              </span>
-              {link.zh && <span className={styles.assocTranslation}>{link.zh}</span>}
-            </div>
-          </div>
-        ))}
-      </div>
-      <p className={styles.spellingHint}>
-        当前：{sequence === 0 ? word.en : links[sequence - 1]?.sentence}
-      </p>
-    </div>
-  )
-}
-
 function AssociationView({
   words,
   allWords,
@@ -2363,8 +2162,6 @@ function AssociationView({
   hiddenAssociationLinks,
   hiddenCustomAssociations,
   onRemoveLink,
-  spellingMode,
-  onPracticeNext,
 }: {
   words: VocabularyWord[]
   allWords: VocabularyWord[]
@@ -2379,8 +2176,6 @@ function AssociationView({
   hiddenAssociationLinks: string[]
   hiddenCustomAssociations: string[]
   onRemoveLink: (target: string, sentence: string, custom: boolean) => void
-  spellingMode: boolean
-  onPracticeNext: () => void
 }) {
   const word = words[0]
   const chunkSize = pageSize(session)
@@ -2452,16 +2247,6 @@ function AssociationView({
   if (!word) return <div className={styles.paperInner} />
   const mark = session.marks[word.id]
 
-  if (spellingMode) {
-    return (
-      <SpellingPractice
-        word={word}
-        links={links}
-        allWords={allWords}
-        onNext={onPracticeNext}
-      />
-    )
-  }
 
   return (
     <>

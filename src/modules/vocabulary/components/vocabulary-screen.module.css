@@ -3522,56 +3522,6 @@
   margin-top: 22px;
 }
 
-.spellingHeader {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 18px;
-}
-.spellingHeader h2 {
-  margin: 5px 0 0;
-  color: #263229;
-  font-size: 22px;
-}
-.spellingHeader p {
-  max-width: 440px;
-  margin: 0;
-  color: #7d887c;
-  font-size: 12px;
-  line-height: 1.8;
-}
-.spellingCenter {
-  cursor: default;
-}
-.spellingText {
-  display: inline;
-}
-.spellingChar {
-  border-radius: 2px;
-  transition: background 0.08s ease, color 0.08s ease;
-}
-.spellingCurrent {
-  background: #d7eddf;
-  color: #1f5c3a;
-}
-.spellingCorrect {
-  color: var(--green-fg);
-}
-.spellingWrong {
-  background: #f5d6d0;
-  color: #a2463c;
-}
-.spellingCardActive .assocNode {
-  outline: 2px solid #c9e4d1;
-  outline-offset: 3px;
-}
-.spellingHint {
-  margin: 16px 0 0;
-  color: #8d958c;
-  font-size: 12px;
-  text-align: center;
-}
 .assocWordZh {
   margin-left: 7px;
   color: #9aa49a;
