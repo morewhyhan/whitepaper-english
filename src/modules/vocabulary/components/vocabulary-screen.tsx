@@ -181,8 +181,8 @@ const TRASH_PAGE_SIZE = 24
 const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '造句', '下一页'] as const
 type PaperTab = (typeof TAB_NAMES)[number]
 
-const DESIGN_WIDTH = 1428
-const DESIGN_HEIGHT = 1210
+const DESIGN_WIDTH = 1699
+const DESIGN_HEIGHT = 1299
 
 function normalizeHistoryStack(stack: VocabularySession[]): VocabularySession[] {
   return stack.map((entry) =>
@@ -288,7 +288,7 @@ export function VocabularyScreen() {
       setDesktopCanvas(desktop)
       setUiScale(
         desktop
-          ? Math.min(window.innerWidth / DESIGN_WIDTH, window.innerHeight / DESIGN_HEIGHT, 1)
+          ? Math.min(window.innerWidth / DESIGN_WIDTH, 1)
           : 1,
       )
     }
@@ -1456,8 +1456,8 @@ export function VocabularyScreen() {
         desktopCanvas
           ? {
               width: DESIGN_WIDTH,
-              height: DESIGN_HEIGHT,
               minHeight: DESIGN_HEIGHT,
+              height: DESIGN_HEIGHT,
               position: 'absolute',
               left: '50%',
               top: 0,
@@ -1564,7 +1564,7 @@ export function VocabularyScreen() {
             <div
               className={styles.paperStage}
               data-layout="stage"
-              style={desktopCanvas ? { height: 1102 } : undefined}
+              style={desktopCanvas ? { height: 1207 } : undefined}
             >
               <div className={styles.paperFrame} data-layout="frame">
                 <PaperSurface

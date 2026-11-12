@@ -3637,6 +3637,7 @@ body[data-assoc-over='true'] .assocDropTarget {
 }
 
 .designCanvas {
+  align-content: start;
   overflow: hidden;
 }
 
