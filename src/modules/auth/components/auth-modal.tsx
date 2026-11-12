@@ -181,7 +181,6 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
             </button>
           </form>
 
-          <p className={styles.footNote}>游客也可以继续使用；登录后判定和记录会保存到账号。</p>
         </section>
       </div>
     </div>

@@ -3583,3 +3583,46 @@ body[data-assoc-over='true'] .assocDropTarget {
     0 0 0 4px rgba(97, 124, 101, 0.2),
     0 0 24px rgba(97, 124, 101, 0.16);
 }
+
+.confirmBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #222a205c;
+  backdrop-filter: blur(6px);
+}
+
+.confirmDialog {
+  width: min(430px, 100%);
+  padding: 27px 28px 23px;
+  border: 1px solid #e1e0d4;
+  border-radius: 5px;
+  background: #fbfaf4;
+  box-shadow: 0 24px 70px #1b21172b;
+}
+
+.confirmDialog h2 {
+  margin: 0 0 10px;
+  color: #2f3a2c;
+  font-family: Georgia, 'Songti SC', 'SimSun', serif;
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.confirmDialog p {
+  margin: 0;
+  color: #737d6d;
+  font-size: 12px;
+  line-height: 1.9;
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 22px;
+}

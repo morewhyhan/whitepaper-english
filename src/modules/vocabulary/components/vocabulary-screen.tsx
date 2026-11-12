@@ -189,6 +189,20 @@ function normalizeHistoryStack(stack: VocabularySession[]): VocabularySession[] 
   )
 }
 
+function visualPageOrder(words: VocabularyWord[]): VocabularyWord[] {
+  const groups = Math.max(1, Math.ceil(words.length / 9))
+  return Array.from({ length: groups }, (_, groupIndex) =>
+    words.slice(groupIndex * 9, groupIndex * 9 + 9).map((word, wordIndex) => ({
+      word,
+      row: Math.floor(groupIndex / 2) * 3 + Math.floor(wordIndex / 3),
+      col: (groupIndex % 2) * 3 + (wordIndex % 3),
+    })),
+  )
+    .flat()
+    .sort((a, b) => a.row - b.row || a.col - b.col)
+    .map((entry) => entry.word)
+}
+
 function pageKey(session: VocabularySession) {
   return `${session.round}:${pageStart(session)}`
 }
@@ -284,6 +298,7 @@ export function VocabularyScreen() {
   const [trashOpen, setTrashOpen] = useState(false)
   const [trashQuery, setTrashQuery] = useState('')
   const [trashPage, setTrashPage] = useState(0)
+  const [confirmRestoreAll, setConfirmRestoreAll] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
@@ -882,7 +897,7 @@ export function VocabularyScreen() {
   }
 
   function restoreAllTrash() {
-    if (!window.confirm('确定把垃圾桶里的全部单词放回吗？')) return
+    setConfirmRestoreAll(false)
     const ids = [...state.trashedIds]
     if (!ids.length) return
     const current = state.sessions[today]
@@ -1072,11 +1087,20 @@ export function VocabularyScreen() {
 
     const currentWithCache = withCurrentPageMarks(session)
     const size = pageSize(session)
-    if (session.view === 'connect' && session.cursor % size !== size - 1) {
-      const next = { ...currentWithCache, cursor: currentWithCache.cursor + 1, peek: false }
-      setUndoStack((stack) => [...stack, { ...currentWithCache, historyKind: 'word' }])
-      updateSession(() => next)
-      return
+    if (session.view === 'connect') {
+      const ordered = visualPageOrder(pageWords(state.words, session, size))
+      const currentId = session.ids[session.cursor]
+      const position = ordered.findIndex((word) => word.id === currentId)
+      const nextWord = position >= 0 ? ordered[position + 1] : undefined
+      if (nextWord) {
+        const nextCursor = session.ids.indexOf(nextWord.id)
+        if (nextCursor >= 0) {
+          const next = { ...currentWithCache, cursor: nextCursor, peek: false }
+          setUndoStack((stack) => [...stack, { ...currentWithCache, historyKind: 'word' }])
+          updateSession(() => next)
+          return
+        }
+      }
     }
     const pageSession = { ...currentWithCache, cursor: pageStart(session, size) }
     const nextRaw = advanceSession(pageSession, state.words, {
@@ -1258,7 +1282,12 @@ export function VocabularyScreen() {
   }
 
   function switchView(view: LearningView) {
-    updateSession((current) => ({ ...current, view, peek: false }))
+    updateSession((current) => ({
+      ...current,
+      view,
+      cursor: view === 'connect' ? pageStart(current) : current.cursor,
+      peek: false,
+    }))
   }
 
   function switchWordbook(id: WordbookId) {
@@ -1698,6 +1727,25 @@ export function VocabularyScreen() {
         </div>
       </div>
 
+      {confirmRestoreAll && (
+        <div className={styles.confirmBackdrop} role="presentation">
+          <section className={styles.confirmDialog} role="dialog" aria-modal="true" aria-labelledby="restore-all-title">
+            <h2 id="restore-all-title">全部放回？</h2>
+            <p>
+              将把垃圾桶里的 {trashedWords.length} 个词全部放回。放回后，它们会在之后的轮次继续出现。
+            </p>
+            <div className={styles.confirmActions}>
+              <button className={styles.quiet} type="button" onClick={() => setConfirmRestoreAll(false)}>
+                取消
+              </button>
+              <button className={styles.primaryButton} type="button" onClick={restoreAllTrash}>
+                确认全部放回
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
       {trashOpen && (
         <div
           className={styles.trashBackdrop}
@@ -1740,7 +1788,7 @@ export function VocabularyScreen() {
                   <button
                     className={styles.trashRestoreAll}
                     type="button"
-                    onClick={restoreAllTrash}
+                    onClick={() => setConfirmRestoreAll(true)}
                   >
                     全部放回
                   </button>
