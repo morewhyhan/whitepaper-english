@@ -166,6 +166,14 @@ const TRASH_PAGE_SIZE = 24
 const TAB_NAMES = ['全部翻译', '上一页', '本页清空', '打乱本页', '造句', '下一页'] as const
 type PaperTab = (typeof TAB_NAMES)[number]
 
+function normalizeHistoryStack(stack: VocabularySession[]): VocabularySession[] {
+  return stack.map((entry) =>
+    entry.historyKind
+      ? entry
+      : { ...entry, historyKind: entry.view === 'connect' ? 'word' : 'page' },
+  )
+}
+
 function pageKey(session: VocabularySession) {
   return `${session.round}:${pageStart(session)}`
 }
@@ -312,7 +320,7 @@ export function VocabularyScreen() {
     const initialBook = savedBook === 'starter' ? 'starter' : 'parallel-world'
     const initialComplete = loaded.sessions[today]?.complete
     if (initialComplete) removeUndoStack(initialBook, today)
-    setUndoStack(initialComplete ? [] : loadUndoStack(initialBook, today))
+    setUndoStack(initialComplete ? [] : normalizeHistoryStack(loadUndoStack(initialBook, today)))
     undoHydrated.current = true
     setSoundOn(window.localStorage.getItem('whitepaper-sound') !== 'off')
     try {
@@ -372,8 +380,12 @@ export function VocabularyScreen() {
       ensureTodaySession(serverState, today)
       if (activeBookId === 'parallel-world') setParallelState(serverState)
       else setStarterState(serverState)
-      setUndoStack(desk.data.undoDate === today ? (desk.data.undoStack ?? []) : [])
-      setRedoStack(desk.data.undoDate === today ? (desk.data.redoStack ?? []) : [])
+      setUndoStack(
+        desk.data.undoDate === today ? normalizeHistoryStack(desk.data.undoStack ?? []) : [],
+      )
+      setRedoStack(
+        desk.data.undoDate === today ? normalizeHistoryStack(desk.data.redoStack ?? []) : [],
+      )
       redoBaseline.current = desk.data.state.sessions[today] ?? null
       saveState(serverState)
     } else {

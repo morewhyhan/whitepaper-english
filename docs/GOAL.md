@@ -634,3 +634,5 @@ pageStart = floor(wordCursor / pageSize) * pageSize
 - 恢复时保留当前视图，不恢复快照 view。
 - 通知按实际 pageStart 是否变化显示，不再按栈长度。
 - 实测：九宫格第2页 → 关联辅助走5词 → 切回九宫格 → 上一页实际回到第1页。
+
+- 兼容旧撤销栈：无 historyKind 的条目按 view 回填 page/word，修复升级后上一页无反应。
