@@ -51,12 +51,14 @@ function useWordTrashDrag(
   onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void,
   onTrash: (() => void) | undefined,
   disabled: boolean,
+  onAssociate?: (() => void) | undefined,
 ) {
   const [dragging, setDragging] = useState(false)
   const [overTrash, setOverTrash] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const drag = useRef<{ x: number; y: number; pointerId: number; active: boolean } | null>(null)
   const over = useRef(false)
+  const overAssoc = useRef(false)
   const suppressClick = useRef(false)
 
   useEffect(() => {
@@ -71,12 +73,13 @@ function useWordTrashDrag(
     setDragging(false)
     setOverTrash(false)
     over.current = false
+    overAssoc.current = false
     delete document.body.dataset.wordDrag
     delete document.body.dataset.trashOver
   }
 
   function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
-    if (disabled || !onTrash || event.button !== 0) return
+    if (disabled || (!onTrash && !onAssociate) || event.button !== 0) return
     const state = { x: event.clientX, y: event.clientY, pointerId: event.pointerId, active: false }
     drag.current = state
 
@@ -96,24 +99,31 @@ function useWordTrashDrag(
       moveEvent.preventDefault()
       setPosition({ x: moveEvent.clientX + 14, y: moveEvent.clientY - 16 })
 
-      const target = document.querySelector<HTMLElement>('[data-trash-drop="true"]')
-      if (!target) return
-      const rect = target.getBoundingClientRect()
-      const isOver =
-        moveEvent.clientX >= rect.left - 18 &&
-        moveEvent.clientX <= rect.right + 18 &&
-        moveEvent.clientY >= rect.top - 18 &&
-        moveEvent.clientY <= rect.bottom + 18
-      over.current = isOver
-      setOverTrash(isOver)
-      if (isOver) document.body.dataset.trashOver = 'true'
+      const hit = (selector: string) => {
+        const target = document.querySelector<HTMLElement>(selector)
+        if (!target) return false
+        const rect = target.getBoundingClientRect()
+        return (
+          moveEvent.clientX >= rect.left - 18 &&
+          moveEvent.clientX <= rect.right + 18 &&
+          moveEvent.clientY >= rect.top - 18 &&
+          moveEvent.clientY <= rect.bottom + 18
+        )
+      }
+      const isOverTrash = hit('[data-trash-drop="true"]')
+      const isOverAssoc = !isOverTrash && hit('[data-assoc-drop="true"]')
+      over.current = isOverTrash
+      overAssoc.current = isOverAssoc
+      setOverTrash(isOverTrash)
+      if (isOverTrash) document.body.dataset.trashOver = 'true'
       else delete document.body.dataset.trashOver
     }
 
     const up = () => {
       const wasActive = drag.current?.active ?? false
       if (wasActive) {
-        if (over.current) onTrash()
+        if (over.current && onTrash) onTrash()
+        else if (overAssoc.current && onAssociate) onAssociate()
         suppressClick.current = true
         window.setTimeout(() => {
           suppressClick.current = false
@@ -504,7 +514,6 @@ export function VocabularyScreen() {
       }
       return next
     })
-    setNotice('已打乱本页，判断保持不变')
   }
 
   useEffect(() => {
@@ -730,6 +739,17 @@ export function VocabularyScreen() {
     updateSession((current) => toggleMark(current, id, green ? 'known' : 'unknown'))
   }
 
+  function openAssociationAt(id: string) {
+    const index = session.ids.indexOf(id)
+    if (index < 0) return
+    updateSession((current) => ({
+      ...current,
+      cursor: index,
+      view: 'connect',
+      peek: false,
+    }))
+  }
+
   function handleTrash(id: string) {
     const word = state.words.find((item) => item.id === id)
     if (!word || state.trashedIds.includes(id)) return
@@ -748,7 +768,6 @@ export function VocabularyScreen() {
     }
     commit(nextState)
     window.getSelection()?.removeAllRanges()
-    setNotice(`「${word.en}」本页保留，按会处理，下一轮起不再推送`)
   }
 
   function addCustomAssociation(target: string, sentence: string) {
@@ -779,7 +798,6 @@ export function VocabularyScreen() {
     setSentenceText('')
     setSentenceError(null)
     setSentenceOpen(false)
-    setNotice('句子已贴到关联纸')
   }
 
   function removeAssociation(target: string, sentence: string, custom: boolean) {
@@ -792,14 +810,12 @@ export function VocabularyScreen() {
       const hiddenCustom = new Set(state.hiddenCustomAssociations ?? [])
       hiddenCustom.add(item.id)
       commit({ ...state, hiddenCustomAssociations: [...hiddenCustom] })
-      setNotice('自定义句已移除，可在造句面板还原')
-      return
+        return
     }
     const marker = `${key}\u0000${sentence}`
     const hidden = new Set(state.hiddenAssociationLinks ?? [])
     hidden.add(marker)
     commit({ ...state, hiddenAssociationLinks: [...hidden] })
-    setNotice('默认关联句已移除')
   }
 
   function restoreHiddenAssociation(target: string, sentence: string) {
@@ -810,7 +826,6 @@ export function VocabularyScreen() {
         (item) => item !== marker,
       ),
     })
-    setNotice('默认关联句已还原')
   }
 
   function restoreHiddenCustom(id: string) {
@@ -828,7 +843,6 @@ export function VocabularyScreen() {
       ...state,
       hiddenCustomAssociations: [...hidden].filter((item) => item !== id),
     })
-    setNotice('自定义句已还原')
   }
 
   function restoreTrash(id: string) {
@@ -856,7 +870,6 @@ export function VocabularyScreen() {
       sessions: nextSession ? { ...state.sessions, [today]: nextSession } : state.sessions,
     }
     commit(nextState)
-    setNotice(message)
   }
 
   function restoreAllTrash() {
@@ -884,7 +897,6 @@ export function VocabularyScreen() {
       sessions: { ...state.sessions, [today]: nextSession },
     })
     setTrashPage(0)
-    setNotice(`已全部放回 ${ids.length} 个词`)
   }
 
   function handleClearPage() {
@@ -897,7 +909,6 @@ export function VocabularyScreen() {
       }
       return { ...current, marks, peek: false }
     })
-    setNotice('本页已清空')
   }
 
   function handleMarkAllUnknown() {
@@ -917,7 +928,6 @@ export function VocabularyScreen() {
       }
       return { ...current, marks, peek: false }
     })
-    setNotice('本页已全部标记为不会')
   }
 
   function advanceWithStats(next: VocabularySession, size = pageSize(session)) {
@@ -1168,12 +1178,6 @@ export function VocabularyScreen() {
     setUndoStack((stack) => stack.slice(0, index))
     redoBaseline.current = next
     updateSession(() => next)
-    if (kind === 'word') {
-      setNotice('已回到上一个词')
-    } else {
-      const changed = pageStart(previous) !== pageStart(session)
-      setNotice(changed ? '已回到上一页' : '已回到本页')
-    }
   }
 
   function startTabDrag(event: ReactPointerEvent<HTMLDivElement>, tab: PaperTab, index: number) {
@@ -1271,7 +1275,6 @@ export function VocabularyScreen() {
     setRedoStack([])
     redoBaseline.current = null
     const wordbook = WORDBOOKS.find((item) => item.id === id)
-    setNotice(`已打开${wordbook?.title ?? '词书'}纸摞`)
   }
 
   function enterZenMode() {
@@ -1303,7 +1306,6 @@ export function VocabularyScreen() {
     commit(nextState)
     setModal(null)
     setPaste('')
-    setNotice(`已导入 ${words.length} 词，开始第 1 轮`)
   }
 
   function handlePasteImport() {
@@ -1353,7 +1355,6 @@ export function VocabularyScreen() {
     redoBaseline.current = null
     setSettingsOpen(false)
     setModal(null)
-    setNotice('今日进度已清零，从第 1 页重新开始')
   }
 
   function download(name: string, content: string, type: string) {
@@ -1455,6 +1456,7 @@ export function VocabularyScreen() {
                   className={session.view === 'connect' ? styles.activeSegment : undefined}
                   type="button"
                   aria-pressed={session.view === 'connect'}
+                  data-assoc-drop="true"
                   onClick={() => switchView('connect')}
                 >
                   关联辅助
@@ -1525,6 +1527,7 @@ export function VocabularyScreen() {
                       trashedIds={state.trashedIds}
                       onWordClick={handleWordClick}
                       onTrash={handleTrash}
+                      onAssociate={openAssociationAt}
                     />
                   ) : (
                     <AssociationView
@@ -2137,12 +2140,14 @@ function ScanView({
   trashedIds,
   onWordClick,
   onTrash,
+  onAssociate,
 }: {
   words: VocabularyWord[]
   session: VocabularySession
   trashedIds: string[]
   onWordClick: (id: string, reverse: boolean) => void
   onTrash: (id: string) => void
+  onAssociate: (id: string) => void
 }) {
   return (
     <div className={styles.paperInner}>
@@ -2154,6 +2159,7 @@ function ScanView({
           variant="workspace"
           onWordClick={onWordClick}
           onTrash={onTrash}
+          onAssociate={onAssociate}
         />
       </div>
     </div>
@@ -2168,6 +2174,7 @@ function ScanGrid({
   trashedIds = [],
   onWordClick,
   onTrash,
+  onAssociate,
 }: {
   words: VocabularyWord[]
   session: VocabularySession
@@ -2176,6 +2183,7 @@ function ScanGrid({
   trashedIds?: string[]
   onWordClick: (id: string, reverse: boolean) => void
   onTrash?: (id: string) => void
+  onAssociate?: (id: string) => void
 }) {
   const groupCount = variant === 'zen' ? 4 : Math.max(1, Math.ceil(words.length / 9))
   const rootClass =
@@ -2206,6 +2214,7 @@ function ScanGrid({
               trashed={trashedIds.includes(word.id)}
               onWordClick={onWordClick}
               onTrash={onTrash}
+              onAssociate={onAssociate}
               style={{
                 gridColumn: (groupIndex % 2) * 3 + (wordIndex % 3) + 1,
                 gridRow: Math.floor(groupIndex / 2) * 3 + Math.floor(wordIndex / 3) + 1,
@@ -2500,6 +2509,7 @@ function WordButton({
   trashed = false,
   onWordClick,
   onTrash,
+  onAssociate,
   style,
 }: {
   word: VocabularyWord
@@ -2507,6 +2517,7 @@ function WordButton({
   trashed?: boolean
   onWordClick: (id: string, reverse: boolean) => void
   onTrash?: (id: string) => void
+  onAssociate?: (id: string) => void
   style?: CSSProperties
 }) {
   const mark = session.marks[word.id]
@@ -2515,6 +2526,7 @@ function WordButton({
     (event) => onWordClick(word.id, false),
     onTrash ? () => onTrash(word.id) : undefined,
     trashed,
+    onAssociate ? () => onAssociate(word.id) : undefined,
   )
   const className = [
     styles.word,
