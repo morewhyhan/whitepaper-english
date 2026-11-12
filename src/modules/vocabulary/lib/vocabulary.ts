@@ -68,6 +68,7 @@ export type VocabularySession = {
   pageMarks?: Record<string, Record<string, Judgement>>
   roundIds?: Record<number, string[]>
   pageStats?: Record<string, { known: number; unknown: number; trashed: number; first: boolean }>
+  historyKind?: 'page' | 'word'
 }
 
 export type VocabularyState = {

@@ -1016,18 +1016,20 @@ export function VocabularyScreen() {
 
   async function handleNext() {
     if (session.complete) return
+    const kind = session.view === 'connect' ? 'word' : 'page'
     if (redoStack.length) {
-      if (session === redoBaseline.current) {
+      const redoIndex = redoStack.findLastIndex((entry) => entry.historyKind === kind)
+      if (redoIndex >= 0 && session === redoBaseline.current) {
         const pageMarks = {
           ...(session.pageMarks ?? {}),
           [pageKey(session)]: { ...session.marks },
         }
         const next = withStoredPageMarks(
-          { ...redoStack[redoStack.length - 1], view: session.view },
+          { ...redoStack[redoIndex], view: session.view, historyKind: undefined },
           pageMarks,
         )
-        setRedoStack((stack) => stack.slice(0, -1))
-        setUndoStack((stack) => [...stack, session])
+        setRedoStack((stack) => stack.filter((_, index) => index !== redoIndex))
+        setUndoStack((stack) => [...stack, { ...session, historyKind: kind }])
         updateSession(() => next)
         redoBaseline.current = next
         return
@@ -1040,7 +1042,7 @@ export function VocabularyScreen() {
     const size = pageSize(session)
     if (session.view === 'connect' && session.cursor % size !== size - 1) {
       const next = { ...currentWithCache, cursor: currentWithCache.cursor + 1, peek: false }
-      setUndoStack((stack) => [...stack, currentWithCache])
+      setUndoStack((stack) => [...stack, { ...currentWithCache, historyKind: 'word' }])
       updateSession(() => next)
       return
     }
@@ -1051,7 +1053,12 @@ export function VocabularyScreen() {
       blankPageDefault: state.settings.blankPageDefault ?? 'unknown',
     })
     const next = withStoredPageMarks(nextRaw, currentWithCache.pageMarks ?? {})
-    setUndoStack((stack) => [...stack, currentWithCache])
+    const pageSnapshot = { ...currentWithCache, cursor: pageStart(session, size), historyKind: 'page' as const }
+    const historyEntries =
+      session.view === 'connect'
+        ? [{ ...currentWithCache, historyKind: 'word' as const }, pageSnapshot]
+        : [pageSnapshot]
+    setUndoStack((stack) => [...stack, ...historyEntries])
     advanceWithStats(next, size)
   }
 
@@ -1076,18 +1083,20 @@ export function VocabularyScreen() {
 
   async function handleZenNext() {
     if (session.complete) return
+    const kind = session.view === 'connect' ? 'word' : 'page'
     if (redoStack.length) {
-      if (session === redoBaseline.current) {
+      const redoIndex = redoStack.findLastIndex((entry) => entry.historyKind === kind)
+      if (redoIndex >= 0 && session === redoBaseline.current) {
         const pageMarks = {
           ...(session.pageMarks ?? {}),
           [pageKey(session)]: { ...session.marks },
         }
         const next = withStoredPageMarks(
-          { ...redoStack[redoStack.length - 1], view: session.view },
+          { ...redoStack[redoIndex], view: session.view, historyKind: undefined },
           pageMarks,
         )
-        setRedoStack((stack) => stack.slice(0, -1))
-        setUndoStack((stack) => [...stack, session])
+        setRedoStack((stack) => stack.filter((_, index) => index !== redoIndex))
+        setUndoStack((stack) => [...stack, { ...session, historyKind: kind }])
         updateSession(() => next)
         redoBaseline.current = next
         return
@@ -1108,13 +1117,24 @@ export function VocabularyScreen() {
       },
     )
     const next = withStoredPageMarks(nextRaw, currentWithCache.pageMarks ?? {})
-    setUndoStack((stack) => [...stack, currentWithCache])
+    setUndoStack((stack) => [
+      ...stack,
+      { ...currentWithCache, cursor: pageStart(session, pageSize), historyKind: 'page' as const },
+    ])
     advanceWithStats(next, pageSize)
   }
 
   async function handleUndo() {
-    const previous = undoStack[undoStack.length - 1]
-    if (!previous) return
+    const kind = session.view === 'connect' ? 'word' : 'page'
+    let index = -1
+    for (let i = undoStack.length - 1; i >= 0; i -= 1) {
+      if (undoStack[i].historyKind === kind) {
+        index = i
+        break
+      }
+    }
+    if (index < 0) return
+    const previous = undoStack[index]
     const pageMarks = {
       ...(previous.pageMarks ?? {}),
       ...(session.pageMarks ?? {}),
@@ -1129,16 +1149,19 @@ export function VocabularyScreen() {
       ...(session.pageStats ?? {}),
     }
     const next = withStoredPageMarks(
-      { ...previous, pageMarks, roundIds, pageStats, view: session.view },
+      { ...previous, pageMarks, roundIds, pageStats, view: session.view, historyKind: undefined },
       pageMarks,
     )
-    setRedoStack((stack) => [...stack, withCurrentPageMarks(session)])
+    setRedoStack((stack) => [...stack, { ...session, historyKind: kind }])
+    setUndoStack((stack) => stack.slice(0, index))
     redoBaseline.current = next
     updateSession(() => next)
-    setUndoStack((stack) => stack.slice(0, -1))
-    setNotice(
-      undoStack.length > 1 ? `已回到上一页，还可前进 ${redoStack.length + 1} 页` : '已回到上一页',
-    )
+    if (kind === 'word') {
+      setNotice('已回到上一个词')
+    } else {
+      const changed = pageStart(previous) !== pageStart(session)
+      setNotice(changed ? '已回到上一页' : '已回到本页')
+    }
   }
 
   function startTabDrag(event: ReactPointerEvent<HTMLDivElement>, tab: PaperTab, index: number) {
@@ -1338,6 +1361,8 @@ export function VocabularyScreen() {
   const markedUnknown = Object.values(session.marks).filter((mark) => mark === 'unknown').length
   const progress = total ? Math.round((session.cursor * 100) / total) : 100
   const activeWordCount = Math.max(0, state.words.length - state.trashedIds.length)
+  const undoKind = session.view === 'connect' ? 'word' : 'page'
+  const canUndo = undoStack.some((entry) => entry.historyKind === undoKind)
   const visibleTabs = tabOrder.filter(
     (tab) => !hiddenTabs.includes(tab) && (tab !== '造句' || session.view === 'connect'),
   )
@@ -1564,7 +1589,7 @@ export function VocabularyScreen() {
                           <button
                             className={styles.undoTab}
                             type="button"
-                            disabled={!undoStack.length}
+                            disabled={!canUndo}
                             onClick={handleUndo}
                           >
                             上一页
