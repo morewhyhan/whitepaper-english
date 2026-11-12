@@ -177,7 +177,10 @@ function withCurrentPageMarks(session: VocabularySession): VocabularySession {
   }
 }
 
-function withStoredPageMarks(session: VocabularySession, pageMarks: Record<string, Record<string, Judgement>>) {
+function withStoredPageMarks(
+  session: VocabularySession,
+  pageMarks: Record<string, Record<string, Judgement>>,
+) {
   const key = pageKey(session)
   return {
     ...session,
@@ -315,11 +318,14 @@ export function VocabularyScreen() {
     try {
       const saved = JSON.parse(window.localStorage.getItem('whitepaper-tabs') || '{}')
       if (Array.isArray(saved.order) && Array.isArray(saved.hidden)) {
-        const valid = (value: unknown): value is PaperTab => typeof value === 'string' && TAB_NAMES.some((name) => name === value)
+        const valid = (value: unknown): value is PaperTab =>
+          typeof value === 'string' && TAB_NAMES.some((name) => name === value)
         setTabOrder([...new Set<PaperTab>([...saved.order.filter(valid), ...TAB_NAMES])])
         setHiddenTabs(saved.hidden.filter(valid))
       }
-    } catch { /* Use defaults for invalid local settings. */ }
+    } catch {
+      /* Use defaults for invalid local settings. */
+    }
   }, [today])
 
   useEffect(() => {
@@ -376,7 +382,18 @@ export function VocabularyScreen() {
         payload: { state: local, undoStack, redoStack, undoDate: today },
       })
     }
-  }, [authSession, hydrated, desk.isSuccess, desk.data, activeBookId, parallelState, starterState, today, saveDesk, undoStack])
+  }, [
+    authSession,
+    hydrated,
+    desk.isSuccess,
+    desk.data,
+    activeBookId,
+    parallelState,
+    starterState,
+    today,
+    saveDesk,
+    undoStack,
+  ])
 
   useEffect(() => {
     if (!authSession?.user || !hydrated || !deskHydrated.current.has(activeBookId)) return
@@ -404,7 +421,17 @@ export function VocabularyScreen() {
       })
     }, 900)
     return () => window.clearTimeout(timer)
-  }, [authSession, hydrated, activeBookId, parallelState, starterState, undoStack, redoStack, saveDesk, today])
+  }, [
+    authSession,
+    hydrated,
+    activeBookId,
+    parallelState,
+    starterState,
+    undoStack,
+    redoStack,
+    saveDesk,
+    today,
+  ])
 
   useEffect(() => {
     const flushDesk = () => {
@@ -422,12 +449,25 @@ export function VocabularyScreen() {
       document.removeEventListener('visibilitychange', flushDesk)
       window.removeEventListener('pagehide', flushDesk)
     }
-  }, [authSession, activeBookId, parallelState, starterState, undoStack, redoStack, today, saveDesk])
+  }, [
+    authSession,
+    activeBookId,
+    parallelState,
+    starterState,
+    undoStack,
+    redoStack,
+    today,
+    saveDesk,
+  ])
 
   function saveTabs(order: PaperTab[], hidden: PaperTab[]) {
     setTabOrder(order)
     setHiddenTabs(hidden)
-    try { window.localStorage.setItem('whitepaper-tabs', JSON.stringify({ order, hidden })) } catch { /* Keep in-memory preferences. */ }
+    try {
+      window.localStorage.setItem('whitepaper-tabs', JSON.stringify({ order, hidden }))
+    } catch {
+      /* Keep in-memory preferences. */
+    }
   }
 
   function shufflePage() {
@@ -442,7 +482,14 @@ export function VocabularyScreen() {
         ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
       }
       if (shuffled.every((id, i) => id === page[i])) shuffled.push(shuffled.shift()!)
-      const next = { ...current, ids: [...current.ids.slice(0, current.cursor), ...shuffled, ...current.ids.slice(current.cursor + count)] }
+      const next = {
+        ...current,
+        ids: [
+          ...current.ids.slice(0, current.cursor),
+          ...shuffled,
+          ...current.ids.slice(current.cursor + count),
+        ],
+      }
       return next
     })
     setNotice('已打乱本页，判断保持不变')
@@ -479,7 +526,9 @@ export function VocabularyScreen() {
     return () => window.clearTimeout(timer)
   }, [notice])
 
-  const session = hydrated ? state.sessions[today] : createSession(state.words, state.settings, state.trashedIds)
+  const session = hydrated
+    ? state.sessions[today]
+    : createSession(state.words, state.settings, state.trashedIds)
   const currentWords =
     session.view === 'connect'
       ? [wordAtCursor(state.words, session)].filter((word): word is VocabularyWord => Boolean(word))
@@ -588,7 +637,8 @@ export function VocabularyScreen() {
   }
 
   function updateSession(updater: (current: VocabularySession) => VocabularySession) {
-    const current = state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
+    const current =
+      state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
     const next = updater(current)
     const pageMarks = {
       ...(next.pageMarks ?? {}),
@@ -601,9 +651,7 @@ export function VocabularyScreen() {
     const pageStats = { ...(next.pageStats ?? {}), ...(current.pageStats ?? {}) }
     const withCache = { ...next, pageMarks, roundIds, pageStats }
     const finalSession =
-      pageKey(next) === pageKey(current)
-        ? withCache
-        : withStoredPageMarks(next, pageMarks)
+      pageKey(next) === pageKey(current) ? withCache : withStoredPageMarks(next, pageMarks)
     let cycles = state.cycles
     if (pageKey(next) === pageKey(current) && current.pageStats?.[pageKey(current)]) {
       const old = current.pageStats[pageKey(current)]
@@ -670,12 +718,11 @@ export function VocabularyScreen() {
     updateSession((current) => toggleMark(current, id, green ? 'known' : 'unknown'))
   }
 
-
-
   function handleTrash(id: string) {
     const word = state.words.find((item) => item.id === id)
     if (!word || state.trashedIds.includes(id)) return
-    const current = state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
+    const current =
+      state.sessions[today] ?? createSession(state.words, state.settings, state.trashedIds)
     const nextState: VocabularyState = {
       ...state,
       trashedIds: [...state.trashedIds, id],
@@ -747,7 +794,9 @@ export function VocabularyScreen() {
     const marker = `${target.toLowerCase()}\u0000${sentence}`
     commit({
       ...state,
-      hiddenAssociationLinks: (state.hiddenAssociationLinks ?? []).filter((item) => item !== marker),
+      hiddenAssociationLinks: (state.hiddenAssociationLinks ?? []).filter(
+        (item) => item !== marker,
+      ),
     })
     setNotice('默认关联句已还原')
   }
@@ -843,8 +892,7 @@ export function VocabularyScreen() {
     const currentPage = pageWords(state.words, session)
     if (!currentPage.length) return
     const hasGreen = currentPage.some(
-      (word) =>
-        !state.trashedIds.includes(word.id) && session.marks[word.id] === 'known',
+      (word) => !state.trashedIds.includes(word.id) && session.marks[word.id] === 'known',
     )
     if (hasGreen) {
       setNotice('本页已标绿，先取消绿色才能全部翻译')
@@ -978,7 +1026,7 @@ export function VocabularyScreen() {
         setRedoStack((stack) => stack.slice(0, -1))
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
-            redoBaseline.current = next
+        redoBaseline.current = next
         return
       }
       setRedoStack([])
@@ -1010,7 +1058,10 @@ export function VocabularyScreen() {
       if (modal || authOpen || settingsOpen || trashOpen || zenMode) return
       if (session.complete) return
       const target = event.target
-      if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')) {
+      if (
+        target instanceof Element &&
+        target.closest('input, textarea, select, [contenteditable="true"]')
+      ) {
         return
       }
       event.preventDefault()
@@ -1032,7 +1083,7 @@ export function VocabularyScreen() {
         setRedoStack((stack) => stack.slice(0, -1))
         setUndoStack((stack) => [...stack, session])
         updateSession(() => next)
-            redoBaseline.current = next
+        redoBaseline.current = next
         return
       }
       setRedoStack([])
@@ -1071,10 +1122,7 @@ export function VocabularyScreen() {
       ...(previous.pageStats ?? {}),
       ...(session.pageStats ?? {}),
     }
-    const next = withStoredPageMarks(
-      { ...previous, pageMarks, roundIds, pageStats },
-      pageMarks,
-    )
+    const next = withStoredPageMarks({ ...previous, pageMarks, roundIds, pageStats }, pageMarks)
     setRedoStack((stack) => [...stack, withCurrentPageMarks(session)])
     redoBaseline.current = next
     updateSession(() => next)
@@ -1084,11 +1132,7 @@ export function VocabularyScreen() {
     )
   }
 
-  function startTabDrag(
-    event: ReactPointerEvent<HTMLDivElement>,
-    tab: PaperTab,
-    index: number,
-  ) {
+  function startTabDrag(event: ReactPointerEvent<HTMLDivElement>, tab: PaperTab, index: number) {
     if (event.button !== 0) return
     const start = { y: event.clientY, moved: false, visible: [...visibleTabs] }
     let targetIndex = index
@@ -1115,12 +1159,17 @@ export function VocabularyScreen() {
       setDragTab(tab)
       setDragTop(delta)
       const rail = tabRail.current
-      const nodes = rail ? Array.from(rail.children).filter((node): node is HTMLElement => node instanceof HTMLElement) : []
+      const nodes = rail
+        ? Array.from(rail.children).filter(
+            (node): node is HTMLElement => node instanceof HTMLElement,
+          )
+        : []
       const pointerY = start.y + delta
       targetIndex = 0
       nodes.forEach((node, nodeIndex) => {
         const rect = node.getBoundingClientRect()
-        if (pointerY > rect.top + rect.height / 2) targetIndex = Math.min(nodeIndex, start.visible.length - 1)
+        if (pointerY > rect.top + rect.height / 2)
+          targetIndex = Math.min(nodeIndex, start.visible.length - 1)
       })
       setDragTargetIndex(targetIndex)
     }
@@ -1175,8 +1224,8 @@ export function VocabularyScreen() {
     }
     setActiveBookId(id)
     setUndoStack([])
-      setRedoStack([])
-      redoBaseline.current = null
+    setRedoStack([])
+    redoBaseline.current = null
     const wordbook = WORDBOOKS.find((item) => item.id === id)
     setNotice(`已打开${wordbook?.title ?? '词书'}纸摞`)
   }
@@ -1205,8 +1254,8 @@ export function VocabularyScreen() {
       sessions: { [today]: createSession(words, state.settings, state.trashedIds) },
     }
     setUndoStack([])
-      setRedoStack([])
-      redoBaseline.current = null
+    setRedoStack([])
+    redoBaseline.current = null
     commit(nextState)
     setModal(null)
     setPaste('')
@@ -1256,8 +1305,8 @@ export function VocabularyScreen() {
     }
     commit(nextState)
     setUndoStack([])
-      setRedoStack([])
-      redoBaseline.current = null
+    setRedoStack([])
+    redoBaseline.current = null
     setSettingsOpen(false)
     setModal(null)
     setNotice('今日进度已清零，从第 1 页重新开始')
@@ -1281,9 +1330,7 @@ export function VocabularyScreen() {
   const progress = total ? Math.round((session.cursor * 100) / total) : 100
   const activeWordCount = Math.max(0, state.words.length - state.trashedIds.length)
   const visibleTabs = tabOrder.filter(
-    (tab) =>
-      !hiddenTabs.includes(tab) &&
-      (tab !== '造句' || session.view === 'connect'),
+    (tab) => !hiddenTabs.includes(tab) && (tab !== '造句' || session.view === 'connect'),
   )
   const dragFrom = dragTab ? visibleTabs.indexOf(dragTab) : -1
   const dragTo = dragTargetIndex ?? dragFrom
@@ -1303,11 +1350,7 @@ export function VocabularyScreen() {
           >
             词书
           </button>
-          <button
-            className={styles.quiet}
-            type="button"
-            onClick={enterZenMode}
-          >
+          <button className={styles.quiet} type="button" onClick={enterZenMode}>
             禅模式
           </button>
           {authSession?.user && !(authSession.user as { isAnonymous?: boolean }).isAnonymous ? (
@@ -1335,61 +1378,60 @@ export function VocabularyScreen() {
       <div className={styles.workspaceBody} data-layout="body">
         <div
           className={`${styles.shelfDock} ${shelfOpen ? styles.shelfDockOpen : ''}`}
-            onPointerEnter={() => setShelfOpen(true)}
-            onPointerLeave={() => setShelfOpen(false)}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') setShelfOpen(false)
-            }}
-          >
-            <button
-              className={styles.shelfHandle}
-              type="button"
-              aria-label="打开词书"
-              aria-expanded={shelfOpen}
-              onClick={() => setShelfOpen(true)}
-            />
-            <WordbookShelf activeBookId={activeBookId} onSelect={switchWordbook} />
+          onPointerEnter={() => setShelfOpen(true)}
+          onPointerLeave={() => setShelfOpen(false)}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') setShelfOpen(false)
+          }}
+        >
+          <button
+            className={styles.shelfHandle}
+            type="button"
+            aria-label="打开词书"
+            aria-expanded={shelfOpen}
+            onClick={() => setShelfOpen(true)}
+          />
+          <WordbookShelf activeBookId={activeBookId} onSelect={switchWordbook} />
         </div>
         <div className={styles.workspaceContent} data-layout="content">
           <>
-
-              <div className={styles.toolbar} data-layout="modes">
-                <div className={styles.segment} aria-label="本页学习呈现方式">
-                  <button
-                    className={session.view === 'scan' ? styles.activeSegment : undefined}
-                    type="button"
-                    aria-pressed={session.view === 'scan'}
-                    onClick={() => switchView('scan')}
-                  >
-                    九宫格扫词
-                  </button>
-                  <button
-                    className={session.view === 'connect' ? styles.activeSegment : undefined}
-                    type="button"
-                    aria-pressed={session.view === 'connect'}
-                    onClick={() => switchView('connect')}
-                  >
-                    关联辅助
-                  </button>
-                </div>
+            <div className={styles.toolbar} data-layout="modes">
+              <div className={styles.segment} aria-label="本页学习呈现方式">
                 <button
-                  className={styles.trashButton}
-                  data-trash-drop="true"
+                  className={session.view === 'scan' ? styles.activeSegment : undefined}
                   type="button"
-                  aria-label="打开垃圾桶，也可把单词拖到这里"
-                  aria-expanded={trashOpen}
-                  onClick={() => setTrashOpen((open) => !open)}
+                  aria-pressed={session.view === 'scan'}
+                  onClick={() => switchView('scan')}
                 >
-                  <span className={styles.trashIcon} aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13M10 11v5M14 11v5" />
-                    </svg>
-                  </span>
-                  <span>{state.trashedIds.length}</span>
+                  九宫格扫词
+                </button>
+                <button
+                  className={session.view === 'connect' ? styles.activeSegment : undefined}
+                  type="button"
+                  aria-pressed={session.view === 'connect'}
+                  onClick={() => switchView('connect')}
+                >
+                  关联辅助
                 </button>
               </div>
-              <div className={styles.paperStage} data-layout="stage">
-                <div className={styles.paperFrame} data-layout="frame">
+              <button
+                className={styles.trashButton}
+                data-trash-drop="true"
+                type="button"
+                aria-label="打开垃圾桶，也可把单词拖到这里"
+                aria-expanded={trashOpen}
+                onClick={() => setTrashOpen((open) => !open)}
+              >
+                <span className={styles.trashIcon} aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13M10 11v5M14 11v5" />
+                  </svg>
+                </span>
+                <span>{state.trashedIds.length}</span>
+              </button>
+            </div>
+            <div className={styles.paperStage} data-layout="stage">
+              <div className={styles.paperFrame} data-layout="frame">
                 <PaperSurface
                   key={
                     session.view === 'connect'
@@ -1531,7 +1573,9 @@ export function VocabularyScreen() {
                           <button
                             className={`${styles.peekTab} ${styles.shuffleTab}`}
                             type="button"
-                            disabled={session.complete || session.view !== 'scan' || currentWords.length < 2}
+                            disabled={
+                              session.complete || session.view !== 'scan' || currentWords.length < 2
+                            }
                             onClick={shufflePage}
                           >
                             打乱本页
@@ -1563,31 +1607,35 @@ export function VocabularyScreen() {
                                   : '下一页'
                             }
                           >
-                            {session.complete ? '已清零' : session.view === 'connect' ? '下一词' : '下一页'}
+                            {session.complete
+                              ? '已清零'
+                              : session.view === 'connect'
+                                ? '下一词'
+                                : '下一页'}
                           </button>
                         )}
                       </div>
                     )
                   })}
                 </div>
-                </div>
               </div>
+            </div>
 
-              <div className={styles.controls} data-layout="page-info">
-                <div className={styles.pageNumber}>
-                  {session.complete
-                    ? '今日任务完成'
-                    : session.view === 'connect'
-                      ? `本词 ${Math.min(session.cursor + 1, total)} / ${total}`
-                      : `本页 ${Math.min(pageStart(session) + 1, total)}—${Math.min(pageStart(session) + currentWords.length, total)} / ${total}`}
-                </div>
+            <div className={styles.controls} data-layout="page-info">
+              <div className={styles.pageNumber}>
+                {session.complete
+                  ? '今日任务完成'
+                  : session.view === 'connect'
+                    ? `本词 ${Math.min(session.cursor + 1, total)} / ${total}`
+                    : `本页 ${Math.min(pageStart(session) + 1, total)}—${Math.min(pageStart(session) + currentWords.length, total)} / ${total}`}
               </div>
+            </div>
 
-              <RoundTrack session={session} onOpen={() => setModal('history')} />
-              <p className={styles.helpLine} data-layout="help">
-                一张纸、一套轮次。浅绿 = 会，浅红 = 不会。左键标红 · 右键标绿 · 拖入垃圾桶归档。
-              </p>
-            </>
+            <RoundTrack session={session} onOpen={() => setModal('history')} />
+            <p className={styles.helpLine} data-layout="help">
+              一张纸、一套轮次。浅绿 = 会，浅红 = 不会。左键标红 · 右键标绿 · 拖入垃圾桶归档。
+            </p>
+          </>
         </div>
       </div>
 
@@ -1716,7 +1764,14 @@ export function VocabularyScreen() {
         <SettingsPanel
           hiddenTabs={hiddenTabs}
           tabNames={TAB_NAMES}
-          onToggleTab={(tab) => saveTabs(tabOrder, hiddenTabs.includes(tab) ? hiddenTabs.filter((item) => item !== tab) : [...hiddenTabs, tab])}
+          onToggleTab={(tab) =>
+            saveTabs(
+              tabOrder,
+              hiddenTabs.includes(tab)
+                ? hiddenTabs.filter((item) => item !== tab)
+                : [...hiddenTabs, tab],
+            )
+          }
           session={session}
           history={studyHistory.data ?? []}
           cycles={state.cycles ?? []}
@@ -1803,13 +1858,12 @@ export function VocabularyScreen() {
             if (currentWords[0]) addCustomAssociation(currentWords[0].en, sentenceText)
           }}
           removedDefaults={(state.hiddenAssociationLinks ?? [])
-            .filter((item) =>
-              item.startsWith(`${(currentWords[0]?.en ?? '').toLowerCase()}\u0000`),
-            )
+            .filter((item) => item.startsWith(`${(currentWords[0]?.en ?? '').toLowerCase()}\u0000`))
             .map((item) => item.split('\u0000')[1] ?? '')
             .filter(Boolean)}
-          removedCustoms={(state.customAssociations?.[(currentWords[0]?.en ?? '').toLowerCase()] ?? [])
-            .filter((item) => (state.hiddenCustomAssociations ?? []).includes(item.id))}
+          removedCustoms={(
+            state.customAssociations?.[(currentWords[0]?.en ?? '').toLowerCase()] ?? []
+          ).filter((item) => (state.hiddenCustomAssociations ?? []).includes(item.id))}
           onRestoreDefault={(sentence) => {
             if (currentWords[0]) restoreHiddenAssociation(currentWords[0].en, sentence)
           }}
@@ -2147,7 +2201,6 @@ function PaperSurface({
   )
 }
 
-
 function AssociationView({
   words,
   allWords,
@@ -2208,9 +2261,7 @@ function AssociationView({
   const loading = Boolean(word) && batch.isLoading && !network
   const hiddenCustom = new Set(hiddenCustomAssociations)
   const custom = word
-    ? (customAssociations[word.en.toLowerCase()] ?? []).filter(
-        (item) => !hiddenCustom.has(item.id),
-      )
+    ? (customAssociations[word.en.toLowerCase()] ?? []).filter((item) => !hiddenCustom.has(item.id))
     : []
   const hidden = new Set(hiddenAssociationLinks)
   const defaultLinks =
@@ -2220,13 +2271,19 @@ function AssociationView({
         )
       : []
   const links = [
-    ...defaultLinks.map((link) => ({ ...link, custom: false, key: `default-${link.word}-${link.sentence}` })),
+    ...defaultLinks.map((link) => ({
+      ...link,
+      custom: false,
+      key: `default-${link.word}-${link.sentence}`,
+    })),
     ...custom.map((item) => ({
       word: '自定义',
       sentence: item.sentence,
       audio: undefined as string | undefined,
       custom: true,
       key: `custom-${item.id}`,
+      wordZh: undefined,
+      sentenceZh: undefined,
       zh: undefined,
     })),
   ]
@@ -2256,118 +2313,123 @@ function AssociationView({
 
   return (
     <>
-    <div className={styles.paperInner}>
-      <div className={styles.assocWrap}>
-        {hasBoard ? (
-          <div className={`${styles.assocBoard} ${links.length > 8 ? styles.assocBoardMany : ''}`}>
-            {links.map((link) => (
-              <div className={styles.assocNodeWrap} key={link.key}>
+      <div className={styles.paperInner}>
+        <div className={styles.assocWrap}>
+          {hasBoard ? (
+            <div
+              className={`${styles.assocBoard} ${links.length > 8 ? styles.assocBoardMany : ''}`}
+            >
+              {links.map((link) => {
+                const fallbackWordZh = allWords.find(
+                  (item) => item.en.toLowerCase() === link.word.toLowerCase(),
+                )?.zh
+                const wordZh = link.wordZh ?? fallbackWordZh
+                const sentenceZh = link.sentenceZh
+
+                return (
+                  <div className={styles.assocNodeWrap} key={link.key}>
+                    <button
+                      className={`${styles.assocNode} ${link.custom ? styles.assocNodeCustom : ''}`}
+                      data-selectable="true"
+                      type="button"
+                      aria-label={`朗读：${link.sentence}`}
+                      onPointerEnter={() => !link.custom && onPrefetch(link.sentence, link.audio)}
+                      onFocus={() => !link.custom && onPrefetch(link.sentence, link.audio)}
+                      onClick={() => {
+                        if (hasTextSelection()) return
+                        onSpeak(link.sentence, link.audio)
+                      }}
+                    >
+                      <span className={styles.assocWord}>
+                        {link.word}
+                        {showTranslations && wordZh && (
+                          <small className={styles.assocWordZh}>
+                            {highlightChinese(wordZh, [wordZh])}
+                          </small>
+                        )}
+                      </span>
+                      <span className={styles.assocSentence}>
+                        {highlight(link.sentence, [link.custom ? word.en : link.word, word.en])}
+                      </span>
+                      {showTranslations && sentenceZh && (
+                        <span className={styles.assocTranslation}>
+                          {highlightChinese(
+                            sentenceZh,
+                            [word.zh, wordZh].filter((value): value is string => Boolean(value)),
+                          )}
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      className={styles.assocRemove}
+                      type="button"
+                      aria-label={`移除${link.custom ? '自定义句' : '这条关联句'}`}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        onRemoveLink(word.en, link.sentence, link.custom)
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )
+              })}
+              <div className={styles.assocCenter}>
                 <button
-                  className={`${styles.assocNode} ${link.custom ? styles.assocNodeCustom : ''}`}
+                  className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
                   data-selectable="true"
                   type="button"
-                  aria-label={`朗读：${link.sentence}`}
-                  onPointerEnter={() => !link.custom && onPrefetch(link.sentence, link.audio)}
-                  onFocus={() => !link.custom && onPrefetch(link.sentence, link.audio)}
-                  onClick={() => {
-                    if (hasTextSelection()) return
-                    onSpeak(link.sentence, link.audio)
-                  }}
+                  title="左键标红，右键标绿；按住可拖到垃圾桶"
+                  onPointerDown={centerDrag.handlePointerDown}
+                  onClick={centerDrag.handleClick}
                 >
-                  <span className={styles.assocWord}>
-                    {link.word}
-                    {showTranslations && (
-                      <small className={styles.assocWordZh}>
-                        {allWords.find((item) => item.en.toLowerCase() === link.word.toLowerCase())?.zh ?? ''}
-                      </small>
-                    )}
-                  </span>
-                  <span className={styles.assocSentence}>
-                    {highlight(link.sentence, [link.custom ? word.en : link.word, word.en])}
-                  </span>
-                  {showTranslations && link.zh && (
-                    <span className={styles.assocTranslation}>
-                      {highlightChinese(
-                        link.zh,
-                        [
-                          word.zh,
-                          allWords.find((item) => item.en.toLowerCase() === link.word.toLowerCase())?.zh,
-                        ].filter((value): value is string => Boolean(value)),
-                      )}
-                    </span>
+                  <span className={styles.targetNote}>TARGET WORD</span>
+                  <span className={styles.targetEn}>{word.en}</span>
+                  {showTranslations && (
+                    <span className={styles.targetZh}>{word.zh || '暂无释义'}</span>
                   )}
                 </button>
+              </div>
+              {!links.length && (
+                <p className={styles.assocEmptyHint}>默认关联已关闭，点右侧“造句”添加一句。</p>
+              )}
+            </div>
+          ) : loading ? (
+            <div className={styles.assocBoard} aria-busy="true" aria-label="正在加载关联句">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div className={styles.assocNode} key={index}>
+                  <span className={styles.assocSkeletonWord} />
+                  <span className={styles.assocSkeletonLine} />
+                </div>
+              ))}
+              <div className={styles.assocCenter}>
                 <button
-                  className={styles.assocRemove}
+                  className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
+                  data-selectable="true"
                   type="button"
-                  aria-label={`移除${link.custom ? '自定义句' : '这条关联句'}`}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    onRemoveLink(word.en, link.sentence, link.custom)
-                  }}
+                  title="左键标红，右键标绿；按住可拖到垃圾桶"
+                  onPointerDown={centerDrag.handlePointerDown}
+                  onClick={centerDrag.handleClick}
                 >
-                  ×
+                  <span className={styles.targetNote}>TARGET WORD</span>
+                  <span className={styles.targetEn}>{word.en}</span>
+                  <span className={styles.targetZh}>{mark ? word.zh || '暂无释义' : '\u00a0'}</span>
                 </button>
               </div>
-            ))}
-            <div className={styles.assocCenter}>
-              <button
-                className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
-                data-selectable="true"
-                type="button"
-                title="左键标红，右键标绿；按住可拖到垃圾桶"
-                onPointerDown={centerDrag.handlePointerDown}
-                onClick={centerDrag.handleClick}
-              >
-                <span className={styles.targetNote}>TARGET WORD</span>
-                <span className={styles.targetEn}>{word.en}</span>
-                {showTranslations && (
-                  <span className={styles.targetZh}>{word.zh || '暂无释义'}</span>
-                )}
-              </button>
             </div>
-            {!links.length && (
-              <p className={styles.assocEmptyHint}>默认关联已关闭，点右侧“造句”添加一句。</p>
-            )}
-          </div>
-        ) : loading ? (
-          <div className={styles.assocBoard} aria-busy="true" aria-label="正在加载关联句">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div className={styles.assocNode} key={index}>
-                <span className={styles.assocSkeletonWord} />
-                <span className={styles.assocSkeletonLine} />
-              </div>
-            ))}
-            <div className={styles.assocCenter}>
-              <button
-                className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
-                data-selectable="true"
-                type="button"
-                title="左键标红，右键标绿；按住可拖到垃圾桶"
-                onPointerDown={centerDrag.handlePointerDown}
-                onClick={centerDrag.handleClick}
-              >
-                <span className={styles.targetNote}>TARGET WORD</span>
-                <span className={styles.targetEn}>{word.en}</span>
-                <span className={styles.targetZh}>
-                  {mark ? word.zh || '暂无释义' : '\u00a0'}
-                </span>
-              </button>
+          ) : (
+            <div className={styles.assocNoData}>
+              <div className={styles.kicker}>NO VERIFIED CONNECTIONS YET</div>
+              <h2>{word.en}</h2>
+              <p>
+                这个词还没有预先校验的 1:8
+                英文关联句。关联句不会凭空拼凑；你仍然可以标记它，并继续当前轮次。
+              </p>
+              <p className={styles.hint}>
+                当前词暂时没有可用的关联数据，你仍然可以标记它并继续当前轮次。
+              </p>
             </div>
-          </div>
-        ) : (
-          <div className={styles.assocNoData}>
-            <div className={styles.kicker}>NO VERIFIED CONNECTIONS YET</div>
-            <h2>{word.en}</h2>
-            <p>
-              这个词还没有预先校验的 1:8
-              英文关联句。关联句不会凭空拼凑；你仍然可以标记它，并继续当前轮次。
-            </p>
-            <p className={styles.hint}>
-              当前词暂时没有可用的关联数据，你仍然可以标记它并继续当前轮次。
-            </p>
-          </div>
-        )}
+          )}
         </div>
       </div>
       {centerDrag.dragging &&
@@ -2702,7 +2764,9 @@ function Modal({
         {name === 'settings' && (
           <>
             <div className={styles.fieldTitle}>鼠标标记</div>
-            <p>左键标红（不会），右键标绿（会）。一页只能用一种颜色，取消最后一条同色标记后才能换色。</p>
+            <p>
+              左键标红（不会），右键标绿（会）。一页只能用一种颜色，取消最后一条同色标记后才能换色。
+            </p>
             <div className={styles.divider} />
             <div className={styles.fieldTitle}>每页词数</div>
             <label>
@@ -2805,7 +2869,8 @@ function loadState(): { state: VocabularyState; backupFailed: boolean } {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     if (!raw) return { state: createInitialState(), backupFailed: false }
     const parsed = JSON.parse(raw) as Partial<VocabularyState>
-    if (!Array.isArray(parsed.words) || !parsed.words.length) return { state: createInitialState(), backupFailed: false }
+    if (!Array.isArray(parsed.words) || !parsed.words.length)
+      return { state: createInitialState(), backupFailed: false }
     const defaults = createInitialState()
     const words = reconcileStoredWords(parsed.words)
     if (!words.length) return { state: createInitialState(), backupFailed: false }
@@ -2885,7 +2950,14 @@ function highlightChinese(text: string, terms: string[]) {
     .map((term) => term.trim())
     .filter((term) => term.length > 0)
   if (!parts.length) return text
-  const unique = [...new Set(parts)].sort((a, b) => b.length - a.length)
+  const unique = [
+    ...new Set(
+      parts.flatMap((term) => {
+        const stem = term.replace(/[的地得]$/, '')
+        return stem.length >= 2 && stem !== term ? [term, stem] : [term]
+      }),
+    ),
+  ].sort((a, b) => b.length - a.length)
   const pattern = unique.map(escapeRegExp).join('|')
   const matched = new Set(unique)
   return text

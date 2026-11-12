@@ -18,17 +18,30 @@ import { zValidator } from '../../validator'
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/
 
-type AssociationNetwork = {
-  target: string
-  links: { word: string; sentence: string }[]
-}
+const associationLinkSchema = z.object({
+  word: z.string().trim().min(1),
+  sentence: z.string().trim().min(1),
+  audio: z.string().optional(),
+  wordZh: z.string().trim().min(1).optional(),
+  sentenceZh: z.string().trim().min(1).optional(),
+  zh: z.string().optional(),
+})
+
+const associationNetworkSchema = z.object({
+  target: z.string().trim().min(1),
+  links: z.array(associationLinkSchema),
+})
+
+const associationsSchema = z.record(z.string(), associationNetworkSchema)
+
+type AssociationNetwork = z.infer<typeof associationNetworkSchema>
 
 let associationsCache: Record<string, AssociationNetwork> | null = null
 
 function getAssociations(): Record<string, AssociationNetwork> {
   if (!associationsCache) {
     const file = join(process.cwd(), 'src/modules/vocabulary/data/associations.json')
-    associationsCache = JSON.parse(readFileSync(file, 'utf8')) as Record<string, AssociationNetwork>
+    associationsCache = associationsSchema.parse(JSON.parse(readFileSync(file, 'utf8')))
   }
 
   return associationsCache

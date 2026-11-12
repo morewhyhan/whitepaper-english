@@ -10,7 +10,14 @@ export type VocabularyWord = {
 export type Judgement = 'known' | 'unknown'
 export type LearningView = 'scan' | 'connect'
 
-export type AssociationLink = { word: string; sentence: string; audio?: string; zh?: string }
+export type AssociationLink = {
+  word: string
+  sentence: string
+  audio?: string
+  wordZh?: string
+  sentenceZh?: string
+  zh?: string
+}
 
 export type CustomAssociation = { id: string; sentence: string }
 
@@ -320,13 +327,19 @@ export function reconcileStoredWords(input: unknown): VocabularyWord[] {
   const canonical = new Map(PARALLEL_WORLD_WORDS.map((word) => [word.en.toLowerCase(), word]))
   return normalized.map((word, index) => {
     const saved = input[index]
-    const id = saved && typeof saved === 'object' && typeof saved.id === 'string' && saved.id
-      ? saved.id
-      : word.id
+    const id =
+      saved && typeof saved === 'object' && typeof saved.id === 'string' && saved.id
+        ? saved.id
+        : word.id
     const original = word.en.toLowerCase().trim()
     const note = original.match(/[（(]([^()（）]+)[）)]\s*$/)?.[1]?.trim()
-    const cleaned = original.replace(/\s*[（(][^()（）]*[）)]\s*$/, '').split('/')[0].trim().replace(/\.$/, '')
-    const current = canonical.get(original) ?? canonical.get(cleaned) ?? (note ? canonical.get(note) : undefined)
+    const cleaned = original
+      .replace(/\s*[（(][^()（）]*[）)]\s*$/, '')
+      .split('/')[0]
+      .trim()
+      .replace(/\.$/, '')
+    const current =
+      canonical.get(original) ?? canonical.get(cleaned) ?? (note ? canonical.get(note) : undefined)
     if (!current) return { ...word, id }
     return {
       ...word,

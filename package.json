@@ -25,6 +25,9 @@
     "db:studio": "prisma studio",
     "postinstall": "node scripts/runtime-doctor.mjs --record && prisma generate",
     "goal:status": "node scripts/goal-status.mjs",
+    "vocabulary:associations:export": "node scripts/export-association-translation-tasks.mjs",
+    "vocabulary:associations:apply": "node scripts/apply-association-translations.mjs",
+    "vocabulary:associations:audit": "node scripts/audit-associations.mjs",
     "goal:audit": "node scripts/goal-audit.mjs",
     "check:commits": "node scripts/check-commit-ac.mjs",
     "goal:trace": "node scripts/goal-trace.mjs"
