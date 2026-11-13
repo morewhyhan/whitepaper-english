@@ -518,7 +518,8 @@ export function VocabularyScreen() {
     if (session.view !== 'scan' || session.complete) return
     updateSession((current) => {
       const count = current.groups * 9
-      const page = current.ids.slice(current.cursor, current.cursor + count)
+      const start = pageStart(current, count)
+      const page = current.ids.slice(start, start + count)
       if (page.length < 2) return current
       const shuffled = [...page]
       for (let i = shuffled.length - 1; i > 0; i--) {
@@ -529,9 +530,9 @@ export function VocabularyScreen() {
       const next = {
         ...current,
         ids: [
-          ...current.ids.slice(0, current.cursor),
+          ...current.ids.slice(0, start),
           ...shuffled,
-          ...current.ids.slice(current.cursor + count),
+          ...current.ids.slice(start + count),
         ],
       }
       return next
@@ -1425,6 +1426,7 @@ export function VocabularyScreen() {
 
   return (
     <main className={`${styles.layout} ${zenMode ? styles.zenLayout : layout.viewport}`}>
+      <div className={styles.topReveal} aria-hidden="true" />
       <header className={styles.top} data-layout="top">
         <div className={styles.brand}>
           白纸 <small>MEMORY, IN THE OPEN.</small>
