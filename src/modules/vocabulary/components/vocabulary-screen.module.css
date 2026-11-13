@@ -3700,52 +3700,67 @@ body[data-assoc-over='true'] .assocDropTarget {
   }
 }
 
-/* Top bar behaves like the left drawer: hidden by default, revealed at the top edge. */
-.topReveal {
-  display: none;
-}
 
+/* Top bar collapses in flow; expanding pushes the paper down. */
 @media (min-width: 1101px) {
-  .topReveal {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 18px;
-    z-index: 60;
-  }
-
   main.layout:not(.zenLayout) {
+    --top-h: 8px;
     height: 100dvh;
     min-height: 0;
-    padding: 0 24px 18px;
+    padding: 12px 24px 18px;
     overflow-y: auto;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main.layout:not(.zenLayout):has(> .top:hover) {
+    --top-h: 64px;
   }
 
   main.layout:not(.zenLayout) > .top {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    z-index: 55;
-    width: min(calc(100% - 48px), 1220px);
-    margin: 0;
-    transform: translate(-50%, calc(-100% + 5px));
-    transition: transform 220ms ease;
+    position: relative;
+    top: auto;
+    left: auto;
+    flex: 0 0 auto;
+    width: min(100%, 1220px);
+    height: var(--top-h);
+    min-height: 0;
+    padding: 0 14px;
+    margin: 0 auto 8px;
+    overflow: hidden;
+    transform: none;
+    opacity: 1;
+    transition: height 240ms ease, padding 240ms ease;
   }
 
-  main.layout:not(.zenLayout) > .topReveal:hover + .top,
   main.layout:not(.zenLayout) > .top:hover {
-    transform: translate(-50%, 8px);
+    padding: 8px 14px;
   }
 
-  main.layout:not(.zenLayout) .paperStage {
-    height: calc(100dvh - 20px) !important;
+  main.layout:not(.zenLayout) > .top > * {
+    opacity: 0;
+    transition: opacity 160ms ease 60ms;
+  }
+
+  main.layout:not(.zenLayout) > .top:hover > * {
+    opacity: 1;
   }
 
   main.layout:not(.zenLayout) > .workspaceBody {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  main.layout:not(.zenLayout) .workspaceContent {
     height: auto;
-    min-height: calc(100dvh - 20px);
+    min-height: 0;
+  }
+
+  main.layout:not(.zenLayout) .paperStage {
+    flex: 0 0 auto !important;
+    height: calc(100dvh - 38px - var(--top-h)) !important;
+    min-height: 0 !important;
+    transition: height 240ms ease;
   }
 }

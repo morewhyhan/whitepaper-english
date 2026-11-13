@@ -1426,7 +1426,6 @@ export function VocabularyScreen() {
 
   return (
     <main className={`${styles.layout} ${zenMode ? styles.zenLayout : layout.viewport}`}>
-      <div className={styles.topReveal} aria-hidden="true" />
       <header className={styles.top} data-layout="top">
         <div className={styles.brand}>
           白纸 <small>MEMORY, IN THE OPEN.</small>
