@@ -3762,7 +3762,7 @@ body[data-assoc-over='true'] .assocDropTarget {
 
   main.layout:not(.zenLayout) .paperStage {
     flex: 0 0 auto !important;
-    height: calc(100dvh - 38px - var(--top-h)) !important;
+    height: calc(100dvh - 54px - var(--top-h)) !important;
     min-height: 0 !important;
     transition: height 240ms ease;
   }
@@ -3820,5 +3820,31 @@ body[data-assoc-over='true'] .assocDropTarget {
 
   main.layout:not(.zenLayout) .top .quiet {
     font-size: clamp(9px, 0.9vh, 12px);
+  }
+}
+
+/* Center translation stays neutral; only the mark changes the chip colour. */
+.targetZh,
+.centerChip.known .targetZh,
+.centerChip.unknown .targetZh {
+  color: #536154 !important;
+}
+
+/* The paper page may scroll, but never show a browser scrollbar on its right edge. */
+main.layout:not(.zenLayout) {
+  scrollbar-width: none;
+}
+
+main.layout:not(.zenLayout)::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1101px) {
+  main.layout:not(.zenLayout) {
+    padding: 6px 24px 28px;
+  }
+
+  main.layout:not(.zenLayout) > .top {
+    margin-bottom: 4px;
   }
 }
