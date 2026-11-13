@@ -320,6 +320,7 @@ export function VocabularyScreen() {
   const [paste, setPaste] = useState('')
   const [notice, setNotice] = useState<string | null>(null)
   const [shelfOpen, setShelfOpen] = useState(false)
+  const [topOpen, setTopOpen] = useState(false)
   const [zenMode, setZenMode] = useState(false)
   const [zenLayout, setZenLayout] = useState<ZenLayout>({
     columns: 1,
@@ -538,6 +539,17 @@ export function VocabularyScreen() {
       return next
     })
   }
+
+  useEffect(() => {
+    const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') return
+      if (event.clientX <= 26) setShelfOpen(true)
+      if (event.clientY <= 18) setTopOpen(true)
+      else if (event.clientY > 100) setTopOpen(false)
+    }
+    window.addEventListener('pointermove', onPointerMove, { passive: true })
+    return () => window.removeEventListener('pointermove', onPointerMove)
+  }, [])
 
   useEffect(() => {
     warmSpeech()
@@ -1426,7 +1438,7 @@ export function VocabularyScreen() {
 
   return (
     <main className={`${styles.layout} ${zenMode ? styles.zenLayout : layout.viewport}`}>
-      <header className={styles.top} data-layout="top">
+      <header className={`${styles.top}${topOpen ? ` ${styles.topOpen}` : ''}`} data-layout="top">
         <div className={styles.brand}>
           白纸 <small>MEMORY, IN THE OPEN.</small>
         </div>
