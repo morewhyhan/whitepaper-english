@@ -3786,7 +3786,8 @@ body[data-assoc-over='true'] .assocDropTarget {
   }
 
   main.layout:not(.zenLayout) .paperAdvance {
-    width: clamp(34px, 3.9vh, 52px);
+    width: clamp(38px, 4.1vh, 52px);
+    flex-wrap: nowrap !important;
     gap: clamp(6px, 0.7vh, 9px) !important;
   }
 
@@ -3800,6 +3801,9 @@ body[data-assoc-over='true'] .assocDropTarget {
 
   main.layout:not(.zenLayout) .paperAdvance > div > button {
     width: 100% !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow: hidden;
     padding: clamp(10px, 1.5vh, 22px) clamp(3px, 0.7vh, 8px) !important;
     font-size: clamp(9px, 0.9vh, 12px) !important;
   }
