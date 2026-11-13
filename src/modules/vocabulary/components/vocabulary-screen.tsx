@@ -2439,10 +2439,11 @@ function AssociationView({
     prefetchSpeech(network.links.map((link) => ({ text: link.sentence, audio: link.audio })))
   }, [network])
   const [showTranslations, setShowTranslations] = useState(false)
+  const currentMark = word ? session.marks[word.id] : undefined
 
   useEffect(() => {
-    setShowTranslations(false)
-  }, [word?.id])
+    setShowTranslations(currentMark === 'unknown')
+  }, [word?.id, currentMark])
 
   const centerDrag = useWordTrashDrag(
     () => {
@@ -2455,7 +2456,7 @@ function AssociationView({
     false,
   )
   if (!word) return <div className={styles.paperInner} />
-  const mark = session.marks[word.id]
+  const mark = currentMark
 
   return (
     <>
