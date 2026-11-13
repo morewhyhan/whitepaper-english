@@ -88,6 +88,7 @@ export type VocabularyState = {
   hiddenAssociationLinks?: string[]
   hiddenCustomAssociations?: string[]
   greenStreaks?: Record<string, number>
+  cycleGreens?: Record<string, string[]>
 }
 
 export type ImportedVocabulary = {

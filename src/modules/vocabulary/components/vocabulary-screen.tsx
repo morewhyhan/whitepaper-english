@@ -1034,6 +1034,9 @@ export function VocabularyScreen() {
       },
     }
     const greenStreaks = { ...(state.greenStreaks ?? {}) }
+    const cycleGreens = { ...(state.cycleGreens ?? {}) }
+    const pageIds = new Set(page.map((word) => word.id))
+    const pendingGreens = (cycleGreens[cycleId] ?? []).filter((id) => !pageIds.has(id))
     const autoTrashWords: { id: string; en: string }[] = []
     if (isFirstPass) {
       for (const word of page) {
@@ -1042,16 +1045,23 @@ export function VocabularyScreen() {
           continue
         }
         const judgement = session.marks[word.id] ?? fallback
-        if (judgement === 'known') {
-          const streak = (greenStreaks[word.id] ?? 0) + 1
-          greenStreaks[word.id] = streak
-          if (streak >= 3 && state.settings.autoTrashThreeGreens !== false) {
-            autoTrashWords.push({ id: word.id, en: word.en })
-          }
-        } else {
-          greenStreaks[word.id] = 0
+        if (judgement === "known") pendingGreens.push(word.id)
+        else greenStreaks[word.id] = 0
+      }
+      cycleGreens[cycleId] = pendingGreens
+    }
+    const firstRoundFinished = isFirstPass && (next.complete || next.round !== 1)
+    if (firstRoundFinished) {
+      for (const id of pendingGreens) {
+        if (trashed.has(id)) continue
+        const streak = (greenStreaks[id] ?? 0) + 1
+        greenStreaks[id] = streak
+        if (streak >= 3 && state.settings.autoTrashThreeGreens !== false) {
+          const word = state.words.find((item) => item.id === id)
+          if (word) autoTrashWords.push({ id, en: word.en })
         }
       }
+      delete cycleGreens[cycleId]
     }
     const autoTrashIds = autoTrashWords.map((word) => word.id)
     const nextState = {
@@ -1063,6 +1073,7 @@ export function VocabularyScreen() {
         ...greenStreaks,
         ...Object.fromEntries(autoTrashIds.map((id) => [id, 0])),
       },
+      cycleGreens,
     }
     commit(nextState)
     if (autoTrashWords.length) {
@@ -1352,6 +1363,7 @@ export function VocabularyScreen() {
       words,
       networks,
       greenStreaks: {},
+      cycleGreens: {},
       sessions: { [today]: createSession(words, state.settings, state.trashedIds) },
     }
     setUndoStack([])
@@ -1398,6 +1410,7 @@ export function VocabularyScreen() {
 
     const nextState = {
       ...state,
+      cycleGreens: {},
       sessions: {
         ...state.sessions,
         [today]: createSession(state.words, state.settings, state.trashedIds),
