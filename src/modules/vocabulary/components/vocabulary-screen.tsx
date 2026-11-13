@@ -593,7 +593,10 @@ export function VocabularyScreen() {
     session.view === 'connect'
       ? [wordAtCursor(state.words, session)].filter((word): word is VocabularyWord => Boolean(word))
       : pageWords(state.words, session)
-  const trashedWords = state.words.filter((word) => state.trashedIds.includes(word.id))
+  const trashedWords = [...state.trashedIds]
+    .reverse()
+    .map((id) => state.words.find((word) => word.id === id))
+    .filter((word): word is VocabularyWord => Boolean(word))
   const normalizedTrashQuery = trashQuery.trim().toLowerCase()
   const filteredTrashedWords = normalizedTrashQuery
     ? trashedWords.filter(
@@ -2444,6 +2447,7 @@ function AssociationView({
   const centerDrag = useWordTrashDrag(
     () => {
       setShowTranslations((visible) => !visible)
+      if (word) onWordClick(word.id, false)
     },
     () => {
       if (word) onTrash(word.id)
@@ -2521,11 +2525,11 @@ function AssociationView({
                   className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
                   data-selectable="true"
                   type="button"
-                  title="左键显示/隐藏翻译，右键标红；按住可拖到垃圾桶"
+                  title="左键翻译并标红，右键标绿；按住可拖到垃圾桶"
                   onPointerDown={centerDrag.handlePointerDown}
                   onContextMenu={(event) => {
                     event.preventDefault()
-                    onWordClick(word.id, false)
+                    onWordClick(word.id, true)
                   }}
                   onClick={centerDrag.handleClick}
                 >
@@ -2553,11 +2557,11 @@ function AssociationView({
                   className={`${styles.centerChip} ${mark ? markClass(mark) : ''}`}
                   data-selectable="true"
                   type="button"
-                  title="左键显示/隐藏翻译，右键标红；按住可拖到垃圾桶"
+                  title="左键翻译并标红，右键标绿；按住可拖到垃圾桶"
                   onPointerDown={centerDrag.handlePointerDown}
                   onContextMenu={(event) => {
                     event.preventDefault()
-                    onWordClick(word.id, false)
+                    onWordClick(word.id, true)
                   }}
                   onClick={centerDrag.handleClick}
                 >

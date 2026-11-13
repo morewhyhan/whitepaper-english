@@ -3823,13 +3823,6 @@ body[data-assoc-over='true'] .assocDropTarget {
   }
 }
 
-/* Center translation stays neutral; only the mark changes the chip colour. */
-.targetZh,
-.centerChip.known .targetZh,
-.centerChip.unknown .targetZh {
-  color: #536154 !important;
-}
-
 /* The paper page may scroll, but never show a browser scrollbar on its right edge. */
 main.layout:not(.zenLayout) {
   scrollbar-width: none;
