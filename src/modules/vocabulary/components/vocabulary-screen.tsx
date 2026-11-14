@@ -2649,9 +2649,10 @@ function CollectionNote({
             style={{ left: dragPoint.x - 15, top: dragPoint.y - 24 }}
             aria-hidden="true"
           >
-            <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M7 8v20a5 5 0 0 0 10 0V9a3 3 0 0 0-6 0v17a1.5 1.5 0 0 0 3 0V10" />
-            </svg>
+            <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" />
+              <path d="M14 15v25c0 5 5 5 5 0V15" opacity=".55" strokeWidth="1.2" />
+          </svg>
           </div>,
           document.body,
         )}
