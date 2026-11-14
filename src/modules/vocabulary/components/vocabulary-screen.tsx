@@ -58,6 +58,7 @@ function useWordTrashDrag(
   onNote?: (() => void) | undefined,
 ) {
   const [dragging, setDragging] = useState(false)
+  const [hoverLocked, setHoverLocked] = useState(false)
   const [overTrash, setOverTrash] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const drag = useRef<{ x: number; y: number; pointerId: number; active: boolean } | null>(null)
@@ -1801,6 +1802,7 @@ export function VocabularyScreen() {
                   onLockPreview={() => {
                     if (previewWordId) setCollectionWordId(previewWordId)
                   }}
+                  onDismissPreview={() => setPreviewWordId(null)}
                   savedSentences={state.savedSentences ?? []}
                   onSpeak={(text) => speakText(text)}
                   onToggleSaved={toggleSavedSentence}
@@ -2537,6 +2539,7 @@ function CollectionNote({
   selectedWordId,
   previewActive,
   onLockPreview,
+  onDismissPreview,
   savedSentences,
   onSpeak,
   onToggleSaved,
@@ -2545,6 +2548,7 @@ function CollectionNote({
   selectedWordId: string | null
   previewActive: boolean
   onLockPreview: () => void
+  onDismissPreview: () => void
   savedSentences: SavedSentence[]
   onSpeak: (text: string) => void
   onToggleSaved: (entry: Omit<SavedSentence, 'id' | 'createdAt'>) => void
@@ -2552,6 +2556,7 @@ function CollectionNote({
   const [mode, setMode] = useState<'closed' | 'pinned' | 'focus'>('closed')
   const [allTranslated, setAllTranslated] = useState(false)
   const [dragging, setDragging] = useState(false)
+  const [hoverLocked, setHoverLocked] = useState(false)
   const [dragPoint, setDragPoint] = useState({ x: 0, y: 0 })
   const suppressClick = useRef(false)
   const dragRef = useRef<{ x: number; y: number; pointerId: number; moved: boolean; overPaper: boolean } | null>(null)
@@ -2609,8 +2614,9 @@ function CollectionNote({
     window.addEventListener('pointercancel', finish)
   }
 
-  const visibleWords = selectedWordId
-    ? words.filter((word) => word.id === selectedWordId)
+  const effectiveSelectedWordId = mode === 'focus' ? null : selectedWordId
+  const visibleWords = effectiveSelectedWordId
+    ? words.filter((word) => word.id === effectiveSelectedWordId)
     : words.filter((word) =>
         savedSentences.some((item) => item.word.toLowerCase() === word.en.toLowerCase()),
       )
@@ -2618,8 +2624,9 @@ function CollectionNote({
   return (
     <>
       <aside
-      className={`${styles.collectionNote} ${mode === 'pinned' ? styles.collectionNotePinned : ''} ${mode === 'focus' ? styles.collectionNoteFocus : ''} ${previewActive ? styles.collectionNotePreview : ''}`}
+      className={`${styles.collectionNote} ${mode === 'pinned' ? styles.collectionNotePinned : ''} ${mode === 'focus' ? styles.collectionNoteFocus : ''} ${previewActive ? styles.collectionNotePreview : ''} ${hoverLocked ? styles.collectionNoteHoverLocked : ''}`}
       data-collection-note="true"
+      onPointerLeave={() => setHoverLocked(false)}
       aria-label="收藏例句便签"
       onDragOver={(event) => {
         event.preventDefault()
@@ -2649,11 +2656,13 @@ function CollectionNote({
               onLockPreview()
               return 'pinned'
             }
+            onDismissPreview()
+            setHoverLocked(true)
             return 'closed'
           })
         }}
       >
-        <svg viewBox="0 0 34 54" fill="none" stroke="url(#clipSilver)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 34 54" fill="none" stroke="#aeb8bf" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <defs>
             <linearGradient id="clipSilver" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stopColor="#f8fbfd" />
@@ -2668,8 +2677,12 @@ function CollectionNote({
       </button>
       <div className={styles.collectionBody}>
         <div className={styles.collectionHead}>
-          <span>{selectedWordId ? '当前词' : '本页'}</span>
-          <button type="button" onClick={() => setMode('closed')} aria-label="收起收藏例句">
+          <span>{effectiveSelectedWordId ? '当前词' : '本页'}</span>
+          <button type="button" onClick={() => {
+            onDismissPreview()
+            setHoverLocked(true)
+            setMode('closed')
+          }} aria-label="收起收藏例句">
             ×
           </button>
         </div>

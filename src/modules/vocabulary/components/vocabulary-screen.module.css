@@ -3900,7 +3900,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionClipButton {
   position: absolute;
   top: -7px;
-  right: -34px;
+  right: -40px;
   z-index: 100;
   width: 42px;
   height: 64px;
@@ -3969,14 +3969,6 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   pointer-events: auto;
 }
 
-.collectionNote:hover:not(.collectionNoteFocus) .collectionClipButton,
-.collectionNotePinned:not(.collectionNoteFocus) .collectionClipButton,
-.collectionNotePreview:not(.collectionNoteFocus) .collectionClipButton {
-  right: auto;
-  left: -40px;
-  top: 6px;
-}
-
 .collectionNoteFocus {
   top: 0;
   right: 52px !important;
@@ -4010,11 +4002,13 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 }
 
 .collectionNoteFocus .collectionSentence {
-  font-size: 15px;
+  font-size: 18px;
+  line-height: 1.7;
 }
 
 .collectionNoteFocus .collectionSentence small {
-  font-size: 13px;
+  font-size: 15px;
+  line-height: 1.55;
 }
 
 .collectionHead {
@@ -4281,4 +4275,27 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionNotePreview .collectionBody {
   transform: none !important;
+}
+
+.collectionNoteHoverLocked {
+  width: 34px !important;
+}
+
+.collectionNoteHoverLocked .collectionBody {
+  max-height: 0 !important;
+  min-height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.collectionNoteFocus .collectionGroup strong {
+  font-size: 14px;
+}
+
+.collectionNoteFocus .collectionHead {
+  font-size: 14px;
+}
+
+.collectionNoteFocus .collectionTranslate {
+  font-size: 13px;
 }
