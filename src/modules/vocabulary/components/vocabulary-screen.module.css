@@ -3898,18 +3898,18 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionClipButton {
   position: absolute;
   /* Register the image centre on the sheet's top-left corner. */
-  top: -5px;
+  top: 0;
   right: -58px;
   z-index: 100;
-  width: 96px;
-  height: 116px;
+  width: 67px;
+  height: 81px;
   padding: 3px;
   border: 0;
   background: transparent;
   color: #aeb8bf;
   cursor: pointer;
-  transform-origin: 38px 5px;
-  transform: translateX(30px) translateY(-5px) rotate(25deg);
+  transform-origin: 50% 50%;
+  transform: rotate(-18deg);
   transition:
     left 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     right 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -3979,8 +3979,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionNoteFocus .collectionClipButton {
   right: auto;
-  left: -38px;
-  top: -5px;
+  left: -9px;
+  top: 0;
 }
 
 .collectionNoteFocus .collectionBody {
@@ -4243,7 +4243,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   height: 94px;
   color: #aeb8bf;
   pointer-events: none;
-  transform: rotate(0deg);
+  transform: rotate(-18deg);
   filter: drop-shadow(0 4px 4px #4d3d2326);
 }
 
@@ -4301,9 +4301,9 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 
 @keyframes clipWiggle {
-  0%, 100% { transform: translateX(30px) translateY(-5px) rotate(25deg); }
-  30% { transform: translateX(30px) translateY(-5px) rotate(28deg); }
-  62% { transform: translateX(30px) translateY(-5px) rotate(22deg); }
+  0%, 100% { transform: rotate(-18deg); }
+  30% { transform: rotate(-14deg); }
+  62% { transform: rotate(-21deg); }
 }
 
 .collectionClipButton:hover {

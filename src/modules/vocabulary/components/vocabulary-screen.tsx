@@ -2756,7 +2756,7 @@ function CollectionNote({
         createPortal(
           <div
             className={styles.collectionClipGhost}
-            style={{ left: dragPoint.x - 48, top: dragPoint.y - 58 }}
+            style={{ left: dragPoint.x - 34, top: dragPoint.y - 40 }}
             aria-hidden="true"
           >
 <img src="/paperclip-trim.png" alt="" draggable={false} />
