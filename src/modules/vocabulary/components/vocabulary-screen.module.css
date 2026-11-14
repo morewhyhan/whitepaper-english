@@ -3909,7 +3909,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   color: #aeb8bf;
   cursor: pointer;
   transform-origin: 38px 5px;
-  transform: translateX(25px) translateY(0px) rotate(25deg);
+  transform: translateX(30px) translateY(-5px) rotate(25deg);
   transition:
     left 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     right 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -4301,9 +4301,9 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 
 @keyframes clipWiggle {
-  0%, 100% { transform: translateX(25px) translateY(0px) rotate(25deg); }
-  30% { transform: translateX(25px) translateY(0px) rotate(28deg); }
-  62% { transform: translateX(25px) translateY(0px) rotate(22deg); }
+  0%, 100% { transform: translateX(30px) translateY(-5px) rotate(25deg); }
+  30% { transform: translateX(30px) translateY(-5px) rotate(28deg); }
+  62% { transform: translateX(30px) translateY(-5px) rotate(22deg); }
 }
 
 .collectionClipButton:hover {
