@@ -2565,6 +2565,10 @@ function CollectionNote({
     setAllTranslated(false)
   }, [selectedWordId, words.map((word) => word.id).join(',')])
 
+  useEffect(() => {
+    if (previewActive) setHoverLocked(false)
+  }, [previewActive])
+
   function beginClipDrag(event: ReactPointerEvent<HTMLButtonElement>) {
     if (event.button !== 0) return
     const start = { x: event.clientX, y: event.clientY, pointerId: event.pointerId, moved: false, overPaper: false }
@@ -2675,6 +2679,7 @@ function CollectionNote({
           <path d="M14 15v25c0 5 5 5 5 0V15" opacity=".55" strokeWidth="1.2" />
         </svg>
       </button>
+      <span className={styles.collectionClipEdge} aria-hidden="true" />
       <div className={styles.collectionBody}>
         <div className={styles.collectionHead}>
           <span>{effectiveSelectedWordId ? '当前词' : '本页'}</span>
@@ -2729,7 +2734,7 @@ function CollectionNote({
         createPortal(
           <div
             className={styles.collectionClipGhost}
-            style={{ left: dragPoint.x - 15, top: dragPoint.y - 24 }}
+            style={{ left: dragPoint.x - 29, top: dragPoint.y - 43 }}
             aria-hidden="true"
           >
             <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">

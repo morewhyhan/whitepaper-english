@@ -3899,17 +3899,17 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionClipButton {
   position: absolute;
-  top: -7px;
-  right: -40px;
+  top: -14px;
+  right: -46px;
   z-index: 100;
-  width: 42px;
-  height: 64px;
+  width: 58px;
+  height: 86px;
   padding: 3px;
   border: 0;
   background: transparent;
   color: #aeb8bf;
   cursor: pointer;
-  transform: rotate(12deg);
+  transform: rotate(35deg);
   transition:
     left 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     right 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -4239,12 +4239,12 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionClipGhost {
   position: fixed;
   z-index: 100;
-  width: 42px;
-  height: 64px;
+  width: 58px;
+  height: 86px;
   color: #aeb8bf;
   pointer-events: none;
-  transform: rotate(9deg);
-  filter: drop-shadow(0 2px 2px #4d3d231f);
+  transform: rotate(35deg);
+  filter: drop-shadow(0 4px 4px #4d3d2326);
 }
 
 .collectionClipGhost svg {
@@ -4253,9 +4253,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 }
 
 /* Full-paper note: no hover offset, and the right-side tab rail leaves the stage. */
-.paperStage:has(.collectionNoteFocus) .paperAdvance,
-.paperStage:has(.collectionNotePinned) .paperAdvance,
-.paperStage:has(.collectionNotePreview) .paperAdvance {
+.paperStage:has(.collectionNoteFocus) .paperAdvance {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -4298,4 +4296,21 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionNoteFocus .collectionTranslate {
   font-size: 13px;
+}
+
+/* The paper edge crosses in front of the clip, so the wire looks threaded through the sheet. */
+.collectionClipEdge {
+  position: absolute;
+  top: -10px;
+  right: -2px;
+  z-index: 101;
+  width: 5px;
+  height: 96px;
+  pointer-events: none;
+  background: linear-gradient(90deg, #ece9df, #fffdf8 65%, #f7f4ea);
+  box-shadow: -2px 0 4px #4d3d2314, 1px 0 0 #fffdf8;
+}
+
+.collectionNoteFocus .collectionClipEdge {
+  display: none;
 }
