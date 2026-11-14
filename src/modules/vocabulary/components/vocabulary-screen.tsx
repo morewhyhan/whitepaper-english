@@ -1592,6 +1592,13 @@ export function VocabularyScreen() {
             </div>
             <div className={styles.paperStage} data-layout="stage">
               <div className={styles.paperFrame} data-layout="frame">
+                <CollectionNote
+                  words={currentWords}
+                  selectedWordId={session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null}
+                  savedSentences={state.savedSentences ?? []}
+                  onSpeak={(text) => speakText(text)}
+                  onToggleSaved={toggleSavedSentence}
+                />
                 <PaperSurface
                   key={
                     session.view === 'connect'
@@ -1671,13 +1678,6 @@ export function VocabularyScreen() {
                     </span>
                   </div>
                 </PaperSurface>
-                <CollectionNote
-                  words={currentWords}
-                  selectedWordId={session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null}
-                  savedSentences={state.savedSentences ?? []}
-                  onSpeak={(text) => speakText(text)}
-                  onToggleSaved={toggleSavedSentence}
-                />
                 <div
                   className={styles.paperAdvance}
                   data-layout="actions"
@@ -2328,11 +2328,14 @@ function CollectionNote({
         title={pinned ? '收起收藏例句' : '展开收藏例句'}
         onClick={() => setPinned((value) => !value)}
       >
-        收藏
-        <br />
         例句
       </button>
       <div className={styles.collectionBody}>
+        <span className={styles.collectionClip} aria-hidden="true">
+          <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <path d="M7 8v20a5 5 0 0 0 10 0V9a3 3 0 0 0-6 0v17a1.5 1.5 0 0 0 3 0V10" />
+          </svg>
+        </span>
         <div className={styles.collectionHead}>
           <span>{selectedWordId ? '当前词' : '本页'}</span>
           <button type="button" onClick={() => setPinned(false)} aria-label="收起收藏例句">
