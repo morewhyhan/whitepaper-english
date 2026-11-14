@@ -71,6 +71,16 @@ export type VocabularySession = {
   historyKind?: 'page' | 'word'
 }
 
+export type SavedSentence = {
+  id: string
+  word: string
+  sentence: string
+  sentenceZh?: string
+  wordZh?: string
+  source: 'default' | 'custom'
+  createdAt: string
+}
+
 export type VocabularyState = {
   words: VocabularyWord[]
   networks: AssociationNetwork[]
@@ -89,6 +99,7 @@ export type VocabularyState = {
   hiddenCustomAssociations?: string[]
   greenStreaks?: Record<string, number>
   cycleGreens?: Record<string, string[]>
+  savedSentences?: SavedSentence[]
 }
 
 export type ImportedVocabulary = {

@@ -35,6 +35,7 @@ import {
   type VocabularySession,
   type VocabularyState,
   type VocabularyWord,
+  type SavedSentence,
 } from '../lib/vocabulary'
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import { signIn } from '@/modules/auth/lib/auth-client'
@@ -301,6 +302,7 @@ export function VocabularyScreen() {
   const [trashQuery, setTrashQuery] = useState('')
   const [trashPage, setTrashPage] = useState(0)
   const [confirmRestoreAll, setConfirmRestoreAll] = useState(false)
+  const [collectionWordId, setCollectionWordId] = useState<string | null>(null)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
@@ -593,6 +595,10 @@ export function VocabularyScreen() {
     session.view === 'connect'
       ? [wordAtCursor(state.words, session)].filter((word): word is VocabularyWord => Boolean(word))
       : pageWords(state.words, session)
+  useEffect(() => {
+    setCollectionWordId(null)
+  }, [pageKey(session)])
+
   const trashedWords = [...state.trashedIds]
     .reverse()
     .map((id) => state.words.find((word) => word.id === id))
@@ -778,6 +784,8 @@ export function VocabularyScreen() {
     }
     const spoken = state.words.find((word) => word.id === id)
     if (soundOn && spoken) speakText(spoken.en, spoken.audio)
+    const willUnmark = session.marks[id] === (green ? 'known' : 'unknown')
+    setCollectionWordId(willUnmark ? null : id)
     updateSession((current) => toggleMark(current, id, green ? 'known' : 'unknown'))
   }
 
@@ -812,6 +820,27 @@ export function VocabularyScreen() {
     window.getSelection()?.removeAllRanges()
   }
 
+  function toggleSavedSentence(entry: Omit<SavedSentence, 'id' | 'createdAt'>) {
+    const list = state.savedSentences ?? []
+    const exists = list.some(
+      (item) => item.word.toLowerCase() === entry.word.toLowerCase() && item.sentence === entry.sentence,
+    )
+    const savedSentences = exists
+      ? list.filter(
+          (item) =>
+            !(item.word.toLowerCase() === entry.word.toLowerCase() && item.sentence === entry.sentence),
+        )
+      : [
+          ...list,
+          {
+            ...entry,
+            id: `saved-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+            createdAt: new Date().toISOString(),
+          },
+        ]
+    commit({ ...state, savedSentences })
+  }
+
   function addCustomAssociation(target: string, sentence: string) {
     const text = sentence.trim()
     const word = currentWords[0]
@@ -832,11 +861,24 @@ export function VocabularyScreen() {
       setSentenceError('每个目标词最多添加 4 条自定义句。')
       return
     }
+    const customId = `custom-${Date.now().toString(36)}`
     const nextCustom = {
       ...(state.customAssociations ?? {}),
-      [key]: [...custom, { id: `custom-${Date.now().toString(36)}`, sentence: text }],
+      [key]: [...custom, { id: customId, sentence: text }],
     }
-    commit({ ...state, customAssociations: nextCustom })
+    const saved = {
+      id: `saved-${customId}`,
+      word: word.en,
+      sentence: text,
+      wordZh: word.zh,
+      source: 'custom' as const,
+      createdAt: new Date().toISOString(),
+    }
+    commit({
+      ...state,
+      customAssociations: nextCustom,
+      savedSentences: [...(state.savedSentences ?? []), saved],
+    })
     setSentenceText('')
     setSentenceError(null)
     setSentenceOpen(false)
@@ -1613,6 +1655,8 @@ export function VocabularyScreen() {
                       customAssociations={state.customAssociations ?? {}}
                       hiddenAssociationLinks={state.hiddenAssociationLinks ?? []}
                       hiddenCustomAssociations={state.hiddenCustomAssociations ?? []}
+                      savedSentences={state.savedSentences ?? []}
+                      onToggleSaved={toggleSavedSentence}
                       onRemoveLink={removeAssociation}
                     />
                   )}
@@ -1627,6 +1671,13 @@ export function VocabularyScreen() {
                     </span>
                   </div>
                 </PaperSurface>
+                <CollectionNote
+                  words={currentWords}
+                  selectedWordId={session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null}
+                  savedSentences={state.savedSentences ?? []}
+                  onSpeak={(text) => speakText(text)}
+                  onToggleSaved={toggleSavedSentence}
+                />
                 <div
                   className={styles.paperAdvance}
                   data-layout="actions"
@@ -2225,6 +2276,111 @@ function WordbookShelf({
   )
 }
 
+function CollectionNote({
+  words,
+  selectedWordId,
+  savedSentences,
+  onSpeak,
+  onToggleSaved,
+}: {
+  words: VocabularyWord[]
+  selectedWordId: string | null
+  savedSentences: SavedSentence[]
+  onSpeak: (text: string) => void
+  onToggleSaved: (entry: Omit<SavedSentence, 'id' | 'createdAt'>) => void
+}) {
+  const [pinned, setPinned] = useState(false)
+  const [allTranslated, setAllTranslated] = useState(false)
+
+  useEffect(() => {
+    setAllTranslated(false)
+  }, [selectedWordId, words.map((word) => word.id).join(',')])
+
+  const visibleWords = selectedWordId
+    ? words.filter((word) => word.id === selectedWordId)
+    : words.filter((word) =>
+        savedSentences.some((item) => item.word.toLowerCase() === word.en.toLowerCase()),
+      )
+
+  return (
+    <aside
+      className={`${styles.collectionNote} ${pinned ? styles.collectionNotePinned : ''}`}
+      aria-label="收藏例句便签"
+      onDragOver={(event) => {
+        event.preventDefault()
+        event.dataTransfer.dropEffect = 'copy'
+      }}
+      onDrop={(event) => {
+        event.preventDefault()
+        const raw = event.dataTransfer.getData('application/x-whitepaper-sentence')
+        if (!raw) return
+        try {
+          const entry = JSON.parse(raw) as Omit<SavedSentence, 'id' | 'createdAt'>
+          if (entry.word && entry.sentence) onToggleSaved(entry)
+        } catch {
+          /* ignore malformed drag payload */
+        }
+      }}
+    >
+      <button
+        className={styles.collectionTab}
+        type="button"
+        title={pinned ? '收起收藏例句' : '展开收藏例句'}
+        onClick={() => setPinned((value) => !value)}
+      >
+        收藏
+        <br />
+        例句
+      </button>
+      <div className={styles.collectionBody}>
+        <div className={styles.collectionHead}>
+          <span>{selectedWordId ? '当前词' : '本页'}</span>
+          <button type="button" onClick={() => setPinned(false)} aria-label="收起收藏例句">
+            ×
+          </button>
+        </div>
+        <div className={styles.collectionScroll}>
+          {visibleWords.length ? (
+            visibleWords.map((word) => {
+              const saved = savedSentences.filter(
+                (item) => item.word.toLowerCase() === word.en.toLowerCase(),
+              )
+              if (!saved.length) return null
+              return (
+                <section className={styles.collectionGroup} key={word.id}>
+                  <strong>{word.en}</strong>
+                  {saved.map((item) => (
+                    <button
+                      className={styles.collectionSentence}
+                      key={item.id}
+                      type="button"
+                      onClick={() => onSpeak(item.sentence)}
+                    >
+                      <span>{item.sentence}</span>
+                      {allTranslated && item.sentenceZh ? <small>{item.sentenceZh}</small> : null}
+                    </button>
+                  ))}
+                </section>
+              )
+            })
+          ) : (
+            <p className={styles.collectionEmpty}>
+              {selectedWordId ? '这个词还没有收藏例句。' : '本页还没有收藏例句。'}
+            </p>
+          )}
+        </div>
+        <button
+          className={styles.collectionTranslate}
+          type="button"
+          onClick={() => setAllTranslated((value) => !value)}
+        >
+          {allTranslated ? '隐藏翻译' : '一键全部翻译'}
+        </button>
+      </div>
+    </aside>
+  )
+}
+
 function ScanView({
   words,
   session,
@@ -2360,6 +2516,8 @@ function AssociationView({
   customAssociations,
   hiddenAssociationLinks,
   hiddenCustomAssociations,
+  savedSentences,
+  onToggleSaved,
   onRemoveLink,
 }: {
   words: VocabularyWord[]
@@ -2374,6 +2532,8 @@ function AssociationView({
   customAssociations: Record<string, Array<{ id: string; sentence: string }>>
   hiddenAssociationLinks: string[]
   hiddenCustomAssociations: string[]
+  savedSentences: SavedSentence[]
+  onToggleSaved: (entry: Omit<SavedSentence, 'id' | 'createdAt'>) => void
   onRemoveLink: (target: string, sentence: string, custom: boolean) => void
 }) {
   const word = words[0]
@@ -2472,6 +2632,9 @@ function AssociationView({
                 )?.zh
                 const wordZh = link.wordZh ?? fallbackWordZh
                 const sentenceZh = link.sentenceZh
+                const isSaved = savedSentences.some(
+                  (item) => item.word.toLowerCase() === word.en.toLowerCase() && item.sentence === link.sentence,
+                )
 
                 return (
                   <div className={styles.assocNodeWrap} key={link.key}>
@@ -2495,7 +2658,23 @@ function AssociationView({
                           </small>
                         )}
                       </span>
-                      <span className={styles.assocSentence}>
+                      <span
+                        className={`${styles.assocSentence} ${isSaved ? styles.savedSentence : ''}`}
+                        draggable
+                        onDragStart={(event) => {
+                          event.dataTransfer.effectAllowed = 'copy'
+                          event.dataTransfer.setData(
+                            'application/x-whitepaper-sentence',
+                            JSON.stringify({
+                              word: word.en,
+                              sentence: link.sentence,
+                              sentenceZh,
+                              wordZh,
+                              source: link.custom ? 'custom' : 'default',
+                            }),
+                          )
+                        }}
+                      >
                         {highlight(link.sentence, [link.custom ? word.en : link.word, word.en])}
                       </span>
                       {showTranslations && sentenceZh && (
@@ -2506,6 +2685,23 @@ function AssociationView({
                           )}
                         </span>
                       )}
+                    </button>
+                    <button
+                      className={`${styles.assocStar} ${isSaved ? styles.assocStarActive : ''}`}
+                      type="button"
+                      aria-label={isSaved ? '取消收藏这条句子' : '收藏这条句子'}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        onToggleSaved({
+                          word: word.en,
+                          sentence: link.sentence,
+                          sentenceZh,
+                          wordZh,
+                          source: link.custom ? 'custom' : 'default',
+                        })
+                      }}
+                    >
+                      {isSaved ? '★' : '☆'}
                     </button>
                     <button
                       className={styles.assocRemove}
