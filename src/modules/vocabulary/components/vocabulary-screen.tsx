@@ -2499,7 +2499,8 @@ function CollectionNote({
 }) {
   const [mode, setMode] = useState<'closed' | 'pinned' | 'focus'>('closed')
   const [allTranslated, setAllTranslated] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [dragging, setDragging] = useState(false)
+  const [dragPoint, setDragPoint] = useState({ x: 0, y: 0 })
   const suppressClick = useRef(false)
   const dragRef = useRef<{ x: number; y: number; pointerId: number; moved: boolean; overPaper: boolean } | null>(null)
 
@@ -2518,7 +2519,8 @@ function CollectionNote({
       const dy = moveEvent.clientY - current.y
       if (!current.moved && Math.hypot(dx, dy) < 5) return
       current.moved = true
-      setDragOffset({ x: dx, y: dy })
+      setDragging(true)
+      setDragPoint({ x: moveEvent.clientX, y: moveEvent.clientY })
       const paper = document.querySelector('[data-layout="paper"]')
       if (paper) {
         const rect = paper.getBoundingClientRect()
@@ -2542,7 +2544,7 @@ function CollectionNote({
         if (current.overPaper) setMode('focus')
         else if (mode === 'focus') setMode('closed')
       }
-      setDragOffset({ x: 0, y: 0 })
+      setDragging(false)
       dragRef.current = null
     }
     window.addEventListener('pointermove', move, { passive: true })
@@ -2557,7 +2559,8 @@ function CollectionNote({
       )
 
   return (
-    <aside
+    <>
+      <aside
       className={`${styles.collectionNote} ${mode === 'pinned' ? styles.collectionNotePinned : ''} ${mode === 'focus' ? styles.collectionNoteFocus : ''}`}
       aria-label="收藏例句便签"
       onDragOver={(event) => {
@@ -2577,10 +2580,9 @@ function CollectionNote({
       }}
     >
       <button
-        className={styles.collectionClipButton}
+        className={`${styles.collectionClipButton} ${dragging ? styles.collectionClipDragging : ''}`}
         type="button"
         aria-label={mode === 'closed' ? '展开收藏例句' : '收起收藏例句'}
-        style={{ transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(11deg)` }}
         onPointerDown={beginClipDrag}
         onClick={() => {
           if (suppressClick.current) {
@@ -2640,6 +2642,20 @@ function CollectionNote({
         </button>
       </div>
     </aside>
+      {dragging &&
+        createPortal(
+          <div
+            className={styles.collectionClipGhost}
+            style={{ left: dragPoint.x - 15, top: dragPoint.y - 24 }}
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M7 8v20a5 5 0 0 0 10 0V9a3 3 0 0 0-6 0v17a1.5 1.5 0 0 0 3 0V10" />
+            </svg>
+          </div>,
+          document.body,
+        )}
+    </>
   )
 }
 
