@@ -2705,13 +2705,7 @@ function CollectionNote({
       <div className={styles.collectionBody}>
         <div className={styles.collectionHead}>
           <span>{effectiveSelectedWordId ? '当前词' : '本页'}</span>
-          <button type="button" onClick={() => {
-            onDismissPreview()
-            setHoverLocked(true)
-            setMode('closed')
-          }} aria-label="收起收藏例句">
-            ×
-          </button>
+
         </div>
         <div className={styles.collectionScroll}>
           {visibleWords.length ? (

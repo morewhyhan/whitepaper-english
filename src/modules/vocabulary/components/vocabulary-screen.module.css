@@ -3898,17 +3898,17 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionNotePinned .collectionClipButton,
 .collectionNoteFocus .collectionClipButton {
-  left: -9px;
-  right: auto;
-  transform: rotate(7deg);
+  right: -10px;
+  left: auto;
+  transform: rotate(0deg);
 }
 
 .collectionClipButton {
   position: absolute;
   /* Register the image centre on the sheet's top-left corner. */
-  top: -12px;
-  left: calc(100% + 100cqw - 140px);
-  right: auto;
+  top: -16px;
+  right: -10px;
+  left: auto;
   z-index: 100;
   width: 67px;
   height: 81px;
@@ -3917,8 +3917,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   background: transparent;
   color: #aeb8bf;
   cursor: pointer;
-  transform-origin: 22% 8%;
-  transform: rotate(-18deg);
+  transform-origin: 50% 50%;
+  transform: rotate(0deg);
   transition:
     left 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     right 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -3988,8 +3988,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 }
 
 .collectionNoteFocus .collectionClipButton {
-  right: auto;
-  left: -9px;
+  right: -10px;
+  left: auto;
   top: -16px;
 }
 
@@ -4025,7 +4025,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 39px 8px 14px;
+  padding: 14px 14px 8px 14px;
   color: #8a691d;
   font-size: 11px;
   letter-spacing: 0.12em;
@@ -4253,7 +4253,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   height: 94px;
   color: #aeb8bf;
   pointer-events: none;
-  transform: rotate(-18deg);
+  transform: rotate(0deg);
   filter: drop-shadow(0 4px 4px #4d3d2326);
 }
 
@@ -4311,9 +4311,9 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 
 @keyframes clipWiggle {
-  0%, 100% { transform: rotate(-18deg); }
-  30% { transform: rotate(-14deg); }
-  62% { transform: rotate(-21deg); }
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(3deg); }
+  62% { transform: rotate(-2deg); }
 }
 
 .collectionNote:not(.collectionNotePinned):not(.collectionNoteFocus) .collectionClipButton:hover {
