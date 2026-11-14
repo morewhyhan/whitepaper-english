@@ -615,7 +615,6 @@ export function VocabularyScreen() {
   }, [pageKey(session)])
 
   useEffect(() => {
-    if (!previewWordId) return
     const clear = (event: PointerEvent) => {
       const target = event.target
       if (!(target instanceof Element)) return
@@ -630,7 +629,8 @@ export function VocabularyScreen() {
       previewClearTimer.current = window.setTimeout(() => {
         previewClearTimer.current = null
         setPreviewWordId(null)
-      }, 360)
+        setCollectionWordId(null)
+      }, 260)
     }
     window.addEventListener('pointermove', clear, { passive: true })
     return () => {
@@ -640,7 +640,7 @@ export function VocabularyScreen() {
         previewClearTimer.current = null
       }
     }
-  }, [previewWordId])
+  }, [])
 
   const trashedWords = [...state.trashedIds]
     .reverse()
@@ -1483,7 +1483,6 @@ export function VocabularyScreen() {
 
   function startTabDrag(event: ReactPointerEvent<HTMLDivElement>, tab: PaperTab, index: number) {
     if (event.button !== 0) return
-    event.currentTarget.setPointerCapture(event.pointerId)
     const start = { y: event.clientY, moved: false, visible: [...visibleTabs] }
     let targetIndex = index
     const pointerId = event.pointerId
@@ -1796,10 +1795,16 @@ export function VocabularyScreen() {
             </div>
             <div className={styles.paperStage} data-layout="stage">
               <div className={styles.paperFrame} data-layout="frame">
+                <span className={styles.collectionClipBack} aria-hidden="true">
+                  <svg viewBox="0 0 34 54" fill="none" stroke="#7d8890" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" />
+                  </svg>
+                </span>
                 <CollectionNote
                   words={currentWords}
                   selectedWordId={previewWordId ?? (session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null)}
                   openRequest={noteOpenRequest}
+                  viewKey={`${session.view}:${session.round}:${session.cursor}`}
                   onLockPreview={() => {
                     if (previewWordId) setCollectionWordId(previewWordId)
                   }}
@@ -2541,6 +2546,7 @@ function CollectionNote({
   selectedWordId,
   onLockPreview,
   openRequest,
+  viewKey,
   onDismissPreview,
   savedSentences,
   onSpeak,
@@ -2550,6 +2556,7 @@ function CollectionNote({
   selectedWordId: string | null
   onLockPreview: () => void
   openRequest: number
+  viewKey: string
   onDismissPreview: () => void
   savedSentences: SavedSentence[]
   onSpeak: (text: string) => void
@@ -2570,6 +2577,14 @@ function CollectionNote({
   useEffect(() => {
     if (openRequest > 0) setMode('pinned')
   }, [openRequest])
+
+  const lastView = useRef(viewKey)
+  useEffect(() => {
+    if (lastView.current === viewKey) return
+    lastView.current = viewKey
+    setMode('closed')
+    setHoverLocked(false)
+  }, [viewKey])
 
 
 
