@@ -3665,6 +3665,7 @@ body[data-assoc-over='true'] .assocDropTarget {
 
   main.layout:not(.zenLayout) .paperStage {
     flex: 0 0 auto !important;
+    transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
     height: calc(100dvh - 116px) !important;
     width: clamp(700px, 76vh, 1120px);
     max-width: calc(100% - 92px);
@@ -3874,8 +3875,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .savedSentence,
 .savedSentence strong {
-  color: #d9a300 !important;
-  -webkit-text-fill-color: #d9a300 !important;
+  color: #e0a400 !important;
+  -webkit-text-fill-color: #e0a400 !important;
 }
 
 .collectionNote {
@@ -3883,45 +3884,49 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   top: 0;
   right: 100%;
   z-index: 28;
-  width: 13px;
-  height: 60px;
+  width: 30px;
+  height: 66px;
   transition: width 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .collectionNote:hover,
 .collectionNotePinned {
-  width: min(302px, 26vw);
+  width: min(326px, 27vw);
 }
 
-.collectionTab {
+.collectionClipButton {
   position: absolute;
-  top: 0;
+  top: 7px;
   right: 0;
-  z-index: 3;
-  width: 13px;
-  height: 56px;
-  padding: 5px 1px;
+  z-index: 5;
+  width: 30px;
+  height: 49px;
+  padding: 3px;
   border: 0;
-  border-radius: 1px;
-  background: linear-gradient(90deg, #f8df96, #edca70);
-  color: #8c6a22;
-  font: inherit;
-  font-size: 8px;
-  line-height: 1;
-  writing-mode: vertical-rl;
-  text-orientation: upright;
+  background: transparent;
+  color: #88795f;
   cursor: pointer;
-  box-shadow: 1px 1px 0 #dfc17c;
+  transform: rotate(11deg);
+  filter: drop-shadow(0 1px 0 #fff8d5);
+}
+
+.collectionClipButton svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .collectionBody {
   position: absolute;
-  top: -5px;
-  right: 13px;
-  width: min(288px, calc(26vw - 13px));
-  height: min(330px, 52vh);
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: auto;
+  min-height: 0;
   max-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   border-radius: 1px;
   background:
     repeating-linear-gradient(
@@ -3947,38 +3952,11 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionNote:hover .collectionBody,
 .collectionNotePinned .collectionBody {
-  max-height: min(330px, 52vh);
+  min-height: 330px;
+  max-height: calc(100dvh - 90px);
   opacity: 1;
   transform: translateX(0) rotate(-0.7deg);
   pointer-events: auto;
-}
-
-.collectionBody::after {
-  content: '';
-  position: absolute;
-  right: 13px;
-  bottom: 9px;
-  left: 13px;
-  height: 1px;
-  background: #c8a24a45;
-}
-
-.collectionClip {
-  position: absolute;
-  top: 9px;
-  right: 12px;
-  z-index: 4;
-  width: 24px;
-  height: 38px;
-  color: #8d7b5b;
-  transform: rotate(13deg);
-  filter: drop-shadow(0 1px 0 #fff6c9);
-}
-
-.collectionClip svg {
-  display: block;
-  width: 100%;
-  height: 100%;
 }
 
 .collectionHead {
@@ -3987,8 +3965,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   justify-content: space-between;
   padding: 14px 39px 8px 14px;
   color: #8a691d;
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .collectionHead button {
@@ -4000,7 +3978,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 }
 
 .collectionScroll {
-  max-height: calc(100% - 92px);
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 0 13px 7px;
   overflow-y: auto;
 }
@@ -4013,9 +3992,9 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   display: block;
   margin-bottom: 3px;
   color: #86651c;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .collectionSentence {
@@ -4028,8 +4007,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   background: transparent;
   color: #9a741b;
   font: inherit;
-  font-size: 10.5px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.65;
   text-align: left;
   cursor: pointer;
 }
@@ -4038,8 +4017,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionSentence span {
   position: relative;
   z-index: 1;
-  color: #9a741b !important;
-  -webkit-text-fill-color: #9a741b !important;
+  color: #c28a00 !important;
+  -webkit-text-fill-color: #c28a00 !important;
 }
 
 .collectionSentence:hover {
@@ -4049,15 +4028,15 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionSentence small {
   display: block;
   margin-top: 2px;
-  color: #a78335;
-  font-size: 9px;
-  line-height: 1.4;
+  color: #d09a00;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .collectionEmpty {
   margin: 14px 13px;
   color: #a98537;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.7;
 }
 
@@ -4070,7 +4049,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   background: transparent;
   color: #80621b;
   font: inherit;
-  font-size: 9px;
+  font-size: 11px;
   text-align: left;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -4079,4 +4058,11 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionTranslate:hover {
   color: #5f4710;
+}
+
+/* When the note is pinned, the note + paper are one centred block. */
+@media (min-width: 1101px) {
+  main.layout:not(.zenLayout) .paperStage:has(.collectionNotePinned) {
+    transform: translateX(calc(min(326px, 27vw) * 0.5 + 52px));
+  }
 }
