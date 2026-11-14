@@ -3898,10 +3898,10 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionClipButton {
   position: absolute;
   top: -42px;
-  right: -70px;
+  right: -43px;
   z-index: 100;
   width: 96px;
-  height: 134px;
+  height: 116px;
   padding: 3px;
   border: 0;
   background: transparent;
@@ -3977,7 +3977,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionNoteFocus .collectionClipButton {
   right: auto;
-  left: -70px;
+  left: -43px;
   top: -42px;
 }
 
