@@ -65,6 +65,7 @@ function useWordTrashDrag(
   const overAssoc = useRef(false)
   const overNote = useRef(false)
   const suppressClick = useRef(false)
+  const previewClearTimer = useRef<number | null>(null)
 
   useEffect(() => {
     return () => {
@@ -313,6 +314,7 @@ export function VocabularyScreen() {
   const [confirmRestoreAll, setConfirmRestoreAll] = useState(false)
   const [collectionWordId, setCollectionWordId] = useState<string | null>(null)
   const [previewWordId, setPreviewWordId] = useState<string | null>(null)
+  const previewClearTimer = useRef<number | null>(null)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
@@ -615,11 +617,27 @@ export function VocabularyScreen() {
     const clear = (event: PointerEvent) => {
       const target = event.target
       if (!(target instanceof Element)) return
-      if (target.closest('[data-word="true"]') || target.closest('[data-collection-note="true"]')) return
-      setPreviewWordId(null)
+      if (target.closest('[data-word="true"]') || target.closest('[data-collection-note="true"]')) {
+        if (previewClearTimer.current) {
+          window.clearTimeout(previewClearTimer.current)
+          previewClearTimer.current = null
+        }
+        return
+      }
+      if (previewClearTimer.current) window.clearTimeout(previewClearTimer.current)
+      previewClearTimer.current = window.setTimeout(() => {
+        previewClearTimer.current = null
+        setPreviewWordId(null)
+      }, 360)
     }
     window.addEventListener('pointermove', clear, { passive: true })
-    return () => window.removeEventListener('pointermove', clear)
+    return () => {
+      window.removeEventListener('pointermove', clear)
+      if (previewClearTimer.current) {
+        window.clearTimeout(previewClearTimer.current)
+        previewClearTimer.current = null
+      }
+    }
   }, [previewWordId])
 
   const trashedWords = [...state.trashedIds]
@@ -1463,6 +1481,7 @@ export function VocabularyScreen() {
 
   function startTabDrag(event: ReactPointerEvent<HTMLDivElement>, tab: PaperTab, index: number) {
     if (event.button !== 0) return
+    event.currentTarget.setPointerCapture(event.pointerId)
     const start = { y: event.clientY, moved: false, visible: [...visibleTabs] }
     let targetIndex = index
     const pointerId = event.pointerId
@@ -1779,6 +1798,9 @@ export function VocabularyScreen() {
                   words={currentWords}
                   selectedWordId={previewWordId ?? (session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null)}
                   previewActive={Boolean(previewWordId)}
+                  onLockPreview={() => {
+                    if (previewWordId) setCollectionWordId(previewWordId)
+                  }}
                   savedSentences={state.savedSentences ?? []}
                   onSpeak={(text) => speakText(text)}
                   onToggleSaved={toggleSavedSentence}
@@ -2514,6 +2536,7 @@ function CollectionNote({
   words,
   selectedWordId,
   previewActive,
+  onLockPreview,
   savedSentences,
   onSpeak,
   onToggleSaved,
@@ -2521,6 +2544,7 @@ function CollectionNote({
   words: VocabularyWord[]
   selectedWordId: string | null
   previewActive: boolean
+  onLockPreview: () => void
   savedSentences: SavedSentence[]
   onSpeak: (text: string) => void
   onToggleSaved: (entry: Omit<SavedSentence, 'id' | 'createdAt'>) => void
@@ -2561,6 +2585,11 @@ function CollectionNote({
     }
     const finish = () => {
       const current = dragRef.current
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId)
+      } catch {
+        /* pointer already released */
+      }
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', finish)
       window.removeEventListener('pointercancel', finish)
@@ -2613,16 +2642,28 @@ function CollectionNote({
         type="button"
         aria-label={mode === 'closed' ? '展开收藏例句' : '收起收藏例句'}
         onPointerDown={beginClipDrag}
-        onClick={() => {
-          if (suppressClick.current) {
-            suppressClick.current = false
-            return
-          }
-          setMode((current) => (current === 'closed' ? 'pinned' : 'closed'))
+        onPointerUp={() => {
+          if (dragRef.current?.moved) return
+          setMode((current) => {
+            if (current === 'closed') {
+              onLockPreview()
+              return 'pinned'
+            }
+            return 'closed'
+          })
         }}
       >
-        <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" strokeWidth="1.6">
-          <path d="M7 8v20a5 5 0 0 0 10 0V9a3 3 0 0 0-6 0v17a1.5 1.5 0 0 0 3 0V10" />
+        <svg viewBox="0 0 34 54" fill="none" stroke="url(#clipSilver)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <defs>
+            <linearGradient id="clipSilver" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#f8fbfd" />
+              <stop offset=".45" stopColor="#c6ced4" />
+              <stop offset=".72" stopColor="#8f9aa2" />
+              <stop offset="1" stopColor="#e9eef1" />
+            </linearGradient>
+          </defs>
+          <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" />
+          <path d="M14 15v25c0 5 5 5 5 0V15" opacity=".55" strokeWidth="1.2" />
         </svg>
       </button>
       <div className={styles.collectionBody}>
