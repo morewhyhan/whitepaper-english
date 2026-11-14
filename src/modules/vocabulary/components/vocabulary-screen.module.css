@@ -3846,7 +3846,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 /* Saved-sentence sticky note */
 .assocStar {
   position: absolute;
-  top: -6px;
+  top: 2px;
   right: 18px;
   z-index: 4;
   width: 26px;
@@ -3898,8 +3898,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionClipButton {
   position: absolute;
-  top: 7px;
-  right: 0;
+  top: 1px;
+  right: -9px;
   z-index: 5;
   width: 30px;
   height: 49px;
@@ -3908,7 +3908,12 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   background: transparent;
   color: #88795f;
   cursor: pointer;
-  transform: rotate(11deg);
+  transform: rotate(9deg);
+  transition:
+    left 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    right 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    top 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
   filter: drop-shadow(0 1px 0 #fff8d5);
 }
 
@@ -3961,9 +3966,11 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   pointer-events: auto;
 }
 
+.collectionNote:hover:not(.collectionNoteFocus) .collectionClipButton,
 .collectionNotePinned:not(.collectionNoteFocus) .collectionClipButton {
   right: auto;
   left: 7px;
+  top: -10px;
 }
 
 .collectionNoteFocus {
@@ -3977,7 +3984,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionNoteFocus .collectionClipButton {
   right: auto;
   left: 14px;
-  top: 11px;
+  top: -10px;
 }
 
 .collectionNoteFocus .collectionBody {
@@ -4210,4 +4217,18 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .trashSentenceCard button:hover {
   border-color: #a9b8a5;
   color: #2f4a35;
+}
+
+.savedAssocNode {
+  --saved-gold: #d9a300;
+}
+
+.savedAssocNode .assocWord,
+.savedAssocNode .assocWord small,
+.savedAssocNode .assocSentence,
+.savedAssocNode .assocSentence strong,
+.savedAssocNode .assocTranslation,
+.savedAssocNode .assocTranslation strong {
+  color: #d9a300 !important;
+  -webkit-text-fill-color: #d9a300 !important;
 }

@@ -2901,7 +2901,7 @@ function AssociationView({
                 return (
                   <div className={styles.assocNodeWrap} key={link.key}>
                     <button
-                      className={`${styles.assocNode} ${link.custom ? styles.assocNodeCustom : ''}`}
+                      className={`${styles.assocNode} ${link.custom ? styles.assocNodeCustom : ''} ${isSaved ? styles.savedAssocNode : ''}`}
                       data-selectable="true"
                       type="button"
                       aria-label={`朗读：${link.sentence}`}
