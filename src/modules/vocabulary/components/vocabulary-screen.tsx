@@ -1803,9 +1803,6 @@ export function VocabularyScreen() {
             </div>
             <div className={styles.paperStage} data-layout="stage">
               <div className={styles.paperFrame} data-layout="frame">
-                <span className={styles.collectionClipBack} aria-hidden="true">
-                  <img src="/paperclip.png" alt="" draggable={false} />
-                </span>
                 <CollectionNote
                   words={currentWords}
                   selectedWordId={previewWordId ?? (session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null)}
@@ -2759,7 +2756,7 @@ function CollectionNote({
         createPortal(
           <div
             className={styles.collectionClipGhost}
-            style={{ left: dragPoint.x - 32, top: dragPoint.y - 47 }}
+            style={{ left: dragPoint.x - 46, top: dragPoint.y - 64 }}
             aria-hidden="true"
           >
 <img src="/paperclip.png" alt="" draggable={false} />
