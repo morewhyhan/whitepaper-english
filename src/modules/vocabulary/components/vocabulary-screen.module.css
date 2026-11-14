@@ -3895,11 +3895,19 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   width: min(326px, 27vw);
 }
 
+.collectionNotePinned .collectionClipButton,
+.collectionNoteFocus .collectionClipButton {
+  left: -9px;
+  right: auto;
+  transform: rotate(7deg);
+}
+
 .collectionClipButton {
   position: absolute;
   /* Register the image centre on the sheet's top-left corner. */
-  top: -15px;
-  right: -58px;
+  top: -16px;
+  left: calc(100% - 9px);
+  right: auto;
   z-index: 100;
   width: 67px;
   height: 81px;
@@ -3908,13 +3916,14 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   background: transparent;
   color: #aeb8bf;
   cursor: pointer;
-  transform-origin: 50% 50%;
+  transform-origin: 22% 8%;
   transform: rotate(-18deg);
   transition:
     left 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     right 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     top 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: left, transform;
   filter: drop-shadow(0 2px 2px #3e4a520f);
 }
 
@@ -3980,7 +3989,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionNoteFocus .collectionClipButton {
   right: auto;
   left: -9px;
-  top: -15px;
+  top: -16px;
 }
 
 .collectionNoteFocus .collectionBody {
@@ -4306,7 +4315,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   62% { transform: rotate(-21deg); }
 }
 
-.collectionClipButton:hover {
+.collectionNote:not(.collectionNotePinned):not(.collectionNoteFocus) .collectionClipButton:hover {
   animation: clipWiggle 260ms ease;
 }
 
