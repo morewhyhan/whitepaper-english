@@ -3922,6 +3922,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   height: 100%;
   object-fit: contain;
   pointer-events: none;
+  clip-path: inset(0 0 0 50%);
 }
 
 .collectionBody {
@@ -4312,13 +4313,14 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionClipBack {
   position: absolute;
   top: -16px;
-  left: -32px;
+  left: -34px;
   z-index: 0;
   width: 64px;
   height: 64px;
   pointer-events: none;
   transform: rotate(20deg);
-  opacity: 0.6;
+  opacity: 0.72;
+  clip-path: inset(0 50% 0 0);
   filter: brightness(0.82) drop-shadow(0 2px 2px #3e4a5214);
 }
 
@@ -4331,4 +4333,12 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .paperFrame:has(.collectionClipButton:hover) .collectionClipBack {
   animation: clipWiggle 260ms ease;
+}
+
+.collectionNoteFocus .collectionClipButton img {
+  clip-path: none;
+}
+
+.collectionNoteFocus .collectionClipBack {
+  display: none;
 }
