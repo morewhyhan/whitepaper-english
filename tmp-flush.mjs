@@ -1,2 +1,0 @@
-import { chromium } from '@playwright/test'
-const b=await chromium.launch();const p=await b.newPage({viewport:{width:1708,height:861}});await p.goto('http://localhost:3100/vocabulary',{waitUntil:'domcontentloaded'});await p.waitForTimeout(2000);const c=await p.locator('[class*=collectionClipButton]').boundingBox(),q=await p.locator('[data-layout=paper]').boundingBox();console.log({clipLeft:c.x,paperLeft:q.x,dx:c.x-q.x,clipTop:c.y});await p.screenshot({path:'/mnt/c/Users/why/Documents/ChatGPT/whitepaper-english/artifacts/flush.png'});await b.close()
