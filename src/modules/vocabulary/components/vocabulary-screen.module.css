@@ -3899,11 +3899,11 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionClipButton {
   position: absolute;
-  top: -14px;
-  right: -46px;
+  top: -20px;
+  right: -50px;
   z-index: 100;
-  width: 58px;
-  height: 86px;
+  width: 64px;
+  height: 94px;
   padding: 3px;
   border: 0;
   background: transparent;
@@ -4239,8 +4239,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionClipGhost {
   position: fixed;
   z-index: 100;
-  width: 58px;
-  height: 86px;
+  width: 64px;
+  height: 94px;
   color: #aeb8bf;
   pointer-events: none;
   transform: rotate(35deg);
@@ -4304,13 +4304,29 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   top: -10px;
   right: -2px;
   z-index: 101;
-  width: 5px;
-  height: 96px;
+  width: 7px;
+  height: 104px;
   pointer-events: none;
-  background: linear-gradient(90deg, #ece9df, #fffdf8 65%, #f7f4ea);
-  box-shadow: -2px 0 4px #4d3d2314, 1px 0 0 #fffdf8;
+  background: linear-gradient(90deg, #dad6cb, #fffdf8 55%, #f8f5ec);
+  box-shadow: -3px 0 5px #4d3d2324, 1px 0 0 #fffdf8;
 }
 
 .collectionNoteFocus .collectionClipEdge {
   display: none;
+}
+
+/* A hover preview must win over a previous manual collapse. */
+.collectionNote.collectionNotePreview {
+  width: min(326px, 27vw) !important;
+}
+
+.collectionNote.collectionNotePreview .collectionBody {
+  min-height: 330px !important;
+  max-height: calc(100dvh - 90px) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.collectionNote.collectionNotePreview .collectionClipButton {
+  opacity: 1;
 }

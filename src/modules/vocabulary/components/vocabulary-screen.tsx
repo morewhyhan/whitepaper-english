@@ -2675,8 +2675,9 @@ function CollectionNote({
               <stop offset="1" stopColor="#e9eef1" />
             </linearGradient>
           </defs>
-          <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" />
-          <path d="M14 15v25c0 5 5 5 5 0V15" opacity=".55" strokeWidth="1.2" />
+          <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" stroke="#6e7a82" strokeWidth="6" opacity=".28" transform="translate(1 2)" />
+          <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" stroke="#b7c0c7" strokeWidth="3.2" />
+          <path d="M14 15v25c0 5 5 5 5 0V15" stroke="#f7fafb" strokeWidth="1.1" opacity=".8" />
         </svg>
       </button>
       <span className={styles.collectionClipEdge} aria-hidden="true" />
@@ -2734,7 +2735,7 @@ function CollectionNote({
         createPortal(
           <div
             className={styles.collectionClipGhost}
-            style={{ left: dragPoint.x - 29, top: dragPoint.y - 43 }}
+            style={{ left: dragPoint.x - 32, top: dragPoint.y - 47 }}
             aria-hidden="true"
           >
             <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
@@ -3194,7 +3195,7 @@ function WordButton({
   const beginPreview = () => {
     if (trashed) return
     if (previewTimer.current) window.clearTimeout(previewTimer.current)
-    previewTimer.current = window.setTimeout(() => onHoverPreview?.(word.id), 280)
+    previewTimer.current = window.setTimeout(() => onHoverPreview?.(word.id), 120)
   }
   const endPreview = () => {
     if (previewTimer.current) window.clearTimeout(previewTimer.current)
