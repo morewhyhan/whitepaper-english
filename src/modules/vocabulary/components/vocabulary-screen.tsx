@@ -316,6 +316,7 @@ export function VocabularyScreen() {
   const [collectionWordId, setCollectionWordId] = useState<string | null>(null)
   const [previewWordId, setPreviewWordId] = useState<string | null>(null)
   const [noteOpenRequest, setNoteOpenRequest] = useState(0)
+  const notePinnedRef = useRef(false)
   const previewClearTimer = useRef<number | null>(null)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -575,6 +576,13 @@ export function VocabularyScreen() {
     const clearSelectionOutsidePaper = (event: PointerEvent) => {
       const target = event.target
       if (!(target instanceof Element)) return
+      if (notePinnedRef.current) {
+        if (previewClearTimer.current) {
+          window.clearTimeout(previewClearTimer.current)
+          previewClearTimer.current = null
+        }
+        return
+      }
       if (target.closest('[data-selectable="true"]')) return
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
       window.getSelection()?.removeAllRanges()
@@ -1796,17 +1804,19 @@ export function VocabularyScreen() {
             <div className={styles.paperStage} data-layout="stage">
               <div className={styles.paperFrame} data-layout="frame">
                 <span className={styles.collectionClipBack} aria-hidden="true">
-                  <svg viewBox="0 0 34 54" fill="none" stroke="#7d8890" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" />
-                  </svg>
+                  <img src="/paperclip.png" alt="" draggable={false} />
                 </span>
                 <CollectionNote
                   words={currentWords}
                   selectedWordId={previewWordId ?? (session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null)}
                   openRequest={noteOpenRequest}
                   viewKey={`${session.view}:${session.round}:${session.cursor}`}
-                  onLockPreview={() => {
-                    if (previewWordId) setCollectionWordId(previewWordId)
+                  onPinnedChange={(pinned) => {
+                    notePinnedRef.current = pinned
+                  }}
+                  onOpenAll={() => {
+                    setPreviewWordId(null)
+                    setCollectionWordId(null)
                   }}
                   onDismissPreview={() => setPreviewWordId(null)}
                   savedSentences={state.savedSentences ?? []}
@@ -2544,9 +2554,10 @@ function WordbookShelf({
 function CollectionNote({
   words,
   selectedWordId,
-  onLockPreview,
+  onOpenAll,
   openRequest,
   viewKey,
+  onPinnedChange,
   onDismissPreview,
   savedSentences,
   onSpeak,
@@ -2554,9 +2565,10 @@ function CollectionNote({
 }: {
   words: VocabularyWord[]
   selectedWordId: string | null
-  onLockPreview: () => void
+  onOpenAll: () => void
   openRequest: number
   viewKey: string
+  onPinnedChange: (pinned: boolean) => void
   onDismissPreview: () => void
   savedSentences: SavedSentence[]
   onSpeak: (text: string) => void
@@ -2577,6 +2589,10 @@ function CollectionNote({
   useEffect(() => {
     if (openRequest > 0) setMode('pinned')
   }, [openRequest])
+
+  useEffect(() => {
+    onPinnedChange(mode === 'pinned' || mode === 'focus')
+  }, [mode, onPinnedChange])
 
   const lastView = useRef(viewKey)
   useEffect(() => {
@@ -2676,7 +2692,7 @@ function CollectionNote({
           if (dragRef.current?.moved) return
           setMode((current) => {
             if (current === 'closed') {
-              onLockPreview()
+              onOpenAll()
               setHoverLocked(false)
               return 'pinned'
             }
@@ -2686,18 +2702,8 @@ function CollectionNote({
           })
         }}
       >
-        <svg viewBox="0 0 34 54" fill="none" stroke="#aeb8bf" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <defs>
-            <linearGradient id="clipSilver" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#f8fbfd" />
-              <stop offset=".45" stopColor="#c6ced4" />
-              <stop offset=".72" stopColor="#8f9aa2" />
-              <stop offset="1" stopColor="#e9eef1" />
-            </linearGradient>
-          </defs>
-          <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" stroke="#b7c0c7" strokeWidth="3.2" />
-          <path d="M14 15v25c0 5 5 5 5 0V15" stroke="#f7fafb" strokeWidth="1.1" opacity=".8" />
-        </svg>
+<img src="/paperclip.png" alt="" draggable={false} />
+
       </button>
       <div className={styles.collectionBody}>
         <div className={styles.collectionHead}>
@@ -2756,10 +2762,8 @@ function CollectionNote({
             style={{ left: dragPoint.x - 32, top: dragPoint.y - 47 }}
             aria-hidden="true"
           >
-            <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" />
-              <path d="M14 15v25c0 5 5 5 5 0V15" opacity=".55" strokeWidth="1.2" />
-          </svg>
+<img src="/paperclip.png" alt="" draggable={false} />
+
           </div>,
           document.body,
         )}
