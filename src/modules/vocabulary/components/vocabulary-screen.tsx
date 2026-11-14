@@ -55,6 +55,7 @@ function useWordTrashDrag(
   onTrash: (() => void) | undefined,
   disabled: boolean,
   onAssociate?: (() => void) | undefined,
+  onNote?: (() => void) | undefined,
 ) {
   const [dragging, setDragging] = useState(false)
   const [overTrash, setOverTrash] = useState(false)
@@ -62,6 +63,7 @@ function useWordTrashDrag(
   const drag = useRef<{ x: number; y: number; pointerId: number; active: boolean } | null>(null)
   const over = useRef(false)
   const overAssoc = useRef(false)
+  const overNote = useRef(false)
   const suppressClick = useRef(false)
 
   useEffect(() => {
@@ -78,6 +80,7 @@ function useWordTrashDrag(
     setOverTrash(false)
     over.current = false
     overAssoc.current = false
+    overNote.current = false
     delete document.body.dataset.wordDrag
     delete document.body.dataset.trashOver
     delete document.body.dataset.assocOver
@@ -118,8 +121,10 @@ function useWordTrashDrag(
       }
       const isOverTrash = hit('[data-trash-drop="true"]')
       const isOverAssoc = !isOverTrash && hit('[data-assoc-drop="true"]')
+      const isOverNote = !isOverTrash && !isOverAssoc && hit('[data-collection-note="true"]')
       over.current = isOverTrash
       overAssoc.current = isOverAssoc
+      overNote.current = isOverNote
       setOverTrash(isOverTrash)
       if (isOverTrash) document.body.dataset.trashOver = 'true'
       else delete document.body.dataset.trashOver
@@ -132,6 +137,7 @@ function useWordTrashDrag(
       if (wasActive) {
         if (over.current && onTrash) onTrash()
         else if (overAssoc.current && onAssociate) onAssociate()
+        else if (overNote.current && onNote) onNote()
         suppressClick.current = true
         window.setTimeout(() => {
           suppressClick.current = false
@@ -306,6 +312,7 @@ export function VocabularyScreen() {
   const [trashKind, setTrashKind] = useState<'words' | 'sentences'>('words')
   const [confirmRestoreAll, setConfirmRestoreAll] = useState(false)
   const [collectionWordId, setCollectionWordId] = useState<string | null>(null)
+  const [previewWordId, setPreviewWordId] = useState<string | null>(null)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
@@ -600,7 +607,20 @@ export function VocabularyScreen() {
       : pageWords(state.words, session)
   useEffect(() => {
     setCollectionWordId(null)
+    setPreviewWordId(null)
   }, [pageKey(session)])
+
+  useEffect(() => {
+    if (!previewWordId) return
+    const clear = (event: PointerEvent) => {
+      const target = event.target
+      if (!(target instanceof Element)) return
+      if (target.closest('[data-word="true"]') || target.closest('[data-collection-note="true"]')) return
+      setPreviewWordId(null)
+    }
+    window.addEventListener('pointermove', clear, { passive: true })
+    return () => window.removeEventListener('pointermove', clear)
+  }, [previewWordId])
 
   const trashedWords = [...state.trashedIds]
     .reverse()
@@ -1757,7 +1777,8 @@ export function VocabularyScreen() {
               <div className={styles.paperFrame} data-layout="frame">
                 <CollectionNote
                   words={currentWords}
-                  selectedWordId={session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null}
+                  selectedWordId={previewWordId ?? (session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null)}
+                  previewActive={Boolean(previewWordId)}
                   savedSentences={state.savedSentences ?? []}
                   onSpeak={(text) => speakText(text)}
                   onToggleSaved={toggleSavedSentence}
@@ -1810,6 +1831,11 @@ export function VocabularyScreen() {
                       onWordClick={handleWordClick}
                       onTrash={handleTrash}
                       onAssociate={openAssociationAt}
+                      onHoverPreview={(id) => setPreviewWordId(id)}
+                      onPreviewNote={(id) => {
+                        setPreviewWordId(id)
+                        setCollectionWordId(id)
+                      }}
                     />
                   ) : (
                     <AssociationView
@@ -2487,12 +2513,14 @@ function WordbookShelf({
 function CollectionNote({
   words,
   selectedWordId,
+  previewActive,
   savedSentences,
   onSpeak,
   onToggleSaved,
 }: {
   words: VocabularyWord[]
   selectedWordId: string | null
+  previewActive: boolean
   savedSentences: SavedSentence[]
   onSpeak: (text: string) => void
   onToggleSaved: (entry: Omit<SavedSentence, 'id' | 'createdAt'>) => void
@@ -2561,7 +2589,8 @@ function CollectionNote({
   return (
     <>
       <aside
-      className={`${styles.collectionNote} ${mode === 'pinned' ? styles.collectionNotePinned : ''} ${mode === 'focus' ? styles.collectionNoteFocus : ''}`}
+      className={`${styles.collectionNote} ${mode === 'pinned' ? styles.collectionNotePinned : ''} ${mode === 'focus' ? styles.collectionNoteFocus : ''} ${previewActive ? styles.collectionNotePreview : ''}`}
+      data-collection-note="true"
       aria-label="收藏例句便签"
       onDragOver={(event) => {
         event.preventDefault()
@@ -2667,6 +2696,8 @@ function ScanView({
   onWordClick,
   onTrash,
   onAssociate,
+  onPreviewNote,
+  onHoverPreview,
 }: {
   words: VocabularyWord[]
   session: VocabularySession
@@ -2674,6 +2705,8 @@ function ScanView({
   onWordClick: (id: string, reverse: boolean) => void
   onTrash: (id: string) => void
   onAssociate: (id: string) => void
+  onPreviewNote: (id: string) => void
+  onHoverPreview: (id: string | null) => void
 }) {
   return (
     <div className={styles.paperInner}>
@@ -2686,6 +2719,8 @@ function ScanView({
           onWordClick={onWordClick}
           onTrash={onTrash}
           onAssociate={onAssociate}
+          onPreviewNote={onPreviewNote}
+          onHoverPreview={onHoverPreview}
         />
       </div>
     </div>
@@ -2701,6 +2736,8 @@ function ScanGrid({
   onWordClick,
   onTrash,
   onAssociate,
+  onPreviewNote,
+  onHoverPreview,
 }: {
   words: VocabularyWord[]
   session: VocabularySession
@@ -2710,6 +2747,8 @@ function ScanGrid({
   onWordClick: (id: string, reverse: boolean) => void
   onTrash?: (id: string) => void
   onAssociate?: (id: string) => void
+  onPreviewNote?: (id: string) => void
+  onHoverPreview?: (id: string | null) => void
 }) {
   const groupCount = variant === 'zen' ? 4 : Math.max(1, Math.ceil(words.length / 9))
   const rootClass =
@@ -2741,6 +2780,8 @@ function ScanGrid({
               onWordClick={onWordClick}
               onTrash={onTrash}
               onAssociate={onAssociate}
+              onPreviewNote={onPreviewNote}
+              onHoverPreview={onHoverPreview}
               style={{
                 gridColumn: (groupIndex % 2) * 3 + (wordIndex % 3) + 1,
                 gridRow: Math.floor(groupIndex / 2) * 3 + Math.floor(wordIndex / 3) + 1,
@@ -3075,6 +3116,8 @@ function WordButton({
   onWordClick,
   onTrash,
   onAssociate,
+  onPreviewNote,
+  onHoverPreview,
   style,
 }: {
   word: VocabularyWord
@@ -3083,15 +3126,29 @@ function WordButton({
   onWordClick: (id: string, reverse: boolean) => void
   onTrash?: (id: string) => void
   onAssociate?: (id: string) => void
+  onPreviewNote?: (id: string) => void
+  onHoverPreview?: (id: string | null) => void
   style?: CSSProperties
 }) {
   const mark = session.marks[word.id]
+  const previewTimer = useRef<number | null>(null)
+  const beginPreview = () => {
+    if (trashed) return
+    if (previewTimer.current) window.clearTimeout(previewTimer.current)
+    previewTimer.current = window.setTimeout(() => onHoverPreview?.(word.id), 280)
+  }
+  const endPreview = () => {
+    if (previewTimer.current) window.clearTimeout(previewTimer.current)
+    previewTimer.current = null
+  }
+  useEffect(() => () => endPreview(), [])
   const previewUnknown = !mark && session.peek && session.mode === 'unknown'
   const drag = useWordTrashDrag(
     (event) => onWordClick(word.id, false),
     onTrash ? () => onTrash(word.id) : undefined,
     trashed,
     onAssociate ? () => onAssociate(word.id) : undefined,
+    onPreviewNote ? () => onPreviewNote(word.id) : undefined,
   )
   const longSingleWord = word.en.length > 11 && !/\s/.test(word.en)
   const className = [
@@ -3108,6 +3165,7 @@ function WordButton({
       <button
         className={className}
         data-selectable={!trashed}
+        data-word="true"
         type="button"
         style={style}
         disabled={trashed}
@@ -3121,6 +3179,10 @@ function WordButton({
             ? '已移入垃圾桶，下一轮起不再推送'
             : `左键标红（不会），右键标绿（会）；按住拖到垃圾桶归档`
         }
+        onPointerEnter={beginPreview}
+        onPointerLeave={endPreview}
+        onFocus={beginPreview}
+        onBlur={endPreview}
         onPointerDown={drag.handlePointerDown}
         onClick={drag.handleClick}
         onContextMenu={(event) => {
