@@ -4044,6 +4044,29 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   min-height: 0;
   padding: 0 13px 7px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #b99a5a66 transparent;
+  overscroll-behavior: contain;
+}
+
+.collectionScroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.collectionScroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+
+.collectionScroll::-webkit-scrollbar-thumb {
+  min-height: 24px;
+  border-radius: 999px;
+  background: #b99a5a55;
+}
+
+.collectionScroll::-webkit-scrollbar-thumb:hover {
+  background: #a9853f77;
 }
 
 .collectionGroup {
