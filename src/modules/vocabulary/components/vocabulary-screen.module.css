@@ -3898,8 +3898,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 .collectionClipButton {
   position: absolute;
   /* Register the image centre on the sheet's top-left corner. */
-  top: -28px;
-  right: -60px;
+  top: -35px;
+  right: -55px;
   z-index: 100;
   width: 96px;
   height: 116px;
@@ -3978,8 +3978,8 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionNoteFocus .collectionClipButton {
   right: auto;
-  left: -60px;
-  top: -28px;
+  left: -41px;
+  top: -35px;
 }
 
 .collectionNoteFocus .collectionBody {
