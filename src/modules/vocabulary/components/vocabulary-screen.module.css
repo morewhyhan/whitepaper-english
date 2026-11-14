@@ -3906,7 +3906,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   position: absolute;
   /* Register the image centre on the sheet's top-left corner. */
   top: -12px;
-  left: calc(100% - 9px);
+  left: calc(100% + 1px);
   right: auto;
   z-index: 100;
   width: 67px;
