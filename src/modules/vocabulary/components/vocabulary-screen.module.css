@@ -3886,7 +3886,9 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   z-index: 28;
   width: 30px;
   height: 66px;
-  transition: width 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    width 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .collectionNote:hover,
@@ -3957,6 +3959,50 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   opacity: 1;
   transform: translateX(0) rotate(-0.7deg);
   pointer-events: auto;
+}
+
+.collectionNotePinned:not(.collectionNoteFocus) .collectionClipButton {
+  right: auto;
+  left: 7px;
+}
+
+.collectionNoteFocus {
+  top: 0;
+  right: 52px !important;
+  width: calc(100% - 52px) !important;
+  height: 100% !important;
+  z-index: 40;
+}
+
+.collectionNoteFocus .collectionClipButton {
+  right: auto;
+  left: 14px;
+  top: 11px;
+}
+
+.collectionNoteFocus .collectionBody {
+  right: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  border-radius: 2px;
+  opacity: 1;
+  transform: rotate(0);
+  pointer-events: auto;
+}
+
+.collectionNoteFocus .collectionHead {
+  padding-top: 19px;
+  font-size: 12px;
+}
+
+.collectionNoteFocus .collectionSentence {
+  font-size: 15px;
+}
+
+.collectionNoteFocus .collectionSentence small {
+  font-size: 13px;
 }
 
 .collectionHead {
@@ -4065,4 +4111,103 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   main.layout:not(.zenLayout) .paperStage:has(.collectionNotePinned) {
     transform: translateX(calc(min(326px, 27vw) * 0.5 + 52px));
   }
+}
+
+.collectionNoteFocus .collectionBody {
+  max-height: none !important;
+  transition: opacity 220ms ease, transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Trash: words and sentences are separate piles. */
+.trashTabs {
+  display: flex;
+  gap: 18px;
+  margin: -2px 0 12px;
+  border-bottom: 1px solid #e7e7dd;
+}
+
+.trashTab,
+.trashTabActive {
+  padding: 7px 0 8px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #929789;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.trashTab small,
+.trashTabActive small {
+  margin-left: 3px;
+  color: #aaa99c;
+  font-size: 9px;
+}
+
+.trashTabActive {
+  border-bottom-color: #758b68;
+  color: #3f523a;
+  font-weight: 600;
+}
+
+.trashSentenceList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.trashSentenceCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eeefe7;
+}
+
+.trashSentenceCard > div {
+  min-width: 0;
+}
+
+.trashSentenceCard strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #3d5539;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.trashSentenceCard p {
+  margin: 0;
+  color: #4f5b4e;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.trashSentenceCard small {
+  display: block;
+  margin-top: 3px;
+  color: #8b9286;
+  font-size: 10px;
+}
+
+.trashSentenceCard button {
+  flex: none;
+  border: 1px solid #d5d9cf;
+  border-radius: 999px;
+  background: transparent;
+  color: #52604f;
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.trashSentenceCard button:hover {
+  border-color: #a9b8a5;
+  color: #2f4a35;
 }

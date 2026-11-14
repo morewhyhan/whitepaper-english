@@ -10,6 +10,7 @@ import {
   type ReactNode,
   type Ref,
   type MouseEvent as ReactMouseEvent,
+  type DragEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import {
@@ -36,6 +37,7 @@ import {
   type VocabularyState,
   type VocabularyWord,
   type SavedSentence,
+  type RemovedSentence,
 } from '../lib/vocabulary'
 import { AuthModal, useAuthSession, useSignOut } from '@/modules/auth'
 import { signIn } from '@/modules/auth/lib/auth-client'
@@ -301,6 +303,7 @@ export function VocabularyScreen() {
   const [trashOpen, setTrashOpen] = useState(false)
   const [trashQuery, setTrashQuery] = useState('')
   const [trashPage, setTrashPage] = useState(0)
+  const [trashKind, setTrashKind] = useState<'words' | 'sentences'>('words')
   const [confirmRestoreAll, setConfirmRestoreAll] = useState(false)
   const [collectionWordId, setCollectionWordId] = useState<string | null>(null)
   const [authOpen, setAuthOpen] = useState(false)
@@ -611,6 +614,13 @@ export function VocabularyScreen() {
           word.zh.toLowerCase().includes(normalizedTrashQuery),
       )
     : trashedWords
+  const removedSentences = removedSentenceList()
+  const filteredRemovedSentences = removedSentences.filter((item) =>
+    normalizedTrashQuery
+      ? item.sentence.toLowerCase().includes(normalizedTrashQuery) ||
+        item.word.toLowerCase().includes(normalizedTrashQuery)
+      : true,
+  )
   const trashPageCount = Math.max(1, Math.ceil(filteredTrashedWords.length / TRASH_PAGE_SIZE))
   const safeTrashPage = Math.min(trashPage, trashPageCount - 1)
   const visibleTrashedWords = filteredTrashedWords.slice(
@@ -884,22 +894,168 @@ export function VocabularyScreen() {
     setSentenceOpen(false)
   }
 
-  function removeAssociation(target: string, sentence: string, custom: boolean) {
-    const key = target.toLowerCase()
-    if (custom) {
-      const item = (state.customAssociations?.[key] ?? []).find(
-        (entry) => entry.sentence === sentence,
-      )
-      if (!item) return
-      const hiddenCustom = new Set(state.hiddenCustomAssociations ?? [])
-      hiddenCustom.add(item.id)
-      commit({ ...state, hiddenCustomAssociations: [...hiddenCustom] })
-        return
+  function isSentenceSaved(word: string, sentence: string) {
+    return (state.savedSentences ?? []).some(
+      (item) => item.word.toLowerCase() === word.toLowerCase() && item.sentence === sentence,
+    )
+  }
+
+  function removedSentenceList(): RemovedSentence[] {
+    const explicit = state.removedSentences ?? []
+    const seen = new Set(
+      explicit.map((item) => `${item.word.toLowerCase()}\u0000${item.sentence}`),
+    )
+    const legacy: RemovedSentence[] = []
+    for (const marker of state.hiddenAssociationLinks ?? []) {
+      const [target, sentence] = marker.split('\u0000')
+      if (!target || !sentence) continue
+      const key = `${target.toLowerCase()}\u0000${sentence}`
+      if (seen.has(key)) continue
+      const word = state.words.find((item) => item.en.toLowerCase() === target.toLowerCase())
+      const link = state.networks
+        .find((network) => network.target.toLowerCase() === target.toLowerCase())
+        ?.links.find((item) => item.sentence === sentence)
+      legacy.push({
+        id: `legacy-default-${legacy.length}`,
+        word: word?.en ?? target,
+        sentence,
+        sentenceZh: link?.sentenceZh,
+        wordZh: word?.zh,
+        source: 'default',
+        wasSaved: isSentenceSaved(word?.en ?? target, sentence),
+        removedAt: '',
+      })
+      seen.add(key)
     }
-    const marker = `${key}\u0000${sentence}`
+    for (const id of state.hiddenCustomAssociations ?? []) {
+      const owner = Object.entries(state.customAssociations ?? {}).find(([, items]) =>
+        items.some((item) => item.id === id),
+      )
+      if (!owner) continue
+      const custom = owner[1].find((item) => item.id === id)
+      if (!custom) continue
+      const word = state.words.find((item) => item.en.toLowerCase() === owner[0])
+      const key = `${owner[0]}\u0000${custom.sentence}`
+      if (seen.has(key)) continue
+      legacy.push({
+        id: `legacy-custom-${id}`,
+        word: word?.en ?? owner[0],
+        sentence: custom.sentence,
+        wordZh: word?.zh,
+        source: 'custom',
+        customId: custom.id,
+        wasSaved: isSentenceSaved(word?.en ?? owner[0], custom.sentence),
+        removedAt: '',
+      })
+      seen.add(key)
+    }
+    return [...explicit, ...legacy]
+  }
+
+  function removeSentence(entry: {
+    word: string
+    sentence: string
+    sentenceZh?: string
+    wordZh?: string
+    source: 'default' | 'custom'
+    customId?: string
+  }) {
+    const key = entry.word.toLowerCase()
+    const marker = `${key}\u0000${entry.sentence}`
+    const customId =
+      entry.customId ??
+      (state.customAssociations?.[key] ?? []).find((item) => item.sentence === entry.sentence)?.id
+    const wasSaved = isSentenceSaved(entry.word, entry.sentence)
     const hidden = new Set(state.hiddenAssociationLinks ?? [])
-    hidden.add(marker)
-    commit({ ...state, hiddenAssociationLinks: [...hidden] })
+    const hiddenCustom = new Set(state.hiddenCustomAssociations ?? [])
+    if (entry.source === 'custom' && customId) hiddenCustom.add(customId)
+    else hidden.add(marker)
+    const removed = (state.removedSentences ?? []).filter(
+      (item) => !(item.word.toLowerCase() === key && item.sentence === entry.sentence),
+    )
+    removed.push({
+      ...entry,
+      customId,
+      id: `removed-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+      wasSaved,
+      removedAt: new Date().toISOString(),
+    })
+    commit({
+      ...state,
+      hiddenAssociationLinks: [...hidden],
+      hiddenCustomAssociations: [...hiddenCustom],
+      removedSentences: removed,
+      savedSentences: wasSaved
+        ? (state.savedSentences ?? []).filter(
+            (item) => !(item.word.toLowerCase() === key && item.sentence === entry.sentence),
+          )
+        : state.savedSentences,
+    })
+  }
+
+  function handleSentenceDrop(event: DragEvent<HTMLElement>) {
+    const raw = event.dataTransfer.getData('application/x-whitepaper-sentence')
+    if (!raw) return
+    event.preventDefault()
+    try {
+      const entry = JSON.parse(raw) as {
+        word: string
+        sentence: string
+        sentenceZh?: string
+        wordZh?: string
+        source: 'default' | 'custom'
+        customId?: string
+      }
+      if (entry.word && entry.sentence) removeSentence(entry)
+    } catch {
+      /* ignore malformed drag payload */
+    }
+  }
+
+  function restoreSentence(item: RemovedSentence) {
+    const key = item.word.toLowerCase()
+    const marker = `${key}\u0000${item.sentence}`
+    if (item.source === 'custom' && item.customId) {
+      const hidden = new Set(state.hiddenCustomAssociations ?? [])
+      const visible = (state.customAssociations?.[key] ?? []).filter(
+        (entry) => !hidden.has(entry.id),
+      ).length
+      if (visible >= 4) {
+        setNotice('每个目标词最多保留 4 条自定义句；先移除一条再还原')
+        return
+      }
+    }
+    const nextSaved = (state.savedSentences ?? []).some(
+      (saved) => saved.word.toLowerCase() === key && saved.sentence === item.sentence,
+    )
+      ? state.savedSentences
+      : item.wasSaved
+        ? [
+            ...(state.savedSentences ?? []),
+            {
+              id: `saved-restored-${Date.now().toString(36)}`,
+              word: item.word,
+              sentence: item.sentence,
+              sentenceZh: item.sentenceZh,
+              wordZh: item.wordZh,
+              source: item.source,
+              createdAt: new Date().toISOString(),
+            },
+          ]
+        : state.savedSentences
+    commit({
+      ...state,
+      hiddenAssociationLinks: (state.hiddenAssociationLinks ?? []).filter(
+        (entry) => entry !== marker,
+      ),
+      hiddenCustomAssociations: (state.hiddenCustomAssociations ?? []).filter(
+        (entry) => entry !== item.customId,
+      ),
+      removedSentences: (state.removedSentences ?? []).filter(
+        (entry) => entry.id !== item.id,
+      ),
+      savedSentences: nextSaved,
+    })
   }
 
   function restoreHiddenAssociation(target: string, sentence: string) {
@@ -1578,8 +1734,15 @@ export function VocabularyScreen() {
                 className={styles.trashButton}
                 data-trash-drop="true"
                 type="button"
-                aria-label="打开垃圾桶，也可把单词拖到这里"
+                aria-label="打开垃圾桶，也可把单词或例句拖到这里"
                 aria-expanded={trashOpen}
+                onDragOver={(event) => {
+                  if (event.dataTransfer.types.includes('application/x-whitepaper-sentence')) {
+                    event.preventDefault()
+                    event.dataTransfer.dropEffect = 'copy'
+                  }
+                }}
+                onDrop={(event) => handleSentenceDrop(event)}
                 onClick={() => setTrashOpen((open) => !open)}
               >
                 <span className={styles.trashIcon} aria-hidden="true">
@@ -1587,7 +1750,7 @@ export function VocabularyScreen() {
                     <path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13M10 11v5M14 11v5" />
                   </svg>
                 </span>
-                <span>{state.trashedIds.length}</span>
+                <span>{trashedWords.length + removedSentences.length}</span>
               </button>
             </div>
             <div className={styles.paperStage} data-layout="stage">
@@ -1664,7 +1827,6 @@ export function VocabularyScreen() {
                       hiddenCustomAssociations={state.hiddenCustomAssociations ?? []}
                       savedSentences={state.savedSentences ?? []}
                       onToggleSaved={toggleSavedSentence}
-                      onRemoveLink={removeAssociation}
                     />
                   )}
 
@@ -1841,6 +2003,13 @@ export function VocabularyScreen() {
             role="dialog"
             aria-modal="true"
             aria-label="垃圾桶"
+            onDragOver={(event) => {
+              if (event.dataTransfer.types.includes('application/x-whitepaper-sentence')) {
+                event.preventDefault()
+                event.dataTransfer.dropEffect = 'copy'
+              }
+            }}
+            onDrop={(event) => handleSentenceDrop(event)}
           >
             <div className={styles.trashDialogHead}>
               <div className={styles.trashHeadLead}>
@@ -1886,51 +2055,90 @@ export function VocabularyScreen() {
               </div>
             </div>
             <p className={styles.trashHint}>
-              把九宫格里的词按住拖到这个垃圾桶会放进这里；放回后会在之后的轮次继续出现。
+              单词和例句分开管理。把九宫格单词或关联例句拖进来；放回或还原后恢复。
             </p>
-            {trashedWords.length ? (
-              filteredTrashedWords.length ? (
-                <>
-                  <div className={styles.trashGrid}>
-                    {visibleTrashedWords.map((word) => (
-                      <article className={styles.trashCard} key={word.id}>
-                        <div className={styles.trashCardText}>
-                          <strong>{word.en}</strong>
-                          <small>{word.zh || '暂无释义'}</small>
-                        </div>
-                        <button type="button" onClick={() => restoreTrash(word.id)}>
-                          放回
-                        </button>
-                      </article>
-                    ))}
-                  </div>
-                  {filteredTrashedWords.length > TRASH_PAGE_SIZE && (
-                    <div className={styles.trashPager}>
-                      <button
-                        type="button"
-                        disabled={safeTrashPage === 0}
-                        onClick={() => setTrashPage((page) => Math.max(0, page - 1))}
-                      >
-                        上一页
-                      </button>
-                      <span>
-                        {safeTrashPage + 1} / {trashPageCount}
-                      </span>
-                      <button
-                        type="button"
-                        disabled={safeTrashPage >= trashPageCount - 1}
-                        onClick={() => setTrashPage((page) => page + 1)}
-                      >
-                        下一页
-                      </button>
+            <div className={styles.trashTabs} role="tablist" aria-label="垃圾桶分类">
+              <button
+                className={trashKind === 'words' ? styles.trashTabActive : styles.trashTab}
+                type="button"
+                role="tab"
+                aria-selected={trashKind === 'words'}
+                onClick={() => setTrashKind('words')}
+              >
+                单词 <small>{trashedWords.length}</small>
+              </button>
+              <button
+                className={trashKind === 'sentences' ? styles.trashTabActive : styles.trashTab}
+                type="button"
+                role="tab"
+                aria-selected={trashKind === 'sentences'}
+                onClick={() => setTrashKind('sentences')}
+              >
+                例句 <small>{removedSentences.length}</small>
+              </button>
+            </div>
+            {trashKind === 'words' ? (
+              trashedWords.length ? (
+                filteredTrashedWords.length ? (
+                  <>
+                    <div className={styles.trashGrid}>
+                      {visibleTrashedWords.map((word) => (
+                        <article className={styles.trashCard} key={word.id}>
+                          <div className={styles.trashCardText}>
+                            <strong>{word.en}</strong>
+                            <small>{word.zh || '暂无释义'}</small>
+                          </div>
+                          <button type="button" onClick={() => restoreTrash(word.id)}>
+                            放回
+                          </button>
+                        </article>
+                      ))}
                     </div>
-                  )}
-                </>
+                    {filteredTrashedWords.length > TRASH_PAGE_SIZE && (
+                      <div className={styles.trashPager}>
+                        <button
+                          type="button"
+                          disabled={safeTrashPage === 0}
+                          onClick={() => setTrashPage((page) => Math.max(0, page - 1))}
+                        >
+                          上一页
+                        </button>
+                        <span>
+                          {safeTrashPage + 1} / {trashPageCount}
+                        </span>
+                        <button
+                          type="button"
+                          disabled={safeTrashPage >= trashPageCount - 1}
+                          onClick={() => setTrashPage((page) => page + 1)}
+                        >
+                          下一页
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className={styles.trashEmpty}>没有匹配的词。</p>
+                )
               ) : (
-                <p className={styles.trashEmpty}>没有匹配的词。</p>
+                <p className={styles.trashEmpty}>单词垃圾桶是空的。</p>
               )
+            ) : filteredRemovedSentences.length ? (
+              <div className={styles.trashSentenceList}>
+                {filteredRemovedSentences.map((item) => (
+                  <article className={styles.trashSentenceCard} key={item.id}>
+                    <div>
+                      <strong>{item.word}</strong>
+                      <p>{item.sentence}</p>
+                      {item.sentenceZh ? <small>{item.sentenceZh}</small> : null}
+                    </div>
+                    <button type="button" onClick={() => restoreSentence(item)}>
+                      还原
+                    </button>
+                  </article>
+                ))}
+              </div>
             ) : (
-              <p className={styles.trashEmpty}>垃圾桶是空的。</p>
+              <p className={styles.trashEmpty}>例句垃圾桶是空的。</p>
             )}
             <div className={styles.trashDialogFoot}>
               这里只保存本机当前词书的排除词，不会改变其他词书。
@@ -2289,12 +2497,58 @@ function CollectionNote({
   onSpeak: (text: string) => void
   onToggleSaved: (entry: Omit<SavedSentence, 'id' | 'createdAt'>) => void
 }) {
-  const [pinned, setPinned] = useState(false)
+  const [mode, setMode] = useState<'closed' | 'pinned' | 'focus'>('closed')
   const [allTranslated, setAllTranslated] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const suppressClick = useRef(false)
+  const dragRef = useRef<{ x: number; y: number; pointerId: number; moved: boolean; overPaper: boolean } | null>(null)
 
   useEffect(() => {
     setAllTranslated(false)
   }, [selectedWordId, words.map((word) => word.id).join(',')])
+
+  function beginClipDrag(event: ReactPointerEvent<HTMLButtonElement>) {
+    if (event.button !== 0) return
+    const start = { x: event.clientX, y: event.clientY, pointerId: event.pointerId, moved: false, overPaper: false }
+    dragRef.current = start
+    const move = (moveEvent: PointerEvent) => {
+      const current = dragRef.current
+      if (!current || moveEvent.pointerId !== current.pointerId) return
+      const dx = moveEvent.clientX - current.x
+      const dy = moveEvent.clientY - current.y
+      if (!current.moved && Math.hypot(dx, dy) < 5) return
+      current.moved = true
+      setDragOffset({ x: dx, y: dy })
+      const paper = document.querySelector('[data-layout="paper"]')
+      if (paper) {
+        const rect = paper.getBoundingClientRect()
+        current.overPaper =
+          moveEvent.clientX >= rect.left &&
+          moveEvent.clientX <= rect.right &&
+          moveEvent.clientY >= rect.top &&
+          moveEvent.clientY <= rect.bottom
+      }
+    }
+    const finish = () => {
+      const current = dragRef.current
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', finish)
+      window.removeEventListener('pointercancel', finish)
+      if (current?.moved) {
+        suppressClick.current = true
+        window.setTimeout(() => {
+          suppressClick.current = false
+        }, 0)
+        if (current.overPaper) setMode('focus')
+        else if (mode === 'focus') setMode('closed')
+      }
+      setDragOffset({ x: 0, y: 0 })
+      dragRef.current = null
+    }
+    window.addEventListener('pointermove', move, { passive: true })
+    window.addEventListener('pointerup', finish)
+    window.addEventListener('pointercancel', finish)
+  }
 
   const visibleWords = selectedWordId
     ? words.filter((word) => word.id === selectedWordId)
@@ -2304,7 +2558,7 @@ function CollectionNote({
 
   return (
     <aside
-      className={`${styles.collectionNote} ${pinned ? styles.collectionNotePinned : ''}`}
+      className={`${styles.collectionNote} ${mode === 'pinned' ? styles.collectionNotePinned : ''} ${mode === 'focus' ? styles.collectionNoteFocus : ''}`}
       aria-label="收藏例句便签"
       onDragOver={(event) => {
         event.preventDefault()
@@ -2325,8 +2579,16 @@ function CollectionNote({
       <button
         className={styles.collectionClipButton}
         type="button"
-        aria-label={pinned ? '收起收藏例句' : '展开收藏例句'}
-        onClick={() => setPinned((value) => !value)}
+        aria-label={mode === 'closed' ? '展开收藏例句' : '收起收藏例句'}
+        style={{ transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(11deg)` }}
+        onPointerDown={beginClipDrag}
+        onClick={() => {
+          if (suppressClick.current) {
+            suppressClick.current = false
+            return
+          }
+          setMode((current) => (current === 'closed' ? 'pinned' : 'closed'))
+        }}
       >
         <svg viewBox="0 0 24 38" fill="none" stroke="currentColor" strokeWidth="1.6">
           <path d="M7 8v20a5 5 0 0 0 10 0V9a3 3 0 0 0-6 0v17a1.5 1.5 0 0 0 3 0V10" />
@@ -2335,7 +2597,7 @@ function CollectionNote({
       <div className={styles.collectionBody}>
         <div className={styles.collectionHead}>
           <span>{selectedWordId ? '当前词' : '本页'}</span>
-          <button type="button" onClick={() => setPinned(false)} aria-label="收起收藏例句">
+          <button type="button" onClick={() => setMode('closed')} aria-label="收起收藏例句">
             ×
           </button>
         </div>
@@ -2518,7 +2780,6 @@ function AssociationView({
   hiddenCustomAssociations,
   savedSentences,
   onToggleSaved,
-  onRemoveLink,
 }: {
   words: VocabularyWord[]
   allWords: VocabularyWord[]
@@ -2534,7 +2795,6 @@ function AssociationView({
   hiddenCustomAssociations: string[]
   savedSentences: SavedSentence[]
   onToggleSaved: (entry: Omit<SavedSentence, 'id' | 'createdAt'>) => void
-  onRemoveLink: (target: string, sentence: string, custom: boolean) => void
 }) {
   const word = words[0]
   const chunkSize = pageSize(session)
@@ -2580,6 +2840,7 @@ function AssociationView({
     ...defaultLinks.map((link) => ({
       ...link,
       custom: false,
+      customId: undefined,
       key: `default-${link.word}-${link.sentence}`,
     })),
     ...custom.map((item) => ({
@@ -2587,6 +2848,7 @@ function AssociationView({
       sentence: item.sentence,
       audio: undefined as string | undefined,
       custom: true,
+      customId: item.id,
       key: `custom-${item.id}`,
       wordZh: undefined,
       sentenceZh: undefined,
@@ -2671,6 +2933,7 @@ function AssociationView({
                               sentenceZh,
                               wordZh,
                               source: link.custom ? 'custom' : 'default',
+                              customId: link.customId,
                             }),
                           )
                         }}
@@ -2702,17 +2965,6 @@ function AssociationView({
                       }}
                     >
                       {isSaved ? '★' : '☆'}
-                    </button>
-                    <button
-                      className={styles.assocRemove}
-                      type="button"
-                      aria-label={`移除${link.custom ? '自定义句' : '这条关联句'}`}
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        onRemoveLink(word.en, link.sentence, link.custom)
-                      }}
-                    >
-                      ×
                     </button>
                   </div>
                 )
