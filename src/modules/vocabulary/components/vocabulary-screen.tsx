@@ -315,6 +315,7 @@ export function VocabularyScreen() {
   const [confirmRestoreAll, setConfirmRestoreAll] = useState(false)
   const [collectionWordId, setCollectionWordId] = useState<string | null>(null)
   const [previewWordId, setPreviewWordId] = useState<string | null>(null)
+  const [noteOpenRequest, setNoteOpenRequest] = useState(0)
   const previewClearTimer = useRef<number | null>(null)
   const [authOpen, setAuthOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -1798,7 +1799,7 @@ export function VocabularyScreen() {
                 <CollectionNote
                   words={currentWords}
                   selectedWordId={previewWordId ?? (session.view === 'scan' ? collectionWordId : currentWords[0]?.id ?? null)}
-                  previewActive={Boolean(previewWordId)}
+                  openRequest={noteOpenRequest}
                   onLockPreview={() => {
                     if (previewWordId) setCollectionWordId(previewWordId)
                   }}
@@ -1859,6 +1860,7 @@ export function VocabularyScreen() {
                       onPreviewNote={(id) => {
                         setPreviewWordId(id)
                         setCollectionWordId(id)
+                        setNoteOpenRequest((value) => value + 1)
                       }}
                     />
                   ) : (
@@ -2537,8 +2539,8 @@ function WordbookShelf({
 function CollectionNote({
   words,
   selectedWordId,
-  previewActive,
   onLockPreview,
+  openRequest,
   onDismissPreview,
   savedSentences,
   onSpeak,
@@ -2546,8 +2548,8 @@ function CollectionNote({
 }: {
   words: VocabularyWord[]
   selectedWordId: string | null
-  previewActive: boolean
   onLockPreview: () => void
+  openRequest: number
   onDismissPreview: () => void
   savedSentences: SavedSentence[]
   onSpeak: (text: string) => void
@@ -2566,8 +2568,10 @@ function CollectionNote({
   }, [selectedWordId, words.map((word) => word.id).join(',')])
 
   useEffect(() => {
-    if (previewActive) setHoverLocked(false)
-  }, [previewActive])
+    if (openRequest > 0) setMode('pinned')
+  }, [openRequest])
+
+
 
   function beginClipDrag(event: ReactPointerEvent<HTMLButtonElement>) {
     if (event.button !== 0) return
@@ -2628,7 +2632,7 @@ function CollectionNote({
   return (
     <>
       <aside
-      className={`${styles.collectionNote} ${mode === 'pinned' ? styles.collectionNotePinned : ''} ${mode === 'focus' ? styles.collectionNoteFocus : ''} ${previewActive ? styles.collectionNotePreview : ''} ${hoverLocked ? styles.collectionNoteHoverLocked : ''}`}
+      className={`${styles.collectionNote} ${mode === 'pinned' ? styles.collectionNotePinned : ''} ${mode === 'focus' ? styles.collectionNoteFocus : ''} ${hoverLocked ? styles.collectionNoteHoverLocked : ''}`}
       data-collection-note="true"
       onPointerLeave={() => setHoverLocked(false)}
       aria-label="收藏例句便签"
@@ -2658,6 +2662,7 @@ function CollectionNote({
           setMode((current) => {
             if (current === 'closed') {
               onLockPreview()
+              setHoverLocked(false)
               return 'pinned'
             }
             onDismissPreview()
@@ -2675,12 +2680,10 @@ function CollectionNote({
               <stop offset="1" stopColor="#e9eef1" />
             </linearGradient>
           </defs>
-          <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" stroke="#6e7a82" strokeWidth="6" opacity=".28" transform="translate(1 2)" />
           <path d="M11 12v27c0 7 11 7 11 0V13c0-8-14-8-14 0v30c0 10 17 10 17 0V12" stroke="#b7c0c7" strokeWidth="3.2" />
           <path d="M14 15v25c0 5 5 5 5 0V15" stroke="#f7fafb" strokeWidth="1.1" opacity=".8" />
         </svg>
       </button>
-      <span className={styles.collectionClipEdge} aria-hidden="true" />
       <div className={styles.collectionBody}>
         <div className={styles.collectionHead}>
           <span>{effectiveSelectedWordId ? '当前词' : '本页'}</span>

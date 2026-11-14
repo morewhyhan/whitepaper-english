@@ -3891,31 +3891,29 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
     height 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.collectionNote:hover,
-.collectionNotePinned,
-.collectionNotePreview {
+.collectionNotePinned {
   width: min(326px, 27vw);
 }
 
 .collectionClipButton {
   position: absolute;
-  top: -20px;
-  right: -50px;
+  top: -12px;
+  right: -34px;
   z-index: 100;
-  width: 64px;
-  height: 94px;
+  width: 52px;
+  height: 76px;
   padding: 3px;
   border: 0;
   background: transparent;
   color: #aeb8bf;
   cursor: pointer;
-  transform: rotate(35deg);
+  transform: rotate(20deg);
   transition:
     left 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     right 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     top 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  filter: drop-shadow(0 4px 3px #3e4a5226) drop-shadow(0 1px 0 #fffdf2);
+  filter: drop-shadow(0 2px 2px #3e4a521f);
 }
 
 .collectionClipButton svg {
@@ -3959,9 +3957,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
     transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.collectionNote:hover .collectionBody,
-.collectionNotePinned .collectionBody,
-.collectionNotePreview .collectionBody {
+.collectionNotePinned .collectionBody {
   min-height: 330px;
   max-height: calc(100dvh - 90px);
   opacity: 1;
@@ -3979,7 +3975,7 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 
 .collectionNoteFocus .collectionClipButton {
   right: auto;
-  left: -40px;
+  left: -34px;
   top: 6px;
 }
 
@@ -4271,9 +4267,6 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
   transform: none !important;
 }
 
-.collectionNotePreview .collectionBody {
-  transform: none !important;
-}
 
 .collectionNoteHoverLocked {
   width: 34px !important;
@@ -4299,34 +4292,4 @@ main.layout:not(.zenLayout)::-webkit-scrollbar {
 }
 
 /* The paper edge crosses in front of the clip, so the wire looks threaded through the sheet. */
-.collectionClipEdge {
-  position: absolute;
-  top: -10px;
-  right: -2px;
-  z-index: 101;
-  width: 7px;
-  height: 104px;
-  pointer-events: none;
-  background: linear-gradient(90deg, #dad6cb, #fffdf8 55%, #f8f5ec);
-  box-shadow: -3px 0 5px #4d3d2324, 1px 0 0 #fffdf8;
-}
 
-.collectionNoteFocus .collectionClipEdge {
-  display: none;
-}
-
-/* A hover preview must win over a previous manual collapse. */
-.collectionNote.collectionNotePreview {
-  width: min(326px, 27vw) !important;
-}
-
-.collectionNote.collectionNotePreview .collectionBody {
-  min-height: 330px !important;
-  max-height: calc(100dvh - 90px) !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-
-.collectionNote.collectionNotePreview .collectionClipButton {
-  opacity: 1;
-}
